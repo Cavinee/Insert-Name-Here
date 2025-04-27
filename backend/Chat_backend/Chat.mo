@@ -8,8 +8,8 @@ import Buffer "mo:base/Buffer";
 import Principal "mo:base/Principal";
 import Source "mo:uuid/Source";
 import UUID "mo:uuid/UUID";
-import BaseProfile "canister:Profile_backend";
-import Util "main";
+import BaseProfile "../Profile_backend/BaseProfile";
+import Util "../Util";
 
 actor {
     type Message = {
