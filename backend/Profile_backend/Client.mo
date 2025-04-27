@@ -26,7 +26,6 @@ actor {
     };
 
    public func createClientProfile(
-    id: Principal,
     fullName: Text,
     email: Text,
     bio: Text,
@@ -34,14 +33,12 @@ actor {
     phoneNumber: Text,
     location: Text,
     dateOfBirth: Text, // Changed to non-optional to match type definition
-    walletAddress: Text,
     balance: Float,
-    postedProjects: ?[Text],
-    activeContracts: Nat
-) : async Bool {
+    ) : async Bool {
     try {
+        let clientId = await Util.generatePrincipal();
         let newProfile : ClientProfile = {
-            id = id;
+            id = clientId;
             fullName = fullName;
             email = email;
             bio = bio;
@@ -60,14 +57,14 @@ actor {
             // You might need to adjust your type definition if these fields are needed
         };
 
-        userProfiles.put(id, newProfile);
+        userProfiles.put(clientId, newProfile);
         return true; // Changed to return boolean instead of number
 
     } catch (e) {
         Debug.print("Error creating client profile: " # Error.message(e));  
         return false; // Changed to return boolean instead of number
     };
-};
+    };
 
     public query func getClientProfile(id: Principal): async ?ClientProfile {
         switch(userProfiles.get(id)) {
@@ -88,7 +85,6 @@ actor {
         profilePictureUrl : ?Text,
         phoneNumber : ?Text,
         location : ?Text,
-        rating : ?Float, // Optional until they get reviews
         password: ?Text,
         isVerified : ?Bool, // For email or phone verification
         isSuspended : ?Bool, // For admin actions
@@ -129,8 +125,9 @@ actor {
     };
 
     public func deleteClientProfile(id: Principal) : async Bool {
-        switch(userProfiles.remove(id)) {
+        switch (userProfiles.get(id)) {
             case (?profile) {
+                userProfiles.delete(id); // Use delete instead of remove
                 return true; // Deletion successful
             };
             case (null) {
@@ -186,4 +183,14 @@ actor {
         return Iter.toArray(userProfiles.entries());
     };
 
+    public shared func getUserById(id: Principal) : async ?ClientProfile {
+        switch (userProfiles.get(id)) {
+            case (?profile) {
+                return ?profile;
+            };
+            case (null) {
+                return null; // Profile not found
+            };
+        };
+    };
 }

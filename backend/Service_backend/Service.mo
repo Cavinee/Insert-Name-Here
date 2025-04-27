@@ -8,6 +8,7 @@ import Int "mo:base/Int";
 import Principal "mo:base/Principal";
 import Util "../Util";
 import Types "../Types";
+import Client "../Profile_backend/Client";
 
 actor {
 
@@ -287,16 +288,28 @@ actor {
 
   public func searchFreelancers(freelancerName : Text) : async [Types.Service] {
     let allServices = await listAllServices();
-    let searchQuery = #text (Text.toLowercase(freelancerName));
+    let searchQuery = Text.toLowercase(freelancerName);
+    
     if (Text.size(freelancerName) == 0) {
       return allServices;
     };
+    
     return Array.filter(
       allServices,
       func(service : Types.Service) : Bool {
-        // Text.contains(, searchQuery);
-        // TODO: Implement freelancer search logic
-        // Get freelancerName from freelancerId from service;
+        // Get the freelancer profile for this service
+        switch (Client.userProfiles.get(service.freelancerId)) {
+          case (null) { 
+            return false; // Freelancer not found
+          };
+          case (?freelancerProfile) {
+            // Convert freelancer name to lowercase for case-insensitive comparison
+            let freelancerNameLower = Text.toLowercase(freelancerProfile.fullName);
+            
+            // Check if the freelancer's name contains the search query
+            return Text.contains(freelancerNameLower, #text searchQuery);
+          };
+        };
       },
     );
   };
