@@ -8,7 +8,6 @@ import Buffer "mo:base/Buffer";
 import Principal "mo:base/Principal";
 import Source "mo:uuid/Source";
 import UUID "mo:uuid/UUID";
-import BaseProfile "../Profile_backend/BaseProfile";
 import Util "../Util";
 
 actor {
@@ -62,7 +61,7 @@ actor {
         };
     };
 
-    public shared func getUserChats(user: Principal): async Result.Result<[BaseProfile.BaseProfile], Text> {
+    public shared func getUserChats(user: Principal): async Result.Result<Array, Text> {
         let contactList = Vector.Vector<BaseProfile.BaseProfile>();
         for (chat in chats.vals()) {
             if (chat.user1 == user) {

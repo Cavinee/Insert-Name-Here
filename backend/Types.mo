@@ -4,7 +4,7 @@ import Text "mo:base/Text";
 module Types {
 
   // Base user profile shared by all users
-  public type BaseProfile = {
+  public type ClientProfile = {
     id : Principal;
     fullName : Text;
     email : Text;
@@ -13,15 +13,19 @@ module Types {
     phoneNumber : Text;
     location : Text;
     rating : ?Float; // Optional until they get reviews
-    createdAt : Text;
+    createdAt : Int;
+    password: Text;
+    role : Text; // "Freelancer", "Client", "Admin"
+    isVerified : Bool; // For email or phone verification
+    isSuspended : Bool; // For admin actions
+    balance : Float;
+    dateOfBirth : Text;
+
   };
 
   // Freelancer-specific profile extension
   public type FreelancerProfile = {
-    profile : BaseProfile;
-    dateOfBirth : Text;
-    walletAddress : Text;
-    balance : Float;
+    profile : ClientProfile;
     skills : [Text];
     portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
     reputationScore : Float; // Based on reviews, orders, etc.
@@ -30,19 +34,9 @@ module Types {
     availabilityStatus : Text; // "Available", "Busy", "On Vacation", etc.
   };
 
-  // Client-specific profile extension
-  public type ClientProfile = {
-    profile : BaseProfile;
-    dateOfBirth : ?Text; // Optional for clients
-    walletAddress : Text;
-    balance : Float;
-    postedProjects : ?[Text]; // IDs of gigs they posted
-    activeContracts : Nat; // Number of ongoing orders
-  };
-
   // Admin-specific profile extension
   public type AdminProfile = {
-    profile : BaseProfile;
+    id: Text;
     permissions : [Text]; // Example: ["banUser", "resolveDispute"]
     managedDisputes : ?[Text]; // IDs of disputes they handled
   };
@@ -94,7 +88,7 @@ module Types {
     id : Principal;
     senderId : Principal;
     content : Text;
-    timestamp : Text;
+    time : Int;
     messageHash : ?Text;
   };
   // CHAT SYSTEM END
@@ -137,7 +131,7 @@ module Types {
     paymentStatus : Text; // "Pending", "Paid", "Refunded", "Disputed"
     amount : Nat; // In smallest currency unit (e.g., cents)
     currency : Text; // "USD", "EUR"
-    deliveryDeadline : Nat; // Timestamp deadline
+    deliveryDeadline : Int; // Timestamp deadline
     cancellationReason : ?Text; // Optional if order is cancelled
   };
 
@@ -150,7 +144,7 @@ module Types {
     subcategory : Text;
     startingPrice : Nat; // From the cheapest ServiceTier
     currency : Text;
-    deliveryTimeMin : Nat; // Fastest delivery option in days
+    deliveryTimeMin : Int; // Fastest delivery option in days
     status : JobStatus;
     freelancerId : Principal;
     createdAt : Nat;
@@ -171,7 +165,7 @@ module Types {
     subcategory : Text;
     startingPrice : Nat; // From the cheapest ServiceTier
     currency : Text;
-    deliveryTimeMin : Nat; // Fastest delivery option in days
+    deliveryTimeMin : Int; // Fastest delivery option in days
     status : JobStatus;
     tags : [Text];
     attachments : ?[Text]; // Optional portfolio or example files
@@ -187,7 +181,7 @@ module Types {
     subcategory : ?Text;
     startingPrice : ?Nat; // From the cheapest ServiceTier
     currency : ?Text;
-    deliveryTimeMin : ?Nat; // Fastest delivery option in days
+    deliveryTimeMin : ?Int; // Fastest delivery option in days
     status : ?JobStatus;
     tags : ?[Text];
     attachments : ?[Text]; // Optional portfolio or example files
@@ -206,7 +200,7 @@ module Types {
     revisions : Nat;
     features : [Text];
   };
-
+  
   public type UnregisteredServiceTierFormData = {
     name : Text; // Basic, Standard, Premium
     description : Text;
@@ -237,7 +231,7 @@ module Types {
     recipientId : Principal;
     rating : Nat8; // 1 to 5 stars (validated)
     comment : Text;
-    createdAt : Nat; // timestamp (seconds since epoch)
+    createdAt : Int; // timestamp (seconds since epoch)
     freelancerResponse : ?Text; // freelancer can respond once
     reviewType : Text; // "client-to-freelancer" or "freelancer-to-client"
   };

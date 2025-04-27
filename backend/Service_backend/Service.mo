@@ -1,14 +1,11 @@
 import Time "mo:base/Time";
-import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
 import Result "mo:base/Result";
-import Iter "mo:base/Iter";
 import Array "mo:base/Array";
 import Option "mo:base/Option";
 import Text "mo:base/Text";
 import Int "mo:base/Int";
 import Principal "mo:base/Principal";
-import Nat "mo:base/Nat";
 import Util "../Util";
 import Types "../Types";
 
@@ -297,7 +294,9 @@ actor {
     return Array.filter(
       allServices,
       func(service : Types.Service) : Bool {
-        Text.contains(Text.toLowercase(freelancerName), searchQuery);
+        // Text.contains(, searchQuery);
+        // TODO: Implement freelancer search logic
+        // Get freelancerName from freelancerId from service;
       },
     );
   };
