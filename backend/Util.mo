@@ -1,8 +1,7 @@
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
-// import Source "mo:uuid/Source";
-
 import UUID "mo:uuid/UUID";
+import Source "mo:uuid/Source";
 module {
 
   // Base user profile shared by all users
@@ -261,7 +260,7 @@ module {
   };
 
   public func generateUUID() : async Text {
-    let id = Source.Source();
+    let id =  Source.Source();
 
     return UUID.toText(await id.new());
   };
