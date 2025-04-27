@@ -1,6 +1,5 @@
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
-import Source "mo:uuid/async/SourceV4";
 import UUID "mo:uuid/UUID";
 import Source "mo:uuid/Source";
 module {
