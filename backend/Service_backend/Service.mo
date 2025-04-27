@@ -1,4 +1,3 @@
-import Util "../Util";
 import Time "mo:base/Time";
 import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
@@ -7,30 +6,37 @@ import Iter "mo:base/Iter";
 import Array "mo:base/Array";
 import Option "mo:base/Option";
 import Text "mo:base/Text";
+import Int "mo:base/Int";
+import Principal "mo:base/Principal";
+import Nat "mo:base/Nat";
+import Util "../Util";
+import Types "../Types";
 
 actor {
-  let Service = Util.Service;
-  let ServiceTier = Util.ServiceTier;
-  let ServiceUpdate = Util.ServiceUpdateFormData;
 
-  stable var services = HashMap.HashMap<Text, Service>(10, Text.equal, Text.hash);
+  var services = HashMap.HashMap<Text, Types.Service>(10, Text.equal, Text.hash);
+  // var stable stableServices = [];
 
-  public shared func createService(freelancerId : Text, serviceData : Util.UnregisteredServiceFormData) : async Result.Result<Service, Text> {
+  public shared func createService(freelancerId : Text, serviceData : Types.UnregisteredServiceFormData) : async Result.Result<Types.Service, Text> {
     if (serviceData.tiers.size() == 0) {
       return #err("At least one tier is required");
     };
 
-    let now = Time.now();
-    let newService = {
-      id = Util.generateUUID();
-      freelancerId = freelancerId;
+    let now = Int.abs(Time.now()); // Convert Time to Nat
+    
+    // Convert Text to Principal
+    let freelancerPrincipal = Principal.fromText(freelancerId);
+    
+    let newService : Types.Service = {
+      id = await Util.generateUUID();
+      freelancerId = freelancerPrincipal;
       title = serviceData.title;
       description = serviceData.description;
       category = serviceData.category;
       subcategory = serviceData.subcategory;
       startingPrice = serviceData.tiers[0].price;
       currency = serviceData.currency;
-      deliveryTimeMin = Array.min(Array.map(serviceData.tiers, func(tier) { tier.deliveryDays }));
+      deliveryTimeMin = serviceData.tiers[0].deliveryDays;
       status = serviceData.status;
       tags = serviceData.tags;
       attachments = serviceData.attachments;
@@ -47,16 +53,16 @@ actor {
     return #ok(newService);
   };
 
-  public shared func updateService(serviceId : Text, updatedServiceData : Util.ServiceUpdateFormData) : async Result.Result<Service, Text> {
+  public shared func updateService(serviceId : Text, updatedServiceData : Types.ServiceUpdateFormData) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?serviceExists) {
-        let updatedService = {
+        let updatedService : Types.Service = {
           id = serviceExists.id;
           freelancerId = serviceExists.freelancerId;
           createdAt = serviceExists.createdAt;
-          updatedAt = Time.now();
-          title = updatedServiceData.title;
+          updatedAt = Int.abs(Time.now()); // Convert Time to Nat
+          title = Option.get(updatedServiceData.title, serviceExists.title);
           description = Option.get(updatedServiceData.description, serviceExists.description);
           category = Option.get(updatedServiceData.category, serviceExists.category);
           subcategory = Option.get(updatedServiceData.subcategory, serviceExists.subcategory);
@@ -65,7 +71,10 @@ actor {
           deliveryTimeMin = Option.get(updatedServiceData.deliveryTimeMin, serviceExists.deliveryTimeMin);
           status = Option.get(updatedServiceData.status, serviceExists.status);
           tags = Option.get(updatedServiceData.tags, serviceExists.tags);
-          attachments = Option.get(updatedServiceData.attachments, serviceExists.attachments);
+          attachments = switch (updatedServiceData.attachments) {
+            case (?newAttachments) { ?newAttachments };
+            case (null) { serviceExists.attachments };
+          };
           tiers = Option.get(updatedServiceData.tiers, serviceExists.tiers);
           contractType = Option.get(updatedServiceData.contractType, serviceExists.contractType);
           paymentMethod = Option.get(updatedServiceData.paymentMethod, serviceExists.paymentMethod);
@@ -82,13 +91,13 @@ actor {
     };
   };
 
-  public shared func addPackage(serviceId : Text, packageData : ServiceTier) : async Result.Result<Service, Text> {
-    let now = Time.now();
+  public shared func addPackage(serviceId : Text, packageData : Types.ServiceTier) : async Result.Result<Types.Service, Text> {
+    let now = Int.abs(Time.now()); // Convert Time to Nat
     let service = services.get(serviceId);
     switch (service) {
       case (?existingService) {
-        let newPackage = {
-          id = Util.generateUUID();
+        let newPackage: Types.ServiceTier = {
+          id = await Util.generateUUID();
           name = packageData.name;
           description = packageData.description;
           price = packageData.price;
@@ -97,7 +106,7 @@ actor {
           features = packageData.features;
         };
 
-        let updatedTiers = Array.append(existingService.tiers, [newPackage]);
+        let updatedTiers: [Types.ServiceTier] = Array.append(existingService.tiers, [newPackage]);
         let updatedService = {
           existingService with
           tiers = updatedTiers;
@@ -113,14 +122,14 @@ actor {
     };
   };
 
-  public shared func updatePackage(serviceId : Text, packageId : Text, updatedPackageData : Util.ServiceTierUpdateFormData) : async Result.Result<Service, Text> {
+  public shared func updatePackage(serviceId : Text, packageId : Text, updatedPackageData : Types.ServiceTierUpdateFormData) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?existingService) {
         var packageFound = false;
         let updatedTiers = Array.map(
           existingService.tiers,
-          func(tier : ServiceTier) : ServiceTier {
+          func(tier : Types.ServiceTier) : Types.ServiceTier {
             if (tier.id == packageId) {
               packageFound := true;
               {
@@ -142,10 +151,13 @@ actor {
           return #err("Package not found");
         };
 
-        let updatedService = {
+        // Convert Time.now() to Nat for updatedAt field
+        let now = Int.abs(Time.now());
+        
+        let updatedService : Types.Service = {
           existingService with
           tiers = updatedTiers;
-          updatedAt = Time.now();
+          updatedAt = now;
         };
 
         services.put(serviceId, updatedService);
@@ -157,13 +169,13 @@ actor {
     };
   };
 
-  public shared func removePackage(serviceId : Text, packageId : Text) : async Result.Result<Service, Text> {
+ public shared func removePackage(serviceId : Text, packageId : Text) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?existingService) {
         let updatedTiers = Array.filter(
           existingService.tiers,
-          func(tier : ServiceTier) : Bool {
+          func(tier : Types.ServiceTier) : Bool {
             tier.id != packageId;
           },
         );
@@ -171,11 +183,14 @@ actor {
         if (updatedTiers.size() == existingService.tiers.size()) {
           return #err("Package not found");
         };
+        
+        // Convert Time.now() to Nat for updatedAt field
+        let now = Int.abs(Time.now());
 
-        let updatedService = {
+        let updatedService : Types.Service = {
           existingService with
           tiers = updatedTiers;
-          updatedAt = Time.now();
+          updatedAt = now;
         };
 
         services.put(serviceId, updatedService);
@@ -188,19 +203,30 @@ actor {
   };
 
   public shared func deleteService(serviceId : Text) : async Result.Result<Text, Text> {
-    let service = services.get(serviceId);
-    switch (service) {
-      case (?serviceExists) {
-        services.remove(serviceId);
-        return #ok("Service deleted successfully");
-      };
-      case (null) {
-        return #err("Service not found");
+      let service = services.get(serviceId);
+      switch (service) {
+        case (?serviceExists) {
+          services := HashMap.mapFilter(
+            services,
+            Text.equal,
+            Text.hash,
+            func (key : Text, value : Types.Service) : ?Types.Service {
+              if (key == serviceId) {
+                return null; // Remove the service
+              } else {
+                return ?value; // Keep the service
+              };
+            },
+          );
+          return #ok("Service deleted successfully");
+        };
+        case (null) {
+          return #err("Service not found");
+        };
       };
     };
-  };
 
-  public shared func getServiceDetails(serviceId : Text) : async Result.Result<Service, Text> {
+  public shared func getServiceDetails(serviceId : Text) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?serviceExists) {
@@ -212,85 +238,92 @@ actor {
     };
   };
 
-  public shared func listAllServices() : async [Service] {
-    Iter.toArray(services.values());
+  public query func listAllServices() : async [Types.Service] {
+      var allServices: [Types.Service] = [];
+
+      
+      for ((key, value) in services.entries()) {
+          allServices := Array.append(allServices, [value]);
+      };
+      return allServices;
   };
 
-  public shared func listServicesByFreelancer(freelancerId : Principal) : async [Service] {
+  public func listServicesByFreelancer(freelancerId : Principal) : async [Types.Service] {
     let allServices = await listAllServices();
     Array.filter(
       allServices,
-      func(service : Service) : Bool {
+      func(service : Types.Service) : Bool {
         service.freelancerId == freelancerId;
       },
     );
   };
 
-  public query func searchServices(searchQuery : Text) : async [Service] {
+  public func searchServices(searchQuery : Text) : async [Types.Service] {
     let allServices = await listAllServices();
-    let searchQuery = Text.toLowercase(searchQuery);
-    if (Text.isEmpty(searchQuery)) {
+    if (Text.size(searchQuery) == 0) {
       return allServices;
     };
+    
+    let searchPattern = #text(Text.toLowercase(searchQuery));
+    
     return Array.filter(
       allServices,
-      func(service : Service) : Bool {
-        Text.contains(Text.toLowercase(service.title, searchQuery)) or Text.contains(Text.toLowercase(service.description, searchQuery));
+      func(service : Types.Service) : Bool {
+        Text.contains(Text.toLowercase(service.title), searchPattern) or 
+        Text.contains(Text.toLowercase(service.description), searchPattern);
       },
     );
-
   };
 
-  public query func filterServicesByCategory(category : Text) : async [Service] {
+  public func filterServicesByCategory(category : Text) : async [Types.Service] {
     let allServices = await listAllServices();
-    if (Text.isEmpty(category) or category == "All") {
+    if (Text.size(category) == 0 or category == "All") {
       return allServices;
     };
     return Array.filter(
       allServices,
-      func(service : Service) : Bool {
+      func(service : Types.Service) : Bool {
         service.category == category;
       },
     );
   };
 
-  public query func searchFreelancers(freelancerName : Text) : async [Service] {
+  public func searchFreelancers(freelancerName : Text) : async [Types.Service] {
     let allServices = await listAllServices();
-    let searchQuery = Text.toLowercase(freelancerName);
-    if (Text.isEmpty(searchQuery)) {
+    let searchQuery = #text (Text.toLowercase(freelancerName));
+    if (Text.size(freelancerName) == 0) {
       return allServices;
     };
     return Array.filter(
       allServices,
-      func(service : Service) : Bool {
-        Text.contains(Text.toLowercase(service.freelancerId, searchQuery));
+      func(service : Types.Service) : Bool {
+        Text.contains(Text.toLowercase(freelancerName), searchQuery);
       },
     );
   };
 
-  public query func filterServicesByTags(tags : [Text]) : async [Service] {
+  public func filterServicesByTags(tags : [Text]) : async [Types.Service] {
     let allServices = await listAllServices();
 
     // If no tags are provided, return all services
     if (tags.size() == 0) {
       return allServices;
     } else {
-      return Array.filter<Service>(
+      return Array.filter<Types.Service>(
         allServices,
-        func(service : Service) : Bool {
+        func(service : Types.Service) : Bool {
           // Convert service tags to lowercase for case-insensitive matching
-          let serviceTags = Array.mapFilter(service.tags, func tag = Text.toLowercase(tag));
+          let serviceTags = Array.map<Text, Text>(service.tags, func tag = Text.toLowercase(tag));
           // Convert the input tags to lowercase
-          let lowerTags = Array.mapFilter(tags, func tag = Text.toLowercase(tag));
+          let lowerTags = Array.map<Text, Text>(tags, func tag = Text.toLowercase(tag));
 
-          // Check if all tags in the service's tag list are contained in the input tags
-          let matchedTags = Array.mapFilter<Text, Text>(serviceTags, func(tag: Text): ?Text {
-                if (Array.contains(lowerTags, tag)) {
-                    return ?tag; // Tag found, include it
-                } else {
-                    return null; // Tag not found, exclude it
-                }
-            });
+          // Check if any tags in input tags are in the service's tag list
+          for (tag in lowerTags.vals()) {
+            if (Array.find<Text>(serviceTags, func t = t == tag) != null) {
+              return true;
+            };
+          };
+          return false;
         },
       );
     };
