@@ -8,7 +8,7 @@ import Int "mo:base/Int";
 import Principal "mo:base/Principal";
 import Util "../Util";
 import Types "../Types";
-import Client "../Profile_backend/Client";
+import Client "../Client_backend/Client";
 
 actor {
 
@@ -18,6 +18,7 @@ actor {
   public shared func createService(freelancerId : Text, serviceData : Types.UnregisteredServiceFormData) : async Result.Result<Types.Service, Text> {
     if (serviceData.tiers.size() == 0) {
       return #err("At least one tier is required");
+
     };
 
     let now = Int.abs(Time.now()); // Convert Time to Nat

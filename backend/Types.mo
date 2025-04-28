@@ -5,27 +5,64 @@ module Types {
 
   // Base user profile shared by all users
   public type ClientProfile = {
-    id : Principal;
-    fullName : Text;
-    email : Text;
-    bio : Text;
-    profilePictureUrl : Text;
-    phoneNumber : Text;
-    location : Text;
-    rating : ?Float; // Optional until they get reviews
-    createdAt : Int;
-    password: Text;
-    role : Text; // "Freelancer", "Client", "Admin"
-    isVerified : Bool; // For email or phone verification
-    isSuspended : Bool; // For admin actions
-    balance : Float;
-    dateOfBirth : Text;
+    id: Principal;
+    role: Text;
+    fullName: Text;
+    email: Text;
+    dateOfBirth: Text;
+    balance: Float;
+    profilePictureUrl: Text;
+    orderedServicesId: ?[Text];
+  };
 
+  public type ClientProfileUpdateFormData = {
+    role: Text;
+    fullName: Text;
+    email: Text;
+    dateOfBirth: Text;
+    balance: Float;
+    profilePictureUrl: Text;
+    orderedServicesId: ?[Text];
   };
 
   // Freelancer-specific profile extension
   public type FreelancerProfile = {
     profile : ClientProfile;
+    skills : [Text];
+    portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
+    reputationScore : Float; // Based on reviews, orders, etc.
+    completedProjects : Nat;
+    tokenRewards : Float; // For gamification or loyalty points
+    availabilityStatus : Text; // "Available", "Busy", "On Vacation", etc.
+  };
+
+  public type PortfolioId = Text;
+  // Main Portfolio Item type
+  public type PortfolioItem = {
+    id: PortfolioId;
+    freelancerId: Principal;
+    title: Text;
+    description: Text;
+    category: Text;
+    images: [Text];  // URLs to images
+    video: ?Text;    // URL to video if applicable
+    link: ?Text;     // External link if applicable
+  };
+
+  public type FreelancerProfileUpdateFormData = {
+    fullName : ?Text;
+    email : ?Text;
+    bio : ?Text;
+    profilePictureUrl : ?Text;
+    phoneNumber : ?Text;
+    location : ?Text;
+    rating : ?Float; // Optional until they get reviews
+    password: ?Text;
+    role : Text; // "Freelancer", "Client", "Admin"
+    isVerified : ?Bool; // For email or phone verification
+    isSuspended : ?Bool; // For admin actions
+    balance : ?Float;
+    dateOfBirth : ?Text;
     skills : [Text];
     portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
     reputationScore : Float; // Based on reviews, orders, etc.

@@ -6,14 +6,10 @@ import Random "mo:base/Random";
 import Array "mo:base/Array";
 import Source "mo:uuid/Source";
 import UUID "mo:uuid/UUID";
-import Client "../Profile_backend/Client";
+import Client "../Client_backend/Client";
 import Types "../Types";
 import Util "../Util";
 import Vector "mo:vector/Class";
-
-import Client "../Profile_backend/Client";
-import Types "../Types";
-import Util "../Util";
 actor {
     type Message = {
         id : Text;
