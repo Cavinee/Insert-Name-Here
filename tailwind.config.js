@@ -53,7 +53,33 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
-  		}
+  		},
+      keyframes: {
+        slideLeft: {
+          from: {
+            transform: 'translateX(20px)',
+            opacity: '0',
+          },
+          to: {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
+        },
+        slideRight: {
+          from: {
+            transform: 'translateX(-20px)',
+            opacity: '0',
+          },
+          to: {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
+        },
+      },
+      animation: {
+        'slide-left': 'slideLeft 0.3s ease-out forwards',
+        'slide-right': 'slideRight 0.3s ease-out forwards',
+      },
   	}
   },
   plugins: [require("tailwindcss-animate")],
