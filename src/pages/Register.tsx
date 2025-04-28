@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { Wallet, User, Briefcase, ChevronRight, ChevronLeft, Check, X, Eye, EyeOff } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Stepper, Step, StepLabel, Box } from "@mui/material"
+import { AuthClient } from "@dfinity/auth-client"
 import CustomizedSteppers from "@/components/progress-stepper"
 
 export default function RegisterForm() {
@@ -15,7 +15,6 @@ export default function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [formData, setFormData] = useState({
-    // Base Profile (assumed fields)
     name: "",
     email: "",
     username: "",
@@ -28,7 +27,7 @@ export default function RegisterForm() {
 
     // Freelancer specific
     dateOfBirth: "",
-    walletAddress: "",
+    principal: "",
     skills: [] as string[],
     availabilityStatus: "Available",
 
@@ -38,7 +37,7 @@ export default function RegisterForm() {
   })
 
   const [currentSkill, setCurrentSkill] = useState("")
-  const [walletConnected, setWalletConnected] = useState(false)
+  const [identityConnected, setIdentityConnected] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const steps = ["Account Type", "Basic Info", "Profile", "Wallet", "Review"]
@@ -73,7 +72,7 @@ export default function RegisterForm() {
       }
     }
 
-    if (currentStep === 4 && !walletConnected) {
+    if (currentStep === 4 && !identityConnected) {
       newErrors.wallet = "Wallet connection is required"
     }
 
@@ -115,15 +114,27 @@ export default function RegisterForm() {
     })
   }
 
-  const connectWallet = () => {
-    // Simulate wallet connection
-    setTimeout(() => {
-      setWalletConnected(true)
-      setFormData({
-        ...formData,
-        walletAddress: "0x" + Math.random().toString(16).slice(2, 12) + "...",
-      })
-    }, 1000)
+  const connectPrincipal = async () => {
+    const authClient = await AuthClient.create();
+
+    await authClient.login({
+      identityProvider: "https://identity.ic0.app/#authorize",
+      onSuccess: async () => {
+        const identity = authClient.getIdentity();
+        const principal = identity.getPrincipal().toText();
+
+        setStep(prevStep => prevStep + 1);
+
+        setTimeout(() => {
+          setIdentityConnected(true)
+          setFormData({
+            ...formData,
+            principal: principal,
+          })
+        }, 1000)
+      },
+    });
+
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -485,15 +496,14 @@ export default function RegisterForm() {
                 <Wallet size={40} className="text-emerald-600" />
               </div>
               <p className="mb-6 text-gray-600">
-                Connect your cryptocurrency wallet to receive payments and interact with smart contracts on our
-                platform.
+                Connect your Internet Identity
               </p>
 
-              {!walletConnected ? (
+              {!identityConnected ? (
                 <div>
                   <button
                     type="button"
-                    onClick={connectWallet}
+                    onClick={connectPrincipal}
                     className="bg-emerald-600 text-white px-6 py-2 rounded-md hover:bg-emerald-700"
                   >
                     Connect Wallet
@@ -504,15 +514,11 @@ export default function RegisterForm() {
                 <div className="bg-green-50 p-4 rounded-md">
                   <div className="flex items-center justify-center space-x-2 text-green-700">
                     <Check size={20} />
-                    <span>Wallet Connected</span>
+                    <span>Principal Connected</span>
                   </div>
-                  <p className="mt-2 text-gray-600">Wallet Address: {formData.walletAddress}</p>
+                  <p className="mt-2 text-gray-600">Principal Address: {formData.principal}</p>
                 </div>
               )}
-
-              <p className="mt-4 text-sm text-gray-500">
-                We support MetaMask, WalletConnect, and other popular Ethereum wallets.
-              </p>
             </div>
           </div>
         )
@@ -602,10 +608,10 @@ export default function RegisterForm() {
               )}
 
               <div>
-                <h3 className="font-semibold text-lg border-b pb-2 mb-2">Wallet Information</h3>
+                <h3 className="font-semibold text-lg border-b pb-2 mb-2">Principal Information</h3>
                 <div>
-                  <p className="text-sm text-gray-500">Wallet Address</p>
-                  <p className="font-mono">{formData.walletAddress}</p>
+                  <p className="text-sm text-gray-500">Principal Address</p>
+                  <p className="font-mono">{formData.principal}</p>
                 </div>
               </div>
             </div>
@@ -644,7 +650,7 @@ export default function RegisterForm() {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="bg-emerald-600 p-6">
-            <h1 className="text-white text-3xl font-bold text-center">Join BlockLance</h1>
+            <h1 className="text-white text-3xl font-bold text-center">Join Cointract</h1>
             {step < 6 && (
               <div className="mt-7">
                 <CustomizedSteppers step={step} />
