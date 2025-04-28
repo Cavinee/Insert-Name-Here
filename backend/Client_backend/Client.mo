@@ -44,7 +44,7 @@ actor {
             Debug.print("Error updating user: " # Error.message(e));
             return 0;
         };
-        
+        return 0;
     };
 
     // public func deleteClientProfile(id: Principal) : async Bool {
