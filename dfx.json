@@ -2,15 +2,33 @@
   "canisters": {
     "backend": {
       "type": "motoko",
-      "main": "backend/Service_backend/Service.mo",
-      "declarations": {
-        "node_compatibility": true
-      }
+      "main": "backend/Payment/Payment.mo"
     },
     "frontend": {
       "dependencies": ["backend"],
       "type": "assets",
       "source": ["dist/"]
+    },
+    "icp_ledger_canister": {
+      "type": "custom", 
+      "wasm": "ic-icrc1-ledger.wasm",
+      "candid": "ledger.did",
+      "init_arg": "(variant { Init = record { token_symbol = \"WEEDTOKEN\"; token_name = \"WeedCoin\";metadata = vec {}; minting_account = record { owner = principal \"mhedm-2glse-ttjak-ycmxs-jep62-ldkwx-x45jc-l75sm-codjj-czvwo-6qe\"; subaccount = null }; transfer_fee = 1000; decimals = opt 8; initial_balances = vec { record { record { owner = principal \"mhedm-2glse-ttjak-ycmxs-jep62-ldkwx-x45jc-l75sm-codjj-czvwo-6qe\"; subaccount = null }; 1000000 } }; archive_options = record { num_blocks_to_archive = 1000; trigger_threshold = 100; controller_id = principal \"mhedm-2glse-ttjak-ycmxs-jep62-ldkwx-x45jc-l75sm-codjj-czvwo-6qe\"; cycles_for_archive_creation = opt 10000000000000 }; feature_flags = opt record { icrc2 = true }; max_message_size_bytes = null; transaction_window = null; max_memo_length = null } })",      
+      "remote": {
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    },
+    "ic": {
+      "providers": ["https://ic0.app/"],
+      "type": "persistent"
     }
   },
   "defaults": {

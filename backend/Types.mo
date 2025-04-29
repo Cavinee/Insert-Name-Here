@@ -8,6 +8,7 @@ module Types {
     id : Principal;
     fullName : Text;
     email : Text;
+    password: Text;
     bio : Text;
     profilePictureUrl : Text;
     phoneNumber : Text;
@@ -62,12 +63,17 @@ module Types {
   };
 
   public type Escrow = {
-    id : Principal;
-    contractType : Text;
-    balance : Float;
-    activeContracts : ?[Text];
-    executedTransactions : Nat;
-    freelancerPayoutRules : Text;
+    id : Nat;
+    orderId : Principal; //might change to serviceId / orderId
+    clientId : Principal;
+    freelancerId: Principal;
+    amount : Nat;
+    currency : Text; 
+    created_at : Nat;
+    deadline : Int; //Time based; if past a certain date, immediately transfer the money
+    jobStatus: JobStatus; //whether its disputed, cancelled, or whatever, so it can decide to refund, etc
+    released : Bool;
+    refunded : Bool;
   };
 
   public type SavedFavorite = {
@@ -124,20 +130,26 @@ module Types {
     #Hourly;
   };
 
+  public type PaymentStatus = {
+    #Pending;
+    #Paid;
+    #Refunded;
+    #Disputed;
+  };
+
   // Order represents a transaction between client and freelancer
   public type Order = {
-    id : Text;
+    id : Principal;
     clientId : Principal;
     freelancerId : Principal;
     serviceId : Principal;
     packageId : Text;
     status : JobStatus;
-    createdAt : Nat;
-    updatedAt : Nat;
-    paymentStatus : Text; // "Pending", "Paid", "Refunded", "Disputed"
-    amount : Nat; // In smallest currency unit (e.g., cents)
-    currency : Text; // "USD", "EUR"
-    deliveryDeadline : Nat; // Timestamp deadline
+    createdAt : Int;
+    updatedAt : Int;
+    paymentStatus : PaymentStatus; // "Pending", "Paid", "Refunded", "Disputed"
+    currency : Text; // btc,eth
+    deliveryDeadline : Int; // Timestamp deadline
     cancellationReason : ?Text; // Optional if order is cancelled
   };
 
