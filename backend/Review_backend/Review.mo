@@ -1,4 +1,5 @@
 import Time "mo:base/Time";
+import Time "mo:base/Time";
 import Principal "mo:base/Principal";
 import Array "mo:base/Array";
 import Iter "mo:base/Iter";
@@ -6,7 +7,13 @@ import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
 import Types "../Types";
 import Error "mo:base/Error";
+import Iter "mo:base/Iter";
+import Text "mo:base/Text";
+import TrieMap "mo:base/TrieMap";
+import Types "../Types";
+import Error "mo:base/Error";
 import Nat8 "mo:base/Nat8";
+import Nat "mo:base/Nat";
 import Nat "mo:base/Nat";
 import Float "mo:base/Float";
 import Int "mo:base/Int";
@@ -36,8 +43,45 @@ actor Reviews {
     if (params.reviewType != "client-to-freelancer" and 
         params.reviewType != "freelancer-to-client") {
       throw Error.reject("Invalid review type");
+actor Reviews {
+  type Review = Types.Review;
+  type ReviewDisplay = Types.ReviewDisplay;
+  type AddReviewParams = Types.AddReviewParams;
+
+  // Storage
+  private let reviews = TrieMap.TrieMap<Principal, Review>(Principal.equal, Principal.hash);
+  private let orderToReview = TrieMap.TrieMap<Text, Principal>(Text.equal, Text.hash);
+
+  // Add review with auto-generated metadata
+  public shared ({ caller }) func addReview(params : AddReviewParams) : async Principal {
+    // Validation
+    if (orderToReview.get(params.orderId) != null) {
+      throw Error.reject("This order already has a review");
+    };
+    if (params.rating < 1 or params.rating > 5) {
+      throw Error.reject("Rating must be 1-5 stars");
+    };
+    if (Text.size(params.comment) > 1000) {
+      throw Error.reject("Comment too long (max 1000 chars)");
+    };
+    if (params.reviewType != "client-to-freelancer" and 
+        params.reviewType != "freelancer-to-client") {
+      throw Error.reject("Invalid review type");
     };
 
+    // Generate review data
+    let reviewId = Principal.fromActor(Reviews);
+    let newReview : Review = {
+      id = reviewId;
+      orderId = params.orderId;
+      serviceId = params.serviceId;
+      reviewerId = caller; // Use actual caller
+      recipientId = params.recipientId;
+      rating = params.rating;
+      comment = params.comment;
+      createdAt = Time.now();
+      freelancerResponse = null;
+      reviewType = params.reviewType;
     // Generate review data
     let reviewId = Principal.fromActor(Reviews);
     let newReview : Review = {
