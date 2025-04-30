@@ -1,114 +1,157 @@
-import Types "../Types";
-import TrieMap "mo:base/TrieMap";
+import Time "mo:base/Time";
 import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Result "mo:base/Result";
-import Debug "mo:base/Debug";
-import Option "mo:base/Option";
 import Array "mo:base/Array";
-import Nat8 "mo:base/Nat8";
-import Float "mo:base/Float";
 import Iter "mo:base/Iter";
+import Text "mo:base/Text";
+import TrieMap "mo:base/TrieMap";
+import Types "../Types";
+import Error "mo:base/Error";
+import Nat8 "mo:base/Nat8";
+import Nat "mo:base/Nat";
+import Float "mo:base/Float";
+import Int "mo:base/Int";
+// import Char "mo:base/Char";
 
-module ReviewBackend {
-    public type State = TrieMap.TrieMap<Principal, [Types.Review]>;
+actor Reviews {
+  type Review = Types.Review;
+  type ReviewDisplay = Types.ReviewDisplay;
+  type AddReviewParams = Types.AddReviewParams;
 
-    public func empty() : State {
-        TrieMap.TrieMap(Principal.equal, Principal.hash);
+  // Storage
+  private let reviews = TrieMap.TrieMap<Principal, Review>(Principal.equal, Principal.hash);
+  private let orderToReview = TrieMap.TrieMap<Text, Principal>(Text.equal, Text.hash);
+
+  // Add review with auto-generated metadata
+  public shared ({ caller }) func addReview(params : AddReviewParams) : async Principal {
+    // Validation
+    if (orderToReview.get(params.orderId) != null) {
+      throw Error.reject("This order already has a review");
+    };
+    if (params.rating < 1 or params.rating > 5) {
+      throw Error.reject("Rating must be 1-5 stars");
+    };
+    if (Text.size(params.comment) > 1000) {
+      throw Error.reject("Comment too long (max 1000 chars)");
+    };
+    if (params.reviewType != "client-to-freelancer" and 
+        params.reviewType != "freelancer-to-client") {
+      throw Error.reject("Invalid review type");
     };
 
-    public func submitReview(state : State, review : Types.Review) {
-        switch (state.get(review.recipientId)) {
-            case (?existingReviews) {
-                state.put(review.recipientId, Array.append(existingReviews, [review]));
-            };
-            case (null) {
-                state.put(review.recipientId, [review]);
-            };
+    // Generate review data
+    let reviewId = Principal.fromActor(Reviews);
+    let newReview : Review = {
+      id = reviewId;
+      orderId = params.orderId;
+      serviceId = params.serviceId;
+      reviewerId = caller; // Use actual caller
+      recipientId = params.recipientId;
+      rating = params.rating;
+      comment = params.comment;
+      createdAt = Time.now();
+      freelancerResponse = null;
+      reviewType = params.reviewType;
+    };
+
+    // Save to storage
+    reviews.put(reviewId, newReview);
+    orderToReview.put(params.orderId, reviewId);
+    reviewId
+  };
+
+  // Get reviews with multiple filters
+  public query func getReviews(
+    serviceId : ?Text,
+    recipientId : ?Principal,
+    minRating : ?Nat8,
+    limit : ?Nat
+  ) : async [ReviewDisplay] {
+    let allReviews = Iter.toArray(reviews.vals());
+    
+    let filtered = Array.filter<Review>(allReviews, func(r) {
+      let serviceMatch = switch serviceId {
+        case (?id) r.serviceId == id;
+        case null true;
+      };
+      let recipientMatch = switch recipientId {
+        case (?id) r.recipientId == id;
+        case null true;
+      };
+      let ratingMatch = switch minRating {
+        case (?min) r.rating >= min;
+        case null true;
+      };
+      serviceMatch and recipientMatch and ratingMatch
+    });
+
+    let limited = switch limit {
+      case (?l) Array.take(filtered, l);
+      case null filtered;
+    };
+
+    Array.map<Review, ReviewDisplay>(limited, func(r) {
+      {
+        review = r;
+        reviewerPrincipalShort = principalToShortText(r.reviewerId);
+        createdAtDate = formatTimestamp(r.createdAt);
+      }
+    })
+  };
+
+  // Format principal for display
+  private func principalToShortText(p : Principal) : Text {
+    let full = Principal.toText(p);
+    if (Text.size(full) <= 8) {
+      full
+    } else {
+      // Manual character iteration
+      var result = "";
+      var count = 0;
+      for (c in Text.toIter(full)) {
+        if (count < 5) {
+          result := Text.concat(result, Text.fromChar(c));
+          count += 1;
         };
-    };
+      };
+      Text.concat(result, "...")
+    }
+  };
 
-    public func getReviewsForRecipient(state : State, recipientId : Principal) : [Types.Review] {
-        switch (state.get(recipientId)) {
-            case (?recipientReviews) { return recipientReviews };
-            case null { return [] };
+  // Format timestamp to date
+  private func formatTimestamp(t : Int) : Text {
+    let secondsPerDay = 86400;
+    let daysSinceEpoch = t / secondsPerDay;
+    // Simple date formatting (can be improved)
+    "Day " # Int.toText(daysSinceEpoch);
+  };
+
+  // Reply to review once
+  public shared ({ caller }) func respondToReview(reviewId : Principal, response : Text) : async () {
+    switch (reviews.get(reviewId)) {
+      case (?review) {
+        if (review.recipientId != caller) {
+          throw Error.reject("Only review recipient can respond");
         };
-    };
-
-    public func getAverageRatingForRecipient(state : State, recipientId : Principal) : Float {
-        switch (state.get(recipientId)) {
-            case (?recipientReviews) {
-                var totalRating : Nat = 0;
-                var count : Nat = 0;
-                for (review in recipientReviews.vals()) {
-                    totalRating += Nat8.toNat(review.rating);
-                    count += 1;
-                };
-                if (count > 0) {
-                    return Float.fromInt(totalRating) / Float.fromInt(count);
-                } else {
-                    return 0.0;
-                };
-            };
-            case null { return 0.0 };
+        if (review.freelancerResponse != null) {
+          throw Error.reject("Already responded");
         };
+        let updated = { review with freelancerResponse = ?response };
+        reviews.put(reviewId, updated);
+      };
+      case null throw Error.reject("Review not found");
     };
+  };
 
-    public func toArray(state : State) : [(Principal, [Types.Review])] {
-        Iter.toArray(state.entries()); // Untuk backup stable 
-    };
+  // Calc avg rating
+  public func getAverageRating(recipientId : Principal) : async Float {
+    let relevantReviews = await getReviews(null, ?recipientId, null, null);
+    if (relevantReviews.size() == 0) return 0.0;
 
-    public func fromArray(entries : [(Principal, [Types.Review])]) : State {
-        let map = empty();
-        for ((k, v) in entries.vals()) {
-            map.put(k, v);
-        };
-        map
-    };
-};
-
-actor {
-    // Stable backup
-    stable var clientToFreelancerBackup : [(Principal, [Types.Review])] = [];
-    stable var freelancerToClientBackup : [(Principal, [Types.Review])] = [];
-
-    // Runtime TrieMap
-    var clientToFreelancerReviews = ReviewBackend.empty();
-    var freelancerToClientReviews = ReviewBackend.empty();
-
-    system func preupgrade() {
-        clientToFreelancerBackup := ReviewBackend.toArray(clientToFreelancerReviews);
-        freelancerToClientBackup := ReviewBackend.toArray(freelancerToClientReviews);
-    };
-
-    system func postupgrade() {
-        clientToFreelancerReviews := ReviewBackend.fromArray(clientToFreelancerBackup);
-        freelancerToClientReviews := ReviewBackend.fromArray(freelancerToClientBackup);
-    };
-
-    public func submitClientToFreelancerReview(review: Types.Review) : async Result.Result<Text, Text> {
-        ReviewBackend.submitReview(clientToFreelancerReviews, review);
-        return #ok("Review submitted successfully!");
-    };
-
-    public func submitFreelancerToClientReview(review: Types.Review) : async Result.Result<Text, Text> {
-        ReviewBackend.submitReview(freelancerToClientReviews, review);
-        return #ok("Review submitted successfully!");
-    };
-
-    public func getClientToFreelancerReviews(freelancerId: Principal) : async [Types.Review] {
-        return ReviewBackend.getReviewsForRecipient(clientToFreelancerReviews, freelancerId);
-    };
-
-    public func getFreelancerToClientReviews(clientId: Principal) : async [Types.Review] {
-        return ReviewBackend.getReviewsForRecipient(freelancerToClientReviews, clientId);
-    };
-
-    public func getAverageClientToFreelancerRating(freelancerId: Principal) : async Float {
-        return ReviewBackend.getAverageRatingForRecipient(clientToFreelancerReviews, freelancerId);
-    };
-
-    public func getAverageFreelancerToClientRating(clientId: Principal) : async Float {
-        return ReviewBackend.getAverageRatingForRecipient(freelancerToClientReviews, clientId);
-    };
+    let total = Array.foldLeft<ReviewDisplay, Nat>(
+      relevantReviews,
+      0,
+      func(acc, r) { acc + Nat8.toNat(r.review.rating) }
+    );
+    Float.fromInt(total) / Float.fromInt(relevantReviews.size())
+  };
 };

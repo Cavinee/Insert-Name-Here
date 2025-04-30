@@ -2,7 +2,7 @@
   "canisters": {
     "backend": {
       "type": "motoko",
-      "main": "backend/Client_backend/Client.mo",
+      "main": "backend/Backend.mo",
       "declarations": {
         "node_compatibility": true
       }
@@ -11,7 +11,43 @@
       "dependencies": ["backend"],
       "type": "assets",
       "source": ["dist/"]
+    },
+    "Service_backend": {
+      "type": "motoko",
+      "main": "backend/Service_backend/Service.mo",
+      "declarations": {
+        "node_compatibility": true
+      }
+    },
+    "Order_backend": {
+      "type": "motoko",
+      "main": "backend/Order_backend/Order.mo",
+      "declarations": {
+        "node_compatibility": true
+      }
+    },
+    "Client_backend": {
+      "type": "motoko",
+      "main": "backend/Client_backend/Client.mo",
+      "declarations": {
+        "node_compatibility": true
+      }
+    },
+    "Freelancer_backend": {
+      "type": "motoko",
+      "main": "backend/Freelancer_backend/Freelancer.mo",
+      "declarations": {
+        "node_compatibility": true
+      }
+    },
+    "Review_backend": {
+      "type": "motoko",
+      "main": "backend/Review_backend/Review.mo",
+      "declarations": {
+        "node_compatibility": true
+      }
     }
+    
   },
   "defaults": {
     "build": {

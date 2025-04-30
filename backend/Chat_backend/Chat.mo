@@ -2,14 +2,12 @@ import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
 import Text "mo:base/Text";
 import Result "mo:base/Result";
-import Random "mo:base/Random";
 import Array "mo:base/Array";
-import Source "mo:uuid/Source";
-import UUID "mo:uuid/UUID";
-import Client "../Client_backend/Client";
+import Client "canister:Client_backend";
 import Types "../Types";
 import Util "../Util";
 import Vector "mo:vector/Class";
+
 actor {
     type Message = {
         id : Text;
@@ -41,8 +39,8 @@ actor {
     };
 
     //get all chat
-    public shared func getAllChats(currUser : Principal) : async Result.Result<[UserProfile.UserProfile], Text> {
-        let contactList = Vector.Vector<UserProfile.UserProfile>();
+    public shared func getAllChats(currUser : Principal) : async Result.Result<[Types.ClientProfile], Text> {
+        let contactList = Vector.Vector<Types.ClientProfile>();
         for (chat in chats.vals()) {
             if (chat.user1 == currUser) {
                 let contact = await Client.getUser(chat.user2);
@@ -55,7 +53,7 @@ actor {
                     };
                 };
             } else if (chat.user2 == currUser) {
-                let contact = await UserProfile.getUser(chat.user1);
+                let contact = await Client.getUser(chat.user1);
                 switch (contact) {
                     case (?userProfile) {
                         contactList.add(userProfile);
@@ -140,7 +138,7 @@ actor {
                     let message = getMessage(messageId);
                     switch (message) {
                         case (#ok(message)) {
-                            let sender = await UserProfile.getUser(message.sender); //nanti import
+                            let sender = await Client.getUser(message.sender); //nanti import
                             var senderName = "";
                             var senderPfp = "";
                             switch (sender) {

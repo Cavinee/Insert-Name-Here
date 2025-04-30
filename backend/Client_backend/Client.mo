@@ -1,9 +1,7 @@
 import Principal "mo:base/Principal";
 import Iter "mo:base/Iter";
 import TrieMap "mo:base/TrieMap";
-import Bool "mo:base/Bool";
 import Debug "mo:base/Debug";
-import Option "mo:base/Option";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
 import Types "../Types";
@@ -87,13 +85,13 @@ actor {
     };
 
 
-    public func getRole(id: Principal): async Text {
+    public func getRole(id: Principal): async Types.UserRole {
         switch(userProfiles.get(id)){
             case (?profile) {
                 return profile.role; // Return the role of the user
             };
             case (null) {
-                return "Client"; // Profile not found
+                return #Client; // Profile not found
             };
         }
     };
@@ -128,5 +126,6 @@ actor {
             };
         };
     };
+
 
 };

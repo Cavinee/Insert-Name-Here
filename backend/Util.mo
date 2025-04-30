@@ -7,27 +7,27 @@ import Int "mo:base/Int";
 
 module {
   
-  public shared func generateUUID() : async Text {
+  public func generateUUID() : async Text {
     let source = Source.Source(); // move inside function
     let uuid = await source.new();
     return UUID.toText(uuid);
   };
 
-  public shared func getCurrentTime() : async Int {
+  public func getCurrentTime() : async Int {
     let currentTime = Time.now();
     return currentTime;
   };
 
-  public shared func generatePrincipal() : async Principal {
+  public func generatePrincipal() : async Principal{
     Principal.fromText(await generateUUID());
   };
 
 
-  public shared func getCurrentTimeSync() : async Int {
+  public func getCurrentTimeSync() : async Int {
     return Time.now();
   };
 
-  public shared func generateUniqueId() : async Text {
+  public func generateUniqueId() : async Text {
     let now = Time.now();
     let timeComponent = Int.toText(now);
     let randomSuffix = Int.toText(now % 10000);

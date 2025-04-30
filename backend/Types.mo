@@ -6,34 +6,41 @@ module Types {
   // Base user profile shared by all users
   public type ClientProfile = {
     id: Principal;
-    role: Text;
+    role: UserRole;
     fullName: Text;
     email: Text;
     dateOfBirth: Text;
     balance: Float;
     profilePictureUrl: Text;
-    orderedServicesId: ?[Text];
+    orderedServicesId: [Principal];
   };
 
   public type ClientProfileUpdateFormData = {
-    role: Text;
+    role: UserRole;
     fullName: Text;
     email: Text;
     dateOfBirth: Text;
     balance: Float;
     profilePictureUrl: Text;
-    orderedServicesId: ?[Text];
+    orderedServicesId: [Principal];
   };
 
   // Freelancer-specific profile extension
   public type FreelancerProfile = {
-    profile : ClientProfile;
+    id: Principal;
+    role: UserRole;
+    fullName: Text;
+    email: Text;
+    dateOfBirth: Text;
+    balance: Float;
+    profilePictureUrl: Text;
+    orderedServicesId: [Principal];
     skills : [Text];
     portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
     reputationScore : Float; // Based on reviews, orders, etc.
     completedProjects : Nat;
     tokenRewards : Float; // For gamification or loyalty points
-    availabilityStatus : Text; // "Available", "Busy", "On Vacation", etc.
+    availabilityStatus : AvailabilityStatus; // "Available", "Busy", "On Vacation", etc.
   };
 
   public type PortfolioId = Text;
@@ -49,27 +56,27 @@ module Types {
     link: ?Text;     // External link if applicable
   };
 
-  public type FreelancerProfileUpdateFormData = {
-    fullName : ?Text;
-    email : ?Text;
-    bio : ?Text;
-    profilePictureUrl : ?Text;
-    phoneNumber : ?Text;
-    location : ?Text;
-    rating : ?Float; // Optional until they get reviews
-    password: ?Text;
-    role : Text; // "Freelancer", "Client", "Admin"
-    isVerified : ?Bool; // For email or phone verification
-    isSuspended : ?Bool; // For admin actions
-    balance : ?Float;
-    dateOfBirth : ?Text;
-    skills : [Text];
-    portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
-    reputationScore : Float; // Based on reviews, orders, etc.
-    completedProjects : Nat;
-    tokenRewards : Float; // For gamification or loyalty points
-    availabilityStatus : Text; // "Available", "Busy", "On Vacation", etc.
-  };
+  // public type FreelancerProfileUpdateFormData = {
+  //   fullName : ?Text;
+  //   email : ?Text;
+  //   bio : ?Text;
+  //   profilePictureUrl : ?Text;
+  //   phoneNumber : ?Text;
+  //   location : ?Text;
+  //   rating : ?Float; // Optional until they get reviews
+  //   password: ?Text;
+  //   role :  UserRole; // "Freelancer", "Client", "Admin"
+  //   isVerified : ?Bool; // For email or phone verification
+  //   isSuspended : ?Bool; // For admin actions
+  //   balance : ?Float;
+  //   dateOfBirth : ?Text;
+  //   skills : [Text];
+  //   portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
+  //   reputationScore : Float; // Based on reviews, orders, etc.
+  //   completedProjects : Nat;
+  //   tokenRewards : Float; // For gamification or loyalty points
+  //   availabilityStatus : AvailabilityStatus; // "Available", "Busy", "On Vacation", etc.
+  // };
 
   // Admin-specific profile extension
   public type AdminProfile = {
@@ -93,12 +100,24 @@ module Types {
   };
 
   public type Escrow = {
-    id : Principal;
-    contractType : Text;
-    balance : Float;
-    activeContracts : ?[Text];
-    executedTransactions : Nat;
-    freelancerPayoutRules : Text;
+    id : Nat;
+    orderId : Principal; //might change to serviceId / orderId
+    clientId : Principal;
+    freelancerId: Principal;
+    amount : Nat;
+    currency : Text; 
+    created_at : Nat;
+    deadline : Int; //Time based; if past a certain date, immediately transfer the money
+    jobStatus: JobStatus; //whether its disputed, cancelled, or whatever, so it can decide to refund, etc
+    released : Bool;
+    refunded : Bool;
+  };
+
+  public type PaymentStatus = {
+    #Pending;
+    #Paid;
+    #Refunded;
+    #Disputed;
   };
 
   public type SavedFavorite = {
@@ -134,13 +153,29 @@ module Types {
 
   // Enum for job/service/order status
   public type JobStatus = {
-    #Pending;
-    #Active;
     #InProgress;
     #Delivered;
     #Completed;
     #Cancelled;
     #Disputed;
+  };
+
+  public type OrderStatus = {
+    #Accepted;
+    #Rejected;
+    #Undecided;
+  };
+
+  public type AvailabilityStatus = {
+    #Available;
+    #Busy;
+    #OnVacation;
+  };
+
+  public type UserRole = {
+    #Client;
+    #Freelancer;
+    #Admin;
   };
 
   // Enum for payment method
@@ -157,19 +192,26 @@ module Types {
 
   // Order represents a transaction between client and freelancer
   public type Order = {
-    id : Text;
+    id : Principal;
     clientId : Principal;
     freelancerId : Principal;
-    serviceId : Principal;
+    serviceId : Text;
     packageId : Text;
-    status : JobStatus;
-    createdAt : Nat;
-    updatedAt : Nat;
-    paymentStatus : Text; // "Pending", "Paid", "Refunded", "Disputed"
-    amount : Nat; // In smallest currency unit (e.g., cents)
-    currency : Text; // "USD", "EUR"
+    orderStatus : OrderStatus; // "Accepted", "Rejected", "Undecided"
+    jobStatus : JobStatus; // "InProgress", "Delivered", "Completed", "Cancelled", "Disputed"
+    createdAt : Int;
+    updatedAt : Int;
+    paymentStatus : PaymentStatus; // "Pending", "Paid", "Refunded", "Disputed"
+    currency : Text; // btc,eth
     deliveryDeadline : Int; // Timestamp deadline
     cancellationReason : ?Text; // Optional if order is cancelled
+    revisions: [Revision];
+    revisionMaxLimit : Nat;
+  };
+  
+  public type Image  = {
+    imageUrl: Text;
+    imageTag: Text;
   };
 
   // Service (like a Fiverr gig)
@@ -187,13 +229,14 @@ module Types {
     createdAt : Nat;
     updatedAt : Nat;
     tags : [Text];
-    attachments : ?[Text]; // Optional portfolio or example files
+    attachments : ?[Image]; // Optional portfolio or example files
     tiers : [ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
     contractType : ContractType;
     paymentMethod : PaymentMethod;
     averageRating : ?Float; // Auto-calculated
     totalReviews : Nat;
   };
+
 
   public type UnregisteredServiceFormData = {
     title : Text;
@@ -205,7 +248,7 @@ module Types {
     deliveryTimeMin : Int; // Fastest delivery option in days
     status : JobStatus;
     tags : [Text];
-    attachments : ?[Text]; // Optional portfolio or example files
+    attachments : ?[Image]; // Optional portfolio or example files
     tiers : [ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
     contractType : ContractType;
     paymentMethod : PaymentMethod;
@@ -221,7 +264,7 @@ module Types {
     deliveryTimeMin : ?Int; // Fastest delivery option in days
     status : ?JobStatus;
     tags : ?[Text];
-    attachments : ?[Text]; // Optional portfolio or example files
+    attachments : ?[Image]; // Optional portfolio or example files
     tiers : ?[ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
     contractType : ?ContractType;
     paymentMethod : ?PaymentMethod;
@@ -236,6 +279,12 @@ module Types {
     deliveryDays : Nat;
     revisions : Nat;
     features : [Text];
+  };
+
+  public type Revision = {
+    id : Text; // Each revision can have an ID (for ordering)
+    description : Text;
+    numberOfRevision : Nat;
   };
   
   public type UnregisteredServiceTierFormData = {
@@ -263,7 +312,7 @@ module Types {
   public type Review = {
     id : Principal;
     orderId : Text;
-    serviceId : Principal;
+    serviceId : Text;
     reviewerId : Principal;
     recipientId : Principal;
     rating : Nat8; // 1 to 5 stars (validated)
@@ -271,6 +320,21 @@ module Types {
     createdAt : Int; // timestamp (seconds since epoch)
     freelancerResponse : ?Text; // freelancer can respond once
     reviewType : Text; // "client-to-freelancer" or "freelancer-to-client"
+  };
+
+    public type ReviewDisplay = {
+    review : Review;
+    reviewerPrincipalShort : Text; // First 5 chars of principal
+    createdAtDate : Text; // Human-readable date
+  };
+
+  public type AddReviewParams = {
+    orderId : Text;
+    serviceId : Text;
+    recipientId : Principal;
+    rating : Nat8;
+    comment : Text;
+    reviewType : Text;
   };
 
   public type Cancellation = {
