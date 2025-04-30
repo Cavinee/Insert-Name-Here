@@ -190,13 +190,6 @@ module Types {
     #Hourly;
   };
 
-  public type PaymentStatus = {
-    #Pending;
-    #Paid;
-    #Refunded;
-    #Disputed;
-  };
-
   // Order represents a transaction between client and freelancer
   public type Order = {
     id : Principal;

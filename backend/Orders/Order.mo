@@ -33,6 +33,7 @@ actor {
       serviceId = serviceId;
       packageId = packageId;
       status = status;
+      jobStatus = 
       createdAt = Time.now();
       updatedAt = Time.now();
       paymentStatus = paymentStatus;

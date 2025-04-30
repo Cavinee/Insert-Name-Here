@@ -9,7 +9,6 @@ import Int "mo:base/Int";
 import Blob "mo:base/Blob";
 import Error "mo:base/Error";
 import Ledger "canister:icp_ledger_canister";
-import PaymentModule "PaymentModule";
 
 actor PaymentSystem {
   type Account = PaymentModule.Account;
