@@ -12,7 +12,7 @@ import Types "../Types";
 
 actor {
 
-  var services = HashMap.HashMap<Text, Types.Service>(10, Text.equal, Text.hash);
+  var services = HashMap.HashMap<Principal, Types.Service>(10, Principal.equal, Principal.hash);
 
   public shared func createService(freelancerId : Principal, serviceData : Types.UnregisteredServiceFormData) : async Result.Result<Types.Service, Text> {
     if (serviceData.tiers.size() == 0) {
@@ -23,7 +23,7 @@ actor {
     let now = Int.abs(Time.now()); // Convert Time to Nat
     
     let newService : Types.Service = {
-      id = await Util.generateUUID();
+      id = await Util.generatePrincipal();
       freelancerId = freelancerId;
       title = serviceData.title;
       description = serviceData.description;
@@ -48,7 +48,7 @@ actor {
     return #ok(newService);
   };
 
-  public shared func updateService(serviceId : Text, updatedServiceData : Types.ServiceUpdateFormData) : async Result.Result<Types.Service, Text> {
+  public shared func updateService(serviceId : Principal, updatedServiceData : Types.ServiceUpdateFormData) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?serviceExists) {
@@ -86,7 +86,7 @@ actor {
     };
   };
 
-  public shared func addPackage(serviceId : Text, packageData : Types.ServiceTier) : async Result.Result<Types.Service, Text> {
+  public shared func addPackage(serviceId : Principal, packageData : Types.ServiceTier) : async Result.Result<Types.Service, Text> {
     let now = Int.abs(Time.now()); // Convert Time to Nat
     let service = services.get(serviceId);
     switch (service) {
@@ -117,7 +117,7 @@ actor {
     };
   };
 
-  public shared func updatePackage(serviceId : Text, packageId : Text, updatedPackageData : Types.ServiceTierUpdateFormData) : async Result.Result<Types.Service, Text> {
+  public shared func updatePackage(serviceId : Principal, packageId : Text, updatedPackageData : Types.ServiceTierUpdateFormData) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?existingService) {
@@ -164,7 +164,7 @@ actor {
     };
   };
 
- public shared func removePackage(serviceId : Text, packageId : Text) : async Result.Result<Types.Service, Text> {
+ public shared func removePackage(serviceId : Principal, packageId : Text) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?existingService) {
@@ -197,7 +197,7 @@ actor {
     };
   };
 
-  public shared func getPackage(serviceId : Text, packageId : Text) : async Result.Result<Types.ServiceTier, Text> {
+  public shared func getPackage(serviceId : Principal, packageId : Text) : async Result.Result<Types.ServiceTier, Text> {
     switch (services.get(serviceId)) {
       case (?existingService) {
         switch (Array.find<Types.ServiceTier>(
@@ -220,15 +220,15 @@ actor {
     };
   };
 
-  public shared func deleteService(serviceId : Text) : async Result.Result<Text, Text> {
+  public shared func deleteService(serviceId : Principal) : async Result.Result<Text, Text> {
       let service = services.get(serviceId);
       switch (service) {
-        case (?serviceExists) {
+        case (?_serviceExists) {
           services := HashMap.mapFilter(
             services,
-            Text.equal,
-            Text.hash,
-            func (key : Text, value : Types.Service) : ?Types.Service {
+            Principal.equal,
+            Principal.hash,
+            func (key : Principal, value : Types.Service) : ?Types.Service {
               if (key == serviceId) {
                 return null; // Remove the service
               } else {
@@ -244,7 +244,7 @@ actor {
       };
     };
 
-  public shared func getServiceDetails(serviceId : Text) : async Result.Result<Types.Service, Text> {
+  public shared func getServiceDetails(serviceId : Principal) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?serviceExists) {

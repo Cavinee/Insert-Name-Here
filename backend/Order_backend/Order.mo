@@ -431,4 +431,73 @@ actor {
       return #err("Error completing order: " # Error.message(e));
     };
   };
+
+  public func processRevision(
+    userId : Principal,
+    orderId : Principal,
+    description : Text,
+  ) : async Result.Result<Text, Text> {
+    try {
+      let orderResult = await getOrder(orderId);
+      switch (orderResult) {
+        case (?orderExists) {
+          // Check if the client is the one requesting the revision
+          if (not Principal.equal(orderExists.clientId, userId)) {
+            return #err("Only the client can request revisions!");
+          };
+          
+          // Check if order status allows revisions
+          if (orderExists.jobStatus == #Completed) {
+            return #err("Order already completed, cannot process revision.");
+          } else if (orderExists.jobStatus == #InProgress) {
+            return #err("Order is in progress, cannot process revision.");
+          } else if (orderExists.jobStatus == #Cancelled) {
+            return #err("Order is cancelled, cannot process revision.");
+          } else if (orderExists.jobStatus == #Disputed) {
+            return #err("Order is already undergoing revision.");
+          };
+          
+          // Check if revision limit reached
+          if (Array.size(orderExists.revisions) >= orderExists.revisionMaxLimit) {
+            return #err("Maximum number of revisions reached for this order!");
+          };
+          
+          // Generate a revision ID
+          let revisionId = await Util.generateUUID();
+          
+          // Create the revision request
+          let revisionRequest : Types.Revision = {
+            id = revisionId;
+            description = description;
+            numberOfRevision = Array.size(orderExists.revisions) + 1;
+          };
+          
+          // Add the revision to the order
+          let updatedOrder : Types.Order = {
+            orderExists with
+            revisions = Array.append(orderExists.revisions, [revisionRequest]);
+            jobStatus = #Disputed; // Change status to disputed when revision is requested
+            updatedAt = Time.now();
+          };
+          
+          // Update the order in the database
+          let updateResult = await updateOrder(orderId, updatedOrder);
+          switch (updateResult) {
+            case (#ok()) {
+              return #ok(revisionId);
+            };
+            case (#err(error)) {
+              return #err("Error updating order with revision: " # error);
+            };
+          };
+        };
+        case null {
+          return #err("Order not found!");
+        };
+      };
+    } catch (e) {
+      Debug.print("Error processing revision: " # Error.message(e));
+      return #err("Error processing revision: " # Error.message(e));
+    };
+  };
 };
