@@ -22,16 +22,6 @@
           "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
         }
       }
-    }
-  },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
-    },
-    "ic": {
-      "providers": ["https://ic0.app/"],
-      "type": "persistent"
     },
     "Service_backend": {
       "type": "motoko",
@@ -68,7 +58,16 @@
         "node_compatibility": true
       }
     }
-    
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    },
+    "ic": {
+      "providers": ["https://ic0.app/"],
+      "type": "persistent"
+    }
   },
   "defaults": {
     "build": {

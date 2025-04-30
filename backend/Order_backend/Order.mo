@@ -30,7 +30,7 @@ actor {
       ordersByClient.put(key, value);
     };
   };
-  public func createOrder(clientId : Principal, freelancerId : Principal, serviceId : Text, packageId : Text, paymentStatus : Types.PaymentStatus, currency : Text, deliveryDeadline : Int) : async Result.Result<Types.Order, Text> {
+  public func createOrder(clientId : Principal, freelancerId : Principal, serviceId : Principal, packageId : Text, paymentStatus : Types.PaymentStatus, currency : Text, deliveryDeadline : Int) : async Result.Result<Types.Order, Text> {
     let serviceResult = await Service.getServiceDetails(serviceId);
     switch (serviceResult) {
       case (#err(error)) {

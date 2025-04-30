@@ -12,7 +12,7 @@ import Types "../Types";
 
 actor {
 
-  var services = HashMap.HashMap<Text, Types.Service>(10, Text.equal, Text.hash);
+  var services = HashMap.HashMap<Principal, Types.Service>(10, Principal.equal, Principal.hash);
 
   public shared func createService(freelancerId : Principal, serviceData : Types.UnregisteredServiceFormData) : async Result.Result<Types.Service, Text> {
     if (serviceData.tiers.size() == 0) {
@@ -244,7 +244,7 @@ actor {
       };
     };
 
-  public shared func getServiceDetails(serviceId : Text) : async Result.Result<Types.Service, Text> {
+  public shared func getServiceDetails(serviceId : Principal) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?serviceExists) {

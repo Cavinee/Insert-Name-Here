@@ -7,7 +7,7 @@ import UUID "mo:uuid/UUID";
 import Source "mo:uuid/async/SourceV4";
 import Int "mo:base/Int";
 
-module Util{
+module Util {
   public func generateUUID() : async Text {
     var id = Source.Source(); // create a random source
     return UUID.toText(await id.new()); // convert UUID to text
@@ -17,11 +17,17 @@ module Util{
     Principal.fromText(await generateUUID());
   };
 
-  public func toSubaccount(p: Principal) : Blob {
-    let bytes = Principal.toBlob(p);
-    let padding = Array.tabulate<Nat8>(28, func(i) { if (i < bytes.size()) bytes[i] else 0 });
-    Blob.fromArray(padding);
+  public func toSubaccount(p : Principal) : Blob {
+    let bytesArray = Blob.toArray(Principal.toBlob(p)); // Convert Blob -> [Nat8]
+    let padding = Array.tabulate<Nat8>(
+      32,
+      func(i) {
+        if (i < bytesArray.size()) bytesArray[i] else 0;
+      },
+    );
+    return Blob.fromArray(padding);
   };
+
   public func getCurrentTime() : async Int {
     let currentTime = Time.now();
     return currentTime;
