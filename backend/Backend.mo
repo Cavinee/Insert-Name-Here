@@ -15,4 +15,8 @@ actor class Backend() {
   public func add(n : Nat) : async () {
     counter += n;
   };
+
+  public shared (msg) func whoami() : async Principal {
+    return msg.caller;
+  };
 };
