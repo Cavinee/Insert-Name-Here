@@ -273,6 +273,21 @@ module Types {
     reviewType : Text; // "client-to-freelancer" or "freelancer-to-client"
   };
 
+  public type ReviewDisplay = {
+    review : Review;
+    reviewerPrincipalShort : Text; // First 5 chars of principal
+    createdAtDate : Text; // Human-readable date
+  };
+
+  public type AddReviewParams = {
+    orderId : Text;
+    serviceId : Principal;
+    recipientId : Principal;
+    rating : Nat8;
+    comment : Text;
+    reviewType : Text;
+  };
+
   public type Cancellation = {
     orderId : Text;
     cancelledBy : Principal;
