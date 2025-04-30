@@ -1,5 +1,6 @@
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
+import Int "mo:base/Int";
 
 module Types {
 
@@ -63,16 +64,18 @@ module Types {
   };
 
   public type Escrow = {
-    id : Nat;
+    id : Principal;
     orderId : Principal; //might change to serviceId / orderId
     clientId : Principal;
     freelancerId: Principal;
     amount : Nat;
     currency : Text; 
-    created_at : Nat;
+    created_at : Int;
     deadline : Int; //Time based; if past a certain date, immediately transfer the money
     jobStatus: JobStatus; //whether its disputed, cancelled, or whatever, so it can decide to refund, etc
     released : Bool;
+    subaccount : ?Blob;
+    funded : Bool;
     refunded : Bool;
   };
 
