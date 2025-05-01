@@ -1,19 +1,15 @@
-"use client"
-
-import type React from "react"
-
 import { useState } from "react"
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, DollarSign, Plus, X } from "lucide-react"
-import { Label } from "@/components/ui/label"
+import { Navigation } from "../components/navigation"
+import { Footer } from "../components/footer"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Textarea } from "../components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import { Badge } from "../components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { Upload, DollarSign, Plus, X } from 'lucide-react'
+import { Label } from "../components/ui/label"
 
 export default function CreateServicePage() {
   const [images, setImages] = useState<string[]>([])

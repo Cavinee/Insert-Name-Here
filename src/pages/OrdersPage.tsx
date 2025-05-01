@@ -1,16 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Navigation } from "../components/navigation"
+import { Footer } from "../components/footer"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { Badge } from "../components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
 import { Clock, CheckCircle, AlertCircle, MessageCircle } from "lucide-react"
-import { ChatSidebar } from "@/components/chat-sidebar"
-import { orders, clients, getClientById, getFreelancerById, getServiceById, formatDate } from "@/lib/marketplace-data"
+import { ChatSidebar } from "../components/chat-sidebar"
+import { orders, clients, getClientById, getFreelancerById, getServiceById, formatDate } from "../lib/marketplace-data"
 
 export default function OrdersPage() {
   const [activeChat, setActiveChat] = useState<{
@@ -29,15 +29,15 @@ export default function OrdersPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "InProgress":
-        return <Badge className="bg-blue-500">Active</Badge>
+        return <Badge className="bg-info text-info-foreground">Active</Badge>
       case "Completed":
-        return <Badge className="bg-green-500">Completed</Badge>
+        return <Badge className="bg-success text-success-foreground">Completed</Badge>
       case "Cancelled":
-        return <Badge className="bg-red-500">Cancelled</Badge>
+        return <Badge className="bg-destructive text-destructive-foreground">Cancelled</Badge>
       case "Disputed":
-        return <Badge className="bg-yellow-500">Disputed</Badge>
+        return <Badge className="bg-warning text-warning-foreground">Disputed</Badge>
       case "Delivered":
-        return <Badge className="bg-purple-500">Delivered</Badge>
+        return <Badge className="bg-primary text-primary-foreground">Delivered</Badge>
       default:
         return <Badge>Unknown</Badge>
     }

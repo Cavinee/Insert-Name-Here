@@ -1,62 +1,90 @@
-import { Star } from "lucide-react"
+"use client"
+
+import { TextRevealCard } from "./ui/text-reveal-card"
+import { AnimatedTooltip } from "./ui/animated-tooltip"
+import { MovingBorder } from "./ui/moving-border"
 
 const testimonials = [
   {
-    quote:
-      "Cointract has transformed how I work with clients. The smart contracts ensure I always get paid for completed work, and the instant payments are a game-changer.",
+    quote: "This marketplace transformed how I find clients. The quality of projects and ease of use is unmatched.",
     author: "Sarah Johnson",
-    role: "Graphic Designer",
-    avatar: "/placeholder.svg?height=80&width=80",
+    title: "Freelance Developer",
   },
   {
-    quote:
-      "As a client, I love the transparency and security. The escrow system gives me confidence, and I've saved thousands in fees compared to traditional platforms.",
+    quote: "I've hired multiple freelancers here and have been consistently impressed with the talent and results.",
     author: "Michael Chen",
-    role: "Startup Founder",
-    avatar: "/placeholder.svg?height=80&width=80",
+    title: "Startup Founder",
   },
   {
-    quote:
-      "The blockchain verification of my work history has helped me land higher-paying clients. They can see my verified track record without relying on just reviews.",
-    author: "Emily Rodriguez",
-    role: "Web Developer",
-    avatar: "/placeholder.svg?height=80&width=80",
+    quote: "The secure payment system and project management tools make collaboration seamless and worry-free.",
+    author: "Elena Rodriguez",
+    title: "Marketing Director",
   },
 ]
 
-export default function Testimonials() {
+const team = [
+  {
+    id: 1,
+    name: "John Smith",
+    designation: "CEO & Founder",
+    image: "/placeholder.svg?height=100&width=100&text=JS",
+  },
+  {
+    id: 2,
+    name: "Lisa Wong",
+    designation: "CTO",
+    image: "/placeholder.svg?height=100&width=100&text=LW",
+  },
+  {
+    id: 3,
+    name: "Michael Brown",
+    designation: "Head of Design",
+    image: "/placeholder.svg?height=100&width=100&text=MB",
+  },
+  {
+    id: 4,
+    name: "Sarah Johnson",
+    designation: "Marketing Lead",
+    image: "/placeholder.svg?height=100&width=100&text=SJ",
+  },
+  {
+    id: 5,
+    name: "David Lee",
+    designation: "Product Manager",
+    image: "/placeholder.svg?height=100&width=100&text=DL",
+  },
+]
+
+export function Testimonials() {
   return (
-    <section id="testimonials" className="py-20 bg-white">
+    <section className="py-16 md:py-24 bg-muted/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Success Stories</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Hear from freelancers and clients who are thriving on our blockchain-powered platform.
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Users Say</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Join thousands of satisfied clients and freelancers on our platform
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={20} className="text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 italic">"{testimonial.quote}"</p>
-              <div className="flex items-center">
-                <img
-                  src={testimonial.avatar || "/placeholder.svg"}
-                  alt={testimonial.author}
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-                <div>
-                  <h4 className="font-semibold text-gray-900">{testimonial.author}</h4>
-                  <p className="text-gray-600 text-sm">{testimonial.role}</p>
-                </div>
-              </div>
-            </div>
+            <TextRevealCard key={index} text={testimonial.author} revealText={testimonial.title} className="h-full">
+              <p className="text-lg">{testimonial.quote}</p>
+            </TextRevealCard>
           ))}
+        </div>
+
+        <div className="flex flex-col items-center justify-center">
+          <h3 className="text-2xl font-bold mb-8">Meet Our Team</h3>
+
+          <MovingBorder borderWidth="2px" className="p-1 mb-8" containerClassName="flex justify-center">
+            <AnimatedTooltip items={team} />
+          </MovingBorder>
+
+          <p className="text-center text-muted-foreground max-w-2xl">
+            Our dedicated team is committed to creating the best marketplace experience for freelancers and clients
+            worldwide.
+          </p>
         </div>
       </div>
     </section>

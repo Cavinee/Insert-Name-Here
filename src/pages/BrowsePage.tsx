@@ -1,15 +1,15 @@
 "use client"
 
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
-import { StarIcon, Filter } from "lucide-react"
 import { useState } from "react"
+import { Navigation } from "../components/navigation"
+import { Footer } from "../components/footer"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import { Slider } from "../components/ui/slider"
+import { Badge } from "../components/ui/badge"
+import { StarIcon, Filter } from "lucide-react"
 
 const prompts = [
   {
@@ -98,7 +98,7 @@ export default function BrowsePage() {
                   <CardContent className="flex-1">
                     <div className="flex items-center gap-2">
                       <StarIcon className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                      <span className="text-sm">{prompt.rating}</span>
+                      <span className="text-sm font-medium">{prompt.rating}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mt-2">Seller: {prompt.seller}</p>
                   </CardContent>

@@ -1,10 +1,8 @@
-"use client"
-
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Search } from "lucide-react"
 import { Link } from "react-router-dom"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
+import { Menu, Search } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
 import { ConnectWalletButton } from "./connect-wallet-button"
 
@@ -17,16 +15,16 @@ export function Navigation() {
             <span className="hidden font-bold sm:inline-block">FreelanceHub</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link to="/services" className="transition-colors hover:text-foreground/80 text-foreground">
+            <Link to="/services" className="transition-colors hover:text-primary text-foreground">
               Services
             </Link>
-            <Link to="/create" className="transition-colors hover:text-foreground/80 text-foreground">
+            <Link to="/create" className="transition-colors hover:text-primary text-foreground">
               Create Service
             </Link>
-            <Link to="/orders" className="transition-colors hover:text-foreground/80 text-foreground">
+            <Link to="/orders" className="transition-colors hover:text-primary text-foreground">
               Orders
             </Link>
-            <Link to="/profile" className="transition-colors hover:text-foreground/80 text-foreground">
+            <Link to="/profile" className="transition-colors hover:text-primary text-foreground">
               Profile
             </Link>
           </nav>
@@ -43,16 +41,16 @@ export function Navigation() {
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
             <nav className="grid gap-6 px-2 py-6">
-              <Link to="/services" className="hover:text-foreground/80">
+              <Link to="/services" className="hover:text-primary">
                 Services
               </Link>
-              <Link to="/create" className="hover:text-foreground/80">
+              <Link to="/create" className="hover:text-primary">
                 Create Service
               </Link>
-              <Link to="/orders" className="hover:text-foreground/80">
+              <Link to="/orders" className="hover:text-primary">
                 Orders
               </Link>
-              <Link to="/profile" className="hover:text-foreground/80">
+              <Link to="/profile" className="hover:text-primary">
                 Profile
               </Link>
             </nav>
