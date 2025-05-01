@@ -197,7 +197,7 @@ module Types {
     id : Principal;
     clientId : Principal;
     freelancerId : Principal;
-    serviceId : Text;
+    serviceId : Principal;
     packageId : Text;
     orderStatus : OrderStatus; // "Accepted", "Rejected", "Undecided"
     jobStatus : JobStatus; // "InProgress", "Delivered", "Completed", "Cancelled", "Disputed"

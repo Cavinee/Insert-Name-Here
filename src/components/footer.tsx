@@ -1,120 +1,93 @@
-import { Facebook, Twitter, Instagram, Linkedin, Github } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Github, Twitter, DiscIcon as Discord } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
-export default function Footer() {
+export function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container py-12">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <h3 className="text-white text-lg font-semibold mb-4">Cointract</h3>
-            <p className="mb-4">
-              Revolutionizing freelancing with blockchain technology. Secure, transparent, and fee-free.
-            </p>
+            <h3 className="text-lg font-semibold mb-4">About</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/about" className="text-sm text-foreground/80 hover:text-foreground">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <a href="/team" className="text-sm text-foreground/80 hover:text-foreground">
+                  Team
+                </a>
+              </li>
+              <li>
+                <Link href="/careers" className="text-sm text-foreground/80 hover:text-foreground">
+                  Careers
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Resources</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/docs" className="text-sm text-foreground/80 hover:text-foreground">
+                  Documentation
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-sm text-foreground/80 hover:text-foreground">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/support" className="text-sm text-foreground/80 hover:text-foreground">
+                  Support
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/privacy" className="text-sm text-foreground/80 hover:text-foreground">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-foreground/80 hover:text-foreground">
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Connect</h3>
             <div className="flex space-x-4">
-              <a href="#" className="hover:text-white transition-colors" aria-label="Facebook">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="hover:text-white transition-colors" aria-label="Twitter">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="hover:text-white transition-colors" aria-label="Instagram">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="hover:text-white transition-colors" aria-label="LinkedIn">
-                <Linkedin size={20} />
-              </a>
-              <a href="#" className="hover:text-white transition-colors" aria-label="GitHub">
-                <Github size={20} />
-              </a>
+              <Button variant="ghost" size="icon">
+                <Twitter className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Discord className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Github className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="mt-6">
+              <p className="text-sm font-medium">Subscribe to our newsletter</p>
+              <div className="mt-2 flex gap-2">
+                <Input placeholder="Enter your email" className="max-w-[200px]" />
+                <Button variant="outline" size="sm">
+                  Subscribe
+                </Button>
+              </div>
             </div>
           </div>
-
-          <div>
-            <h3 className="text-white text-lg font-semibold mb-4">For Freelancers</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Find Work
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Create Profile
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Connect Wallet
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Success Stories
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white text-lg font-semibold mb-4">For Clients</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Post a Project
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Find Talent
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Smart Contracts
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Enterprise Solutions
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Blockchain Guide
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Crypto Wallets
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Smart Contract FAQ
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Terms of Service
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
-
-        <div className="border-t border-gray-800 mt-12 pt-8 text-sm text-center">
-          <p>&copy; {new Date().getFullYear()} Cointract. All rights reserved.</p>
+        <div className="mt-12 border-t pt-8 text-center">
+          <p className="text-sm text-foreground/80">© {new Date().getFullYear()} FreelanceHub. All rights reserved.</p>
         </div>
       </div>
     </footer>
