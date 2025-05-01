@@ -10,7 +10,7 @@ import Nat8 "mo:base/Nat8";
 import Nat "mo:base/Nat";
 import Float "mo:base/Float";
 import Int "mo:base/Int";
-import Char "mo:base/Char";
+// import Char "mo:base/Char";
 
 actor Reviews {
   type Review = Types.Review;
@@ -19,11 +19,11 @@ actor Reviews {
 
   // Storage
   private let reviews = TrieMap.TrieMap<Principal, Review>(Principal.equal, Principal.hash);
-  private let orderToReview = TrieMap.TrieMap<Text, Principal>(Text.equal, Text.hash);
+  private let orderToReview = TrieMap.TrieMap<Principal, Principal>(Principal.equal, Principal.hash);
 
   // Add review with auto-generated metadata
   public shared ({ caller }) func addReview(params : AddReviewParams) : async Principal {
-    // Validation
+    // Validationa
     if (orderToReview.get(params.orderId) != null) {
       throw Error.reject("This order already has a review");
     };
@@ -61,7 +61,7 @@ actor Reviews {
 
   // Get reviews with multiple filters
   public query func getReviews(
-    serviceId : ?Text,
+    serviceId : ?Principal,
     recipientId : ?Principal,
     minRating : ?Nat8,
     limit : ?Nat

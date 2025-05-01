@@ -94,8 +94,10 @@ actor PaymentSystem {
     jobStatus : Types.JobStatus,
   ) : async () {
 
-    let subaccount = ?Util.toSubaccount(await Util.generatePrincipal());
-
+    // Generate a unique ID for the escrow
+    let escrowId = await Util.generatePrincipal();
+    // Create subaccount from the escrow ID for deterministic mapping
+    let subaccount = await Util.toSubaccount(escrowId);
     let newEscrow : Types.Escrow = {
       id = await Util.generatePrincipal();
       orderId = orderId;
@@ -113,11 +115,15 @@ actor PaymentSystem {
     };
 
     switch (await getEscrow(clientId)) {
-      case null return;
+      case (null) {
+        // First escrow for this client
+        escrowByClient.put(clientId, [newEscrow]);
+      };
       case (?foundList) {
         escrowByClient.put(clientId, Array.append<Types.Escrow>(foundList, [newEscrow]));
       };
     };
+
   };
 
   public func checkEscrowFunding(clientId : Principal, escrowId : Principal) : async Result.Result<Text, Nat> {

@@ -17,15 +17,31 @@ module Util {
     Principal.fromText(await generateUUID());
   };
 
-  public func toSubaccount(p : Principal) : Blob {
-    let bytesArray = Blob.toArray(Principal.toBlob(p)); // Convert Blob -> [Nat8]
-    let padding = Array.tabulate<Nat8>(
+  public func toSubaccount(p : Principal) : async Blob {
+    // Get the bytes of the Principal
+    let principalBytes = Blob.toArray(Principal.toBlob(p));
+
+    // Create a new array with 32 bytes (standard subaccount size)
+    let subaccount = Array.tabulate<Nat8>(
       32,
       func(i) {
-        if (i < bytesArray.size()) bytesArray[i] else 0;
+        if (i < principalBytes.size()) {
+          // Copy Principal bytes
+          principalBytes[i];
+        } else {
+          // Pad with zeros
+          0;
+        };
       },
     );
-    return Blob.fromArray(padding);
+
+    return Blob.fromArray(subaccount);
+  };
+
+  // For testing: gets the size of the returned Blob
+  public func testSubaccountSize(p : Principal) : async Nat {
+    let blob = await toSubaccount(p);
+    Blob.toArray(blob).size();
   };
 
   public func getCurrentTime() : async Int {
