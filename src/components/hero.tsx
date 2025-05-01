@@ -1,41 +1,32 @@
-export default function Hero() {
-    return (
-      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row items-center">
-            <div className="lg:w-1/2 lg:pr-10 mb-10 lg:mb-0">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                Freelancing Powered by <span className="text-emerald-600">Blockchain</span>
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-lg">
-                Connect with top talent and clients worldwide. Secure payments, transparent contracts, and zero middlemen
-                fees through blockchain technology.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a
-                  href="#"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-md transition-colors text-center font-medium"
-                >
-                  Find Talent
-                </a>
-                <a
-                  href="#"
-                  className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-md transition-colors text-center font-medium"
-                >
-                  Find Work
-                </a>
-              </div>
-            </div>
-            <div className="lg:w-1/2">
-              <img
-                src="/placeholder.svg?height=500&width=600"
-                alt="Blockchain freelance marketplace"
-                className="rounded-lg shadow-xl w-full"
-              />
-            </div>
+import { Button } from "@/components/ui/button"
+import { Link } from "react-router-dom"
+
+export function Hero() {
+  return (
+    <div className="relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-background to-background/50 dark:from-background dark:to-background/30" />
+      <div className="relative mx-auto max-w-5xl px-6 py-24 sm:py-32 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+            Find Expert Freelancers for Your <span className="highlight font-extrabold">Projects</span>
+          </h1>
+          <p className="mt-6 text-lg leading-8 text-foreground/90 dark:text-foreground/90">
+            Connect with skilled professionals, hire top talent, and get your projects done efficiently and affordably.
+          </p>
+          <div className="mt-10 flex items-center justify-center gap-x-6">
+            <Link to="/services">
+              <Button size="lg" className="rounded-full">
+                Find Services
+              </Button>
+            </Link>
+            <Link to="/create">
+              <Button size="lg" variant="outline" className="rounded-full">
+                Offer Your Skills
+              </Button>
+            </Link>
           </div>
         </div>
-      </section>
-    )
-  }
-  
+      </div>
+    </div>
+  )
+}
