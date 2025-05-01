@@ -1,6 +1,8 @@
 import { Navigation } from "../components/navigation"
 import { Hero } from "../components/hero"
-import { FeaturedPrompts } from "../components/featured-prompts"
+import { FeaturedServices } from "../components/featured-services"
+import { Testimonials } from "../components/testimonials"
+import { SpotlightSection } from "../components/spotlight-section"
 import { Footer } from "../components/footer"
 
 export default function HomePage() {
@@ -9,7 +11,9 @@ export default function HomePage() {
       <Navigation />
       <main className="flex-1">
         <Hero />
-        <FeaturedPrompts />
+        <FeaturedServices />
+        <Testimonials />
+        <SpotlightSection />
       </main>
       <Footer />
     </div>
