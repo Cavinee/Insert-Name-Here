@@ -6,36 +6,36 @@ module Types {
 
   // Base user profile shared by all users
   public type ClientProfile = {
-    id : Principal;
-    role : UserRole;
-    fullName : Text;
-    email : Text;
-    dateOfBirth : Text;
-    balance : Float;
-    profilePictureUrl : Text;
-    orderedServicesId : [Principal];
+    id: Principal;
+    role: UserRole;
+    fullName: Text;
+    email: Text;
+    dateOfBirth: Text;
+    balance: Float;
+    profilePictureUrl: Text;
+    orderedServicesId: [Principal];
   };
 
   public type ClientProfileUpdateFormData = {
-    role : UserRole;
-    fullName : Text;
-    email : Text;
-    dateOfBirth : Text;
-    balance : Float;
-    profilePictureUrl : Text;
-    orderedServicesId : [Principal];
+    role: UserRole;
+    fullName: Text;
+    email: Text;
+    dateOfBirth: Text;
+    balance: Float;
+    profilePictureUrl: Text;
+    orderedServicesId: [Principal];
   };
 
   // Freelancer-specific profile extension
   public type FreelancerProfile = {
-    id : Principal;
-    role : UserRole;
-    fullName : Text;
-    email : Text;
-    dateOfBirth : Text;
-    balance : Float;
-    profilePictureUrl : Text;
-    orderedServicesId : [Principal];
+    id: Principal;
+    role: UserRole;
+    fullName: Text;
+    email: Text;
+    dateOfBirth: Text;
+    balance: Float;
+    profilePictureUrl: Text;
+    orderedServicesId: [Principal];
     skills : [Text];
     portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
     reputationScore : Float; // Based on reviews, orders, etc.
@@ -44,16 +44,17 @@ module Types {
     availabilityStatus : AvailabilityStatus; // "Available", "Busy", "On Vacation", etc.
   };
 
+  public type PortfolioId = Text;
   // Main Portfolio Item type
   public type PortfolioItem = {
-    id : Text;
-    freelancerId : Principal;
-    title : Text;
-    description : Text;
-    category : Text;
-    images : [Text]; // URLs to images
-    video : ?Text; // URL to video if applicable
-    link : ?Text; // External link if applicable
+    id: PortfolioId;
+    freelancerId: Principal;
+    title: Text;
+    description: Text;
+    category: Text;
+    images: [Text];  // URLs to images
+    video: ?Text;    // URL to video if applicable
+    link: ?Text;     // External link if applicable
   };
 
   // public type FreelancerProfileUpdateFormData = {
@@ -80,7 +81,7 @@ module Types {
 
   // Admin-specific profile extension
   public type AdminProfile = {
-    id : Principal;
+    id: Text;
     permissions : [Text]; // Example: ["banUser", "resolveDispute"]
     managedDisputes : ?[Text]; // IDs of disputes they handled
   };
@@ -103,12 +104,12 @@ module Types {
     id : Principal;
     orderId : Principal; //might change to serviceId / orderId
     clientId : Principal;
-    freelancerId : Principal;
+    freelancerId: Principal;
     amount : Nat;
-    currency : Text;
+    currency : Text; 
     created_at : Int;
     deadline : Int; //Time based; if past a certain date, immediately transfer the money
-    jobStatus : JobStatus; //whether its disputed, cancelled, or whatever, so it can decide to refund, etc
+    jobStatus: JobStatus; //whether its disputed, cancelled, or whatever, so it can decide to refund, etc
     released : Bool;
     subaccount : ?Blob;
     funded : Bool;
@@ -207,13 +208,13 @@ module Types {
     currency : Text; // btc,eth
     deliveryDeadline : Int; // Timestamp deadline
     cancellationReason : ?Text; // Optional if order is cancelled
-    revisions : [Revision];
+    revisions: [Revision];
     revisionMaxLimit : Nat;
   };
-
-  public type Image = {
-    imageUrl : Text;
-    imageTag : Text;
+  
+  public type Image  = {
+    imageUrl: Text;
+    imageTag: Text;
   };
 
   // Service (like a Fiverr gig)
@@ -238,6 +239,7 @@ module Types {
     averageRating : ?Float; // Auto-calculated
     totalReviews : Nat;
   };
+
 
   public type UnregisteredServiceFormData = {
     title : Text;
@@ -287,7 +289,7 @@ module Types {
     description : Text;
     numberOfRevision : Nat;
   };
-
+  
   public type UnregisteredServiceTierFormData = {
     name : Text; // Basic, Standard, Premium
     description : Text;
@@ -323,29 +325,30 @@ module Types {
     reviewType : Text; // "client-to-freelancer" or "freelancer-to-client"
   };
 
-  public type ReviewDisplay = {
+    public type ReviewDisplay = {
     review : Review;
     reviewerPrincipalShort : Text; // First 5 chars of principal
     createdAtDate : Text; // Human-readable date
   };
 
   public type AddReviewParams = {
-    orderId : Principal; // Change to match Order.id type
-    serviceId : Principal; // Already matches Service.id type
+    orderId : Principal;
+    serviceId : Principal;
     recipientId : Principal;
     rating : Nat8;
     comment : Text;
     reviewType : Text;
   };
+
   public type Cancellation = {
-    orderId : Principal;
+    orderId : Text;
     cancelledBy : Principal;
     reason : Text;
     cancelledAt : Nat;
   };
 
   public type Dispute = {
-    orderId : Principal;
+    orderId : Text;
     raisedBy : Principal;
     reason : Text;
     status : Text; // "Open", "Resolved", "Rejected"

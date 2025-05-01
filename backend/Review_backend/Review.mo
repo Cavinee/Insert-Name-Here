@@ -10,6 +10,7 @@ import Nat8 "mo:base/Nat8";
 import Nat "mo:base/Nat";
 import Float "mo:base/Float";
 import Int "mo:base/Int";
+import Util "../Util";
 // import Char "mo:base/Char";
 
 actor Reviews {
@@ -33,8 +34,10 @@ actor Reviews {
     if (Text.size(params.comment) > 1000) {
       throw Error.reject("Comment too long (max 1000 chars)");
     };
-    if (params.reviewType != "client-to-freelancer" and 
-        params.reviewType != "freelancer-to-client") {
+    if (
+      params.reviewType != "client-to-freelancer" and
+      params.reviewType != "freelancer-to-client"
+    ) {
       throw Error.reject("Invalid review type");
     };
 
@@ -42,7 +45,7 @@ actor Reviews {
     let reviewId = Principal.fromActor(Reviews);
     let newReview : Review = {
       id = reviewId;
-      orderId = params.orderId;
+      orderId = await Util.generatePrincipal();
       serviceId = params.serviceId;
       reviewerId = caller; // Use actual caller
       recipientId = params.recipientId;
@@ -56,7 +59,7 @@ actor Reviews {
     // Save to storage
     reviews.put(reviewId, newReview);
     orderToReview.put(params.orderId, reviewId);
-    reviewId
+    reviewId;
   };
 
   // Get reviews with multiple filters
@@ -64,45 +67,42 @@ actor Reviews {
     serviceId : ?Principal,
     recipientId : ?Principal,
     minRating : ?Nat8,
-    limit : ?Nat
+    limit : ?Nat,
   ) : async [ReviewDisplay] {
     let allReviews = Iter.toArray(reviews.vals());
-    
-    let filtered = Array.filter<Review>(allReviews, func(r) {
-      let serviceMatch = switch serviceId {
-        case (?id) r.serviceId == id;
-        case null true;
-      };
-      let recipientMatch = switch recipientId {
-        case (?id) r.recipientId == id;
-        case null true;
-      };
-      let ratingMatch = switch minRating {
-        case (?min) r.rating >= min;
-        case null true;
-      };
-      serviceMatch and recipientMatch and ratingMatch
-    });
+
+    let filtered = Array.filter<Review>(
+      allReviews,
+      func(r) {
+        let serviceMatch = switch serviceId {
+          case (?id) r.serviceId == id;
+          case null true;
+        };
+        let recipientMatch = switch recipientId {
+          case (?id) r.recipientId == id;
+          case null true;
+        };
+        let ratingMatch = switch minRating {
+          case (?min) r.rating >= min;
+          case null true;
+        };
+        serviceMatch and recipientMatch and ratingMatch;
+      },
+    );
 
     let limited = switch limit {
       case (?l) Array.take(filtered, l);
       case null filtered;
     };
 
-    Array.map<Review, ReviewDisplay>(limited, func(r) {
-      {
-        review = r;
-        reviewerPrincipalShort = principalToShortText(r.reviewerId);
-        createdAtDate = formatTimestamp(r.createdAt);
-      }
-    })
+    Array.map<Review, ReviewDisplay>(limited, func(r) { { review = r; reviewerPrincipalShort = principalToShortText(r.reviewerId); createdAtDate = formatTimestamp(r.createdAt) } });
   };
 
   // Format principal for display
   private func principalToShortText(p : Principal) : Text {
     let full = Principal.toText(p);
     if (Text.size(full) <= 8) {
-      full
+      full;
     } else {
       // Manual character iteration
       var result = "";
@@ -113,8 +113,8 @@ actor Reviews {
           count += 1;
         };
       };
-      Text.concat(result, "...")
-    }
+      Text.concat(result, "...");
+    };
   };
 
   // Format timestamp to date
@@ -150,8 +150,8 @@ actor Reviews {
     let total = Array.foldLeft<ReviewDisplay, Nat>(
       relevantReviews,
       0,
-      func(acc, r) { acc + Nat8.toNat(r.review.rating) }
+      func(acc, r) { acc + Nat8.toNat(r.review.rating) },
     );
-    Float.fromInt(total) / Float.fromInt(relevantReviews.size())
+    Float.fromInt(total) / Float.fromInt(relevantReviews.size());
   };
 };
