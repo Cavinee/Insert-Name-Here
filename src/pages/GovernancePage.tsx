@@ -1,12 +1,10 @@
-"use client"
-
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
+import { Navigation } from "../components/navigation"
+import { Footer } from "../components/footer"
+import { Button } from "../components/ui/button"
+import { Progress } from "../components/ui/progress"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { Badge } from "../components/ui/badge"
 import { Clock, Check, X } from "lucide-react"
 
 export default function GovernancePage() {
@@ -50,7 +48,7 @@ export default function GovernancePage() {
                         <span>Current Votes</span>
                         <span>75% Yes / 25% No</span>
                       </div>
-                      <Progress value={75} />
+                      <Progress value={75} className="bg-secondary h-2" />
                       <div className="flex gap-2">
                         <Button className="flex-1" variant="outline">
                           <Check className="mr-2 h-4 w-4" /> Vote Yes
@@ -85,7 +83,7 @@ export default function GovernancePage() {
                         <span>Resolution Votes</span>
                         <span>60% Refund / 40% Deny</span>
                       </div>
-                      <Progress value={60} />
+                      <Progress value={60} className="bg-secondary h-2" />
                     </div>
                   </CardContent>
                   <CardFooter className="flex gap-2">

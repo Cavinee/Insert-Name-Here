@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert"
 import { CheckCircle, AlertCircle, RefreshCw } from "lucide-react"
-import { validateMarketplaceData } from "@/lib/validate-marketplace-data"
-import { clients, freelancers, portfolioItems, services, orders, reviews } from "@/lib/marketplace-data"
+import { validateMarketplaceData } from "../lib/validate-marketplace-data"
+import { clients, freelancers, portfolioItems, services, orders, reviews } from "../lib/marketplace-data"
 
 export default function ValidatePage() {
   const [validationResult, setValidationResult] = useState<{
@@ -70,16 +70,16 @@ export default function ValidatePage() {
           </div>
 
           {validationResult && (
-            <Alert variant={validationResult.valid ? "default" : "warning"} className="mb-4">
+            <Alert variant={validationResult.valid ? "default" : "warning"} className="mb-4 border-2 border-current">
               {validationResult.valid ? (
                 <>
-                  <CheckCircle className="h-4 w-4" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                   <AlertTitle>Validation Successful</AlertTitle>
                   <AlertDescription>All data is valid and matches the Motoko type definitions.</AlertDescription>
                 </>
               ) : (
                 <>
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="h-4 w-4 text-warning" />
                   <AlertTitle>Validation Warnings</AlertTitle>
                   <AlertDescription>
                     Found {totalErrors} warning{totalErrors !== 1 ? "s" : ""} in the marketplace data. These may not
@@ -98,7 +98,7 @@ export default function ValidatePage() {
                 return (
                   <div key={entityType} className="border rounded-lg p-4">
                     <h3 className="font-semibold mb-2 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-2 text-yellow-500" />
+                      <AlertCircle className="h-4 w-4 mr-2 text-warning" />
                       {entityType.charAt(0).toUpperCase() + entityType.slice(1)} ({errors.length} warning
                       {errors.length !== 1 ? "s" : ""})
                     </h3>

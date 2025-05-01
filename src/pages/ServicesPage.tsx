@@ -1,14 +1,14 @@
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
+import { Link } from "react-router-dom"
+import { Navigation } from "../components/navigation"
+import { Footer } from "../components/footer"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import { Slider } from "../components/ui/slider"
+import { Badge } from "../components/ui/badge"
 import { StarIcon, Filter } from "lucide-react"
-import Link from "next/link"
-import { services, formatPrice } from "@/lib/marketplace-data"
+import { services, formatPrice } from "../lib/marketplace-data"
 
 export default function ServicesPage() {
   return (
@@ -98,7 +98,7 @@ export default function ServicesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service) => (
-                <Link href={`/services/${service.id}`} key={service.id}>
+                <Link to={`/services/${service.id}`} key={service.id}>
                   <Card className="group relative overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
                     <div className="aspect-video w-full overflow-hidden">
                       <img
