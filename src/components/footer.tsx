@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import {Link} from "react-router-dom"
 import { Github, Twitter, DiscIcon as Discord } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
@@ -11,17 +12,17 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4">About</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/about" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/about" className="text-sm text-foreground/80 hover:text-foreground">
                   About Us
                 </Link>
               </li>
               <li>
-                <a href="/team" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/team" className="text-sm text-foreground/80 hover:text-foreground">
                   Team
-                </a>
+                </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/careers" className="text-sm text-foreground/80 hover:text-foreground">
                   Careers
                 </Link>
               </li>
@@ -31,17 +32,17 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/docs" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/docs" className="text-sm text-foreground/80 hover:text-foreground">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/blog" className="text-sm text-foreground/80 hover:text-foreground">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/support" className="text-sm text-foreground/80 hover:text-foreground">
                   Support
                 </Link>
               </li>
@@ -51,12 +52,12 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4">Legal</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/privacy" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/privacy" className="text-sm text-foreground/80 hover:text-foreground">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-foreground/80 hover:text-foreground">
+                <Link to="/terms" className="text-sm text-foreground/80 hover:text-foreground">
                   Terms of Service
                 </Link>
               </li>

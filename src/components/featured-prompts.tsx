@@ -2,9 +2,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { StarIcon } from "lucide-react"
-import Link from "next/link"
 import { services } from "@/lib/marketplace-data"
-
+import { Link } from "react-router-dom"
 // Renamed to FeaturedServices
 export function FeaturedPrompts() {
   // Get the top 3 services with highest ratings
@@ -19,7 +18,7 @@ export function FeaturedPrompts() {
         <h2 className="text-3xl font-bold tracking-tight text-center mb-12">Featured Services</h2>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {featuredServices.map((service) => (
-            <Link href={`/services/${service.id}`} key={service.id}>
+            <Link to={`/services/${service.id}`} key={service.id}>
               <Card className="group relative overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
                 <div className="aspect-video w-full overflow-hidden">
                   <img
@@ -54,7 +53,7 @@ export function FeaturedPrompts() {
           ))}
         </div>
         <div className="mt-12 text-center">
-          <Link href="/services">
+          <Link to="/services">
             <Button variant="outline" size="lg">
               View All Services
             </Button>
