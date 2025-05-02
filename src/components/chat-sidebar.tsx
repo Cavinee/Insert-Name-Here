@@ -98,7 +98,7 @@ export function ChatSidebar({
 
   return (
     <div
-      className={`fixed right-0 top-0 z-40 h-screen w-[30%] border-l bg-background shadow-xl transition-all duration-300 ${isMinimized ? "translate-y-[calc(100%-3.5rem)]" : ""}`}
+      className={`fixed right-0 bottom-0 z-40 h-[80%] w-[30%] border-l-2 border-t-2 rounded-md bg-background shadow-xl transition-all duration-300 ${isMinimized ? "translate-y-[calc(100%-3.5rem)]" : ""}`}
     >
       <div className="flex h-14 items-center justify-between border-b px-4">
         <div className="flex items-center space-x-2">
