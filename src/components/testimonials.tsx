@@ -3,21 +3,22 @@
 import { TextRevealCard } from "./ui/text-reveal-card"
 import { AnimatedTooltip } from "./ui/animated-tooltip"
 import { MovingBorder } from "./ui/moving-border"
+import { InfiniteMovingCards } from "./ui/infinite-moving-cards"
 
 const testimonials = [
   {
     quote: "This marketplace transformed how I find clients. The quality of projects and ease of use is unmatched.",
-    author: "Sarah Johnson",
+    name: "Sarah Johnson",
     title: "Freelance Developer",
   },
   {
     quote: "I've hired multiple freelancers here and have been consistently impressed with the talent and results.",
-    author: "Michael Chen",
+    name: "Michael Chen",
     title: "Startup Founder",
   },
   {
     quote: "The secure payment system and project management tools make collaboration seamless and worry-free.",
-    author: "Elena Rodriguez",
+    name: "Elena Rodriguez",
     title: "Marketing Director",
   },
 ]
@@ -66,20 +67,20 @@ export function Testimonials() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {testimonials.map((testimonial, index) => (
-            <TextRevealCard key={index} text={testimonial.author} revealText={testimonial.title} className="h-full">
-              <p className="text-lg">{testimonial.quote}</p>
-            </TextRevealCard>
-          ))}
-        </div>
+      <div className="my-10">
+        <InfiniteMovingCards
+          items={testimonials}
+          direction="right"
+          speed="slow"
+        />
+      </div>
 
         <div className="flex flex-col items-center justify-center">
           <h3 className="text-2xl font-bold mb-8">Meet Our Team</h3>
 
-          <MovingBorder borderWidth="2px" className="p-1 mb-8" containerClassName="flex justify-center">
+          <div className="flex flex-row items-center justify-center mb-10 w-full">
             <AnimatedTooltip items={team} />
-          </MovingBorder>
+          </div>
 
           <p className="text-center text-muted-foreground max-w-2xl">
             Our dedicated team is committed to creating the best marketplace experience for freelancers and clients

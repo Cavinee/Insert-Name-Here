@@ -1,52 +1,45 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import { motion } from "motion/react";
-import DottedMap from "dotted-map";
-
-import { useTheme } from "next-themes";
+import { useRef } from "react"
+import { motion } from "framer-motion"
+import DottedMap from "dotted-map"
+import { useTheme } from "../theme-provider"
 
 interface MapProps {
   dots?: Array<{
-    start: { lat: number; lng: number; label?: string };
-    end: { lat: number; lng: number; label?: string };
-  }>;
-  lineColor?: string;
+    start: { lat: number; lng: number; label?: string }
+    end: { lat: number; lng: number; label?: string }
+  }>
+  lineColor?: string
 }
 
-export function WorldMap({
-  dots = [],
-  lineColor = "#0ea5e9",
-}: MapProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const map = new DottedMap({ height: 100, grid: "diagonal" });
+export function WorldMap({ dots = [], lineColor = "#3b82f6" }: MapProps) {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const map = new DottedMap({ height: 100, grid: "diagonal" })
 
-  const { theme } = useTheme();
+  const { theme } = useTheme()
 
   const svgMap = map.getSVG({
     radius: 0.22,
     color: theme === "dark" ? "#FFFFFF40" : "#00000040",
     shape: "circle",
-    backgroundColor: theme === "dark" ? "black" : "white",
-  });
+    backgroundColor: "transparent", // Make background transparent to work with our theme
+  })
 
   const projectPoint = (lat: number, lng: number) => {
-    const x = (lng + 180) * (800 / 360);
-    const y = (90 - lat) * (400 / 180);
-    return { x, y };
-  };
+    const x = (lng + 180) * (800 / 360)
+    const y = (90 - lat) * (400 / 180)
+    return { x, y }
+  }
 
-  const createCurvedPath = (
-    start: { x: number; y: number },
-    end: { x: number; y: number }
-  ) => {
-    const midX = (start.x + end.x) / 2;
-    const midY = Math.min(start.y, end.y) - 50;
-    return `M ${start.x} ${start.y} Q ${midX} ${midY} ${end.x} ${end.y}`;
-  };
+  const createCurvedPath = (start: { x: number; y: number }, end: { x: number; y: number }) => {
+    const midX = (start.x + end.x) / 2
+    const midY = Math.min(start.y, end.y) - 50
+    return `M ${start.x} ${start.y} Q ${midX} ${midY} ${end.x} ${end.y}`
+  }
 
   return (
-    <div className="w-full aspect-[2/1] dark:bg-black bg-white rounded-lg  relative font-sans">
+    <div className="w-full aspect-[2/1] rounded-lg relative font-sans">
       <img
         src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
         className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none"
@@ -61,8 +54,8 @@ export function WorldMap({
         className="w-full h-full absolute inset-0 pointer-events-none select-none"
       >
         {dots.map((dot, i) => {
-          const startPoint = projectPoint(dot.start.lat, dot.start.lng);
-          const endPoint = projectPoint(dot.end.lat, dot.end.lng);
+          const startPoint = projectPoint(dot.start.lat, dot.start.lng)
+          const endPoint = projectPoint(dot.end.lat, dot.end.lng)
           return (
             <g key={`path-group-${i}`}>
               <motion.path
@@ -84,7 +77,7 @@ export function WorldMap({
                 key={`start-upper-${i}`}
               ></motion.path>
             </g>
-          );
+          )
         })}
 
         <defs>
@@ -112,22 +105,8 @@ export function WorldMap({
                 fill={lineColor}
                 opacity="0.5"
               >
-                <animate
-                  attributeName="r"
-                  from="2"
-                  to="8"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  from="0.5"
-                  to="0"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
+                <animate attributeName="r" from="2" to="8" dur="1.5s" begin="0s" repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" begin="0s" repeatCount="indefinite" />
               </circle>
             </g>
             <g key={`end-${i}`}>
@@ -144,27 +123,13 @@ export function WorldMap({
                 fill={lineColor}
                 opacity="0.5"
               >
-                <animate
-                  attributeName="r"
-                  from="2"
-                  to="8"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  from="0.5"
-                  to="0"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
+                <animate attributeName="r" from="2" to="8" dur="1.5s" begin="0s" repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" begin="0s" repeatCount="indefinite" />
               </circle>
             </g>
           </g>
         ))}
       </svg>
     </div>
-  );
+  )
 }
