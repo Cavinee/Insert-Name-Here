@@ -266,14 +266,24 @@ export function SignUpForm() {
               </div>
             )}
           </div>
-          <Input
-            id="profile-picture"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="bg-black/30 border-purple-500/30 text-white focus:border-purple-400 transition-all"
-            {...register("profilePicture")}
+
+          <Controller
+            name="profilePicture"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="profile-picture"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  field.onChange(e.target.files); // or e.target.files[0] if you only accept one file
+                  handleImageChange(e); // For preview
+                }}
+                className="bg-black/30 border-purple-500/30 text-white focus:border-purple-400 transition-all"
+              />
+            )}
           />
+          
         </div>
       </div>
 

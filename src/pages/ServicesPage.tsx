@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { Navigation } from "../components/navigation"
 import { Footer } from "../components/footer"
 import { Button } from "../components/ui/button"
@@ -11,6 +11,7 @@ import { StarIcon, Filter } from "lucide-react"
 import { services, formatPrice } from "../lib/marketplace-data"
 
 export default function ServicesPage() {
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />

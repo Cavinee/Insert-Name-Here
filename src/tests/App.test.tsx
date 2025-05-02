@@ -3,14 +3,14 @@ import { describe, expect, it } from 'vitest';
 import App from '../pages/HomePage';
 import { StrictMode } from 'react';
 import { ActorProvider, AgentProvider } from '@ic-reactor/react';
-import { canisterId, idlFactory } from '../declarations/backend';
+// import { canisterId, idlFactory } from '../declarations/backend';
 
 describe('App', () => {
   it('renders as expected', () => {
     render(
       <StrictMode>
         <AgentProvider withProcessEnv disableAuthenticateOnMount>
-          <ActorProvider idlFactory={idlFactory} canisterId={canisterId}>
+          <ActorProvider>
             <App />
           </ActorProvider>
         </AgentProvider>
