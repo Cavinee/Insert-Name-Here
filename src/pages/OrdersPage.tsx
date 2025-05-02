@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Navigation } from "../components/navigation"
 import { Footer } from "../components/footer"
 import { Button } from "../components/ui/button"
@@ -8,11 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Badge } from "../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
-import { Clock, CheckCircle, AlertCircle, MessageCircle } from "lucide-react"
+import { Clock, CheckCircle, AlertCircle, MessageCircle, Star } from "lucide-react"
 import { ChatSidebar } from "../components/chat-sidebar"
 import { orders, clients, getClientById, getFreelancerById, getServiceById, formatDate } from "../lib/marketplace-data"
 
 export default function OrdersPage() {
+  const navigate = useNavigate()
   const [activeChat, setActiveChat] = useState<{
     id: string
     name: string
@@ -56,6 +58,10 @@ export default function OrdersPage() {
         service: service.title,
       })
     }
+  }
+
+  const handleLeaveReview = (orderId: string) => {
+    navigate(`/review/${orderId}`)
   }
 
   return (
@@ -103,7 +109,7 @@ export default function OrdersPage() {
                           </div>
                         </div>
                         <p className="font-bold">
-                          {(service.tiers.find((t) => t.id === order.packageId)?.price || 0).toFixed(2)}{" "}
+                          {(service.tiers!.find((t) => t.id === order.packageId)?.price || 0).toFixed(2)}{" "}
                           {order.currency}
                         </p>
                       </div>
@@ -131,6 +137,12 @@ export default function OrdersPage() {
                           <Button size="sm" variant="destructive">
                             <AlertCircle className="h-4 w-4 mr-1" />
                             Request Revision
+                          </Button>
+                        )}
+                        {order.jobStatus === "Completed" && !order.isReviewed && (
+                          <Button size="sm" variant="secondary" onClick={() => handleLeaveReview(order.id)}>
+                            <Star className="h-4 w-4 mr-1" />
+                            Leave Review
                           </Button>
                         )}
                       </div>
@@ -173,7 +185,7 @@ export default function OrdersPage() {
                           </div>
                         </div>
                         <p className="font-bold">
-                          {(service.tiers.find((t) => t.id === order.packageId)?.price || 0).toFixed(2)}{" "}
+                          {(service.tiers!.find((t) => t.id === order.packageId)?.price || 0).toFixed(2)}{" "}
                           {order.currency}
                         </p>
                       </div>

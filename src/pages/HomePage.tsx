@@ -2,7 +2,7 @@ import { Navigation } from "../components/navigation"
 import { Hero } from "../components/hero"
 import { FeaturedServices } from "../components/featured-services"
 import { Testimonials } from "../components/testimonials"
-import { SpotlightSection } from "../components/spotlight-section"
+// import { SpotlightSection } from "../components/spotlight-section"
 import { Footer } from "../components/footer"
 
 export default function HomePage() {
@@ -13,7 +13,7 @@ export default function HomePage() {
         <Hero />
         <FeaturedServices />
         <Testimonials />
-        <SpotlightSection />
+        {/* <SpotlightSection /> */}
       </main>
       <Footer />
     </div>

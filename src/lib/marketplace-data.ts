@@ -105,6 +105,7 @@ export interface Order {
   cancellationReason: string | null
   revisions: Revision[]
   revisionMaxLimit: number
+  isReviewed?: boolean
 }
 
 export interface Review {

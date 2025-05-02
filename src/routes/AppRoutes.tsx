@@ -10,7 +10,8 @@ import OrdersPage from "@/pages/OrdersPage"
 import ProfilePage from "@/pages/ProfilePage"
 import ValidatePage from "@/pages/ValidatePage"
 import AuthPage from "@/pages/AuthPage"
-
+import OrderSummaryPage from "@/pages/OrderSummaryPage"
+import ReviewPage from "@/pages/ReviewPage"
 export function AppRoutes() {
   return (
     <Routes>
@@ -23,6 +24,8 @@ export function AppRoutes() {
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/services/:id" element={<ServiceDetailPage />} />
       <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/order-summary/:id" element={<OrderSummaryPage />} />
+      <Route path="/review/:orderId" element={<ReviewPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/profile/:id" element={<ProfilePage />} />
       <Route path="/validate" element={<ValidatePage />} />

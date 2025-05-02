@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -24,6 +25,8 @@ import { useParams } from "react-router-dom"
 
 export default function ServicePage() {
   const { id } = useParams(); 
+  const navigate = useNavigate()
+
   if(!id){
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
@@ -38,6 +41,16 @@ export default function ServicePage() {
 
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState<"basic" | "standard" | "premium">("standard")
+
+  const handleOrderClick = () => {
+    // Handle order logic here
+    // console.log(`Ordering ${selectedPackage} package for service ${service.title}`)
+    // Redirect to order page or show confirmation
+    navigate(`/order-summary/${service.id}`, {
+      state: { selectedPackage },
+    })
+
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -264,7 +277,7 @@ export default function ServicePage() {
                         </div>
 
                         <div className="space-y-4">
-                          <Button className="w-full bg-highlight text-black hover:bg-highlight/90">Order Now</Button>
+                          <Button className="w-full bg-highlight text-black hover:bg-highlight/90" onClick={handleOrderClick}>Order Now</Button>
                           <Button
                             variant="outline"
                             className="w-full border-highlight text-highlight hover:bg-highlight/10"
