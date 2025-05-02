@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "setup": "npm i && dfx canister create backend && dfx generate backend && dfx deploy",
+    "setup": "npm i && dfx canister create backend && dfx generate backend && dfx canister create icp_ledger_canister && dfx canister create Service_backend && dfx canister create Order_backend && dfx canister create Client_backend && dfx canister create Freelancer_backend && dfx canister create Review_backend && dfx canister create Payment_backend && dfx deploy",
     "start": "run-p frontend backend",
     "frontend": "vite --port 3000",
     "backend": "mo-dev --generate --deploy -y",

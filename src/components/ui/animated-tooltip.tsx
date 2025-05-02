@@ -1,7 +1,8 @@
 "use client"
 
+import type React from "react"
 import { useState } from "react"
-import { motion, AnimatePresence, useMotionValue } from "framer-motion"
+import { motion, useTransform, AnimatePresence, useMotionValue, useSpring } from "framer-motion" // Fixed import from framer-motion
 
 export const AnimatedTooltip = ({
   items,
@@ -15,19 +16,27 @@ export const AnimatedTooltip = ({
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const springConfig = { stiffness: 100, damping: 5 }
-  const x = useMotionValue(0)
+  const x = useMotionValue(0) // going to set this value on mouse move
+  // rotate the tooltip
+  const rotate = useSpring(useTransform(x, [-100, 100], [-45, 45]), springConfig)
+  // translate the tooltip
+  const translateX = useSpring(useTransform(x, [-100, 100], [-50, 50]), springConfig)
+  const handleMouseMove = (event: React.MouseEvent<HTMLImageElement>) => {
+    const halfWidth = event.currentTarget.offsetWidth / 2
+    x.set(event.nativeEvent.offsetX - halfWidth) // set the x value, which is then used in transform and rotate
+  }
 
   return (
-    <div className="flex flex-row items-center justify-center gap-2 py-2">
-      {items.map((item, idx) => (
+    <div className="flex flex-row items-center justify-center">
+      {items.map((item) => (
         <div
+          className="group relative -mr-4"
           key={item.id}
-          className="group relative"
-          onMouseEnter={() => setHoveredIndex(idx)}
+          onMouseEnter={() => setHoveredIndex(item.id)}
           onMouseLeave={() => setHoveredIndex(null)}
         >
-          <AnimatePresence>
-            {hoveredIndex === idx && (
+          <AnimatePresence mode="popLayout">
+            {hoveredIndex === item.id && (
               <motion.div
                 initial={{ opacity: 0, y: 20, scale: 0.6 }}
                 animate={{
@@ -42,10 +51,11 @@ export const AnimatedTooltip = ({
                 }}
                 exit={{ opacity: 0, y: 20, scale: 0.6 }}
                 style={{
-                  translateX: x,
+                  translateX: translateX,
+                  rotate: rotate,
                   whiteSpace: "nowrap",
                 }}
-                className="absolute -left-1/2 -top-16 z-50 flex translate-x-1/2 flex-col items-center justify-center rounded-md bg-black px-4 py-2 text-xs shadow-xl"
+                className="absolute -top-16 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center justify-center rounded-md bg-black px-4 py-2 text-xs shadow-xl"
               >
                 <div className="absolute inset-x-10 -bottom-px z-30 h-px w-[20%] bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
                 <div className="absolute -bottom-px left-10 z-30 h-px w-[40%] bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
@@ -55,15 +65,13 @@ export const AnimatedTooltip = ({
               </motion.div>
             )}
           </AnimatePresence>
-          <motion.div
-            className="relative h-10 w-10 rounded-full border-2 border-white object-cover object-top shadow-md"
-            style={{
-              scale: hoveredIndex === idx ? 1.15 : 1,
-              transition: "all 0.1s",
-              backgroundImage: `url(${item.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
+          <img
+            onMouseMove={handleMouseMove}
+            height={100}
+            width={100}
+            src={item.image || "/placeholder.svg"}
+            alt={item.name}
+            className="relative !m-0 h-14 w-14 rounded-full border-2 border-white object-cover object-top !p-0 transition duration-500 group-hover:z-30 group-hover:scale-105"
           />
         </div>
       ))}
