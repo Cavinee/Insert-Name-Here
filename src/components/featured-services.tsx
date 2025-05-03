@@ -8,32 +8,32 @@ const featuredServices = [
   {
     title: "Web Development",
     description: "Get your website built by expert developers using the latest technologies.",
-    link: "/services?category=development",
+    link: "/services?category=WebDevelopment",
   },
   {
-    title: "UI/UX Design",
-    description: "Create beautiful, intuitive interfaces that users will love.",
-    link: "/services?category=design",
+    title: "Mobile Development",
+    description: "Build responsive and high-performance mobile applications.",
+    link: "/services?category=MobileDevelopment",
   },
   {
-    title: "Content Writing",
-    description: "Engaging content that converts visitors into customers.",
-    link: "/services?category=writing",
+    title: "Machine Learning",
+    description: "Leverage AI and machine learning to solve complex problems.",
+    link: "/services?category=MachineLearning",
   },
   {
-    title: "Digital Marketing",
-    description: "Reach your target audience and grow your business online.",
-    link: "/services?category=marketing",
+    title: "Cloud Services",
+    description: "Scale your business with cloud computing solutions.",
+    link: "/services?category=CloudServices",
   },
   {
-    title: "Video Production",
-    description: "Professional videos that tell your brand's story.",
-    link: "/services?category=video",
+    title: "Software Testing",
+    description: "Ensure the quality of your software with professional testing services.",
+    link: "/services?category=SoftwareTesting",
   },
   {
-    title: "AI Services",
-    description: "Leverage artificial intelligence to automate and optimize your business.",
-    link: "/services?category=ai",
+    title: "Technical Writing",
+    description: "Produce clear and concise technical documentation.",
+    link: "/services?category=TechnicalWriting",
   },
 ]
 
