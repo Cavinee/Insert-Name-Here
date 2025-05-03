@@ -1,4 +1,5 @@
-import { Link, useParams } from "react-router-dom"
+import { useState } from "react"
+import { Link } from "react-router-dom"
 import { Navigation } from "../components/navigation"
 import { Footer } from "../components/footer"
 import { Button } from "../components/ui/button"
@@ -11,6 +12,50 @@ import { StarIcon, Filter } from "lucide-react"
 import { services, formatPrice } from "../lib/marketplace-data"
 
 export default function ServicesPage() {
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [selectedRating, setSelectedRating] = useState("any")
+  const [selectedSort, setSelectedSort] = useState("recent")
+  const [priceRange, setPriceRange] = useState([0, 200])
+  const [filteredServices, setFilteredServices] = useState(services)
+  const [searchTerm, setSearchTerm] = useState("")
+
+  function applyFilters() {
+    let filtered = services.filter((service) => {
+      const matchCategory = selectedCategory === "all" || service.category === selectedCategory
+      const matchRating = selectedRating === "any" || (service.averageRating ?? 0) >= parseFloat(selectedRating)
+      const matchPrice =
+        (service.startingPrice ?? 0) >= priceRange[0] && (service.startingPrice ?? 0) <= priceRange[1]
+      const matchSearch = searchTerm.trim() === "" || service.title.toLowerCase().includes(searchTerm.toLowerCase())
+  
+      // Debug log
+      console.log("FILTER CHECK:", {
+        title: service.title,
+        category: service.category,
+        averageRating: service.averageRating,
+        startingPrice: service.startingPrice,
+        matchCategory,
+        matchRating,
+        matchPrice,
+        matchSearch
+      })
+  
+      return matchCategory && matchRating && matchPrice && matchSearch
+    })
+  
+    // Sort
+    if (selectedSort === "price-low") {
+      filtered.sort((a, b) => a.startingPrice - b.startingPrice)
+    } else if (selectedSort === "price-high") {
+      filtered.sort((a, b) => b.startingPrice - a.startingPrice)
+    } else if (selectedSort === "popular") {
+      filtered.sort((a, b) => b.totalReviews - a.totalReviews)
+    } else if (selectedSort === "recent") {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
+  
+    setFilteredServices(filtered)
+  }
+  
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -32,34 +77,34 @@ export default function ServicesPage() {
                 </h2>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Category</label>
-                  <Select>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger>
                       <SelectValue placeholder="All categories" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="design">Design</SelectItem>
-                      <SelectItem value="development">Development</SelectItem>
-                      <SelectItem value="marketing">Marketing</SelectItem>
-                      <SelectItem value="writing">Writing</SelectItem>
-                      <SelectItem value="video">Video</SelectItem>
-                      <SelectItem value="music">Music</SelectItem>
-                      <SelectItem value="business">Business</SelectItem>
-                      <SelectItem value="lifestyle">Lifestyle</SelectItem>
+                      <SelectItem value="WebDevelopment">Web Development</SelectItem>
+                      <SelectItem value="MobileDevelopment">Mobile Development</SelectItem>
+                      <SelectItem value="MachineLearning">Machine Learning</SelectItem>
+                      <SelectItem value="CloudServices">Cloud Services</SelectItem>
+                      <SelectItem value="SoftwareTesting">Software Testing</SelectItem>
+                      <SelectItem value="TechnicalWriting">Technical Writing</SelectItem>
+                      <SelectItem value="Database">Database</SelectItem>
+                      <SelectItem value="AutomationAndScripting">Automation and Scripting</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Price Range (ETH)</label>
-                  <Slider defaultValue={[0, 0.5]} max={0.5} step={0.01} />
+                  <Slider value={priceRange} onValueChange={setPriceRange} max={200} step={1} />
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>0 ETH</span>
-                    <span>0.5 ETH</span>
+                    <span>{priceRange[0].toFixed(2)} ETH</span>
+                    <span>{priceRange[1].toFixed(2)} ETH</span>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Rating</label>
-                  <Select defaultValue="4">
+                  <Select value={selectedRating} onValueChange={setSelectedRating}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -73,7 +118,7 @@ export default function ServicesPage() {
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Sort By</label>
-                  <Select defaultValue="recent">
+                  <Select value={selectedSort} onValueChange={setSelectedSort}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -86,19 +131,26 @@ export default function ServicesPage() {
                   </Select>
                 </div>
               </div>
-              <Button className="w-full">Apply Filters</Button>
+              <Button className="w-full" onClick={applyFilters}>
+                Apply Filters
+              </Button>
             </div>
           </aside>
 
           {/* Services Grid */}
           <div className="flex-1 space-y-6">
             <div className="flex items-center gap-4">
-              <Input placeholder="Search services..." className="max-w-md" />
-              <Button>Search</Button>
+              <Input
+                placeholder="Search services..."
+                className="max-w-md"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button onClick={applyFilters}>Search</Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
+              {filteredServices.map((service) => (
                 <Link to={`/services/${service.id}`} key={service.id}>
                   <Card className="group relative overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
                     <div className="aspect-video w-full overflow-hidden">
