@@ -62,9 +62,6 @@ export function Navigation() {
           <Link to="/services" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
             Services
           </Link>
-          <Link to="/browse" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
-            Browse
-          </Link>
           <Link to="/sell" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
             Sell
           </Link>
