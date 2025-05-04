@@ -11,6 +11,8 @@ import { Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import astronautBg from "@/assets/astronaut-bg.jpeg"
 
+
+
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("sign-in")
   const [isConnecting, setIsConnecting] = useState(false)
@@ -48,7 +50,7 @@ export default function AuthPage() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-black relative z-10">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2 animate-text-glow">Cosmic Connect</h1>
+            <h1 className="text-4xl font-bold text-white mb-2 animate-text-glow">Cointract</h1>
             <p className="text-purple-200">Secure Web3 Authentication with Internet Identity</p>
           </div>
 

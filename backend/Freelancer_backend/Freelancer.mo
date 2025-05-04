@@ -6,6 +6,7 @@ import Debug "mo:base/Debug";
 import Error "mo:base/Error";
 import Iter "mo:base/Iter";
 import Types "../Types";
+import Util "../Util";
 
 actor {
   // TrieMap to store freelancer profiles
@@ -27,28 +28,35 @@ actor {
 
   // Register a freelancer from client
   public shared func registerFreelancerFromClient(
-    profile : Types.FreelancerProfile,
-    skills : [Text],
-    portfolioIds : ?[Text],
+      id: Principal,
+      fullName: Text,
+      email: Text,
+      dateOfBirth: Text,
+      balance: Float,
+      profilePictureUrl: Text,
+      orderedServicesId: [Principal],
+      skills: [Text],
+      portfolioIds: ?[Text]
   ) : async Bool {
     try {
       let freelancer : Types.FreelancerProfile = {
-        id = profile.id;
-        role = #Freelancer;
-        fullName = profile.fullName;
-        email = profile.email;
-        dateOfBirth = profile.dateOfBirth;
-        balance = profile.balance;
-        profilePictureUrl = profile.profilePictureUrl;
-        orderedServicesId = profile.orderedServicesId;
+        id = id;
+        role = "Freelancer";
+        fullName = fullName;
+        email = email;
+        dateOfBirth = dateOfBirth;
+        balance = balance;
+        password = ""; // or handle password explicitly if needed
+        profilePictureUrl = profilePictureUrl;
+        orderedServicesId = orderedServicesId;
         skills = skills;
-        portfolioIds = portfolioIds; // Fixed: Use the provided portfolioIds
+        portfolioIds = portfolioIds;
         reputationScore = 0.0;
         completedProjects = 0;
         tokenRewards = 0.0;
-        availabilityStatus = #Available;
+        availabilityStatus = "Available";
       };
-      freelancerProfiles.put(profile.id, freelancer);
+      freelancerProfiles.put(id, freelancer);
       return true;
     } catch (e) {
       Debug.print("Error registering freelancer: " # Error.message(e));
@@ -56,10 +64,14 @@ actor {
     };
   };
 
+
   // Register a freelancer from signup
-  public shared func registerFreelancerFromSignup(profile : Types.FreelancerProfile) : async Bool {
+  public shared func registerFreelancerFromSignup(
+      unregisteredProfile: Types.FreelancerProfile,
+  ) : async Bool {
     try {
-      freelancerProfiles.put(profile.id, profile);
+     
+      freelancerProfiles.put(unregisteredProfile.id, unregisteredProfile);
       return true;
     } catch (e) {
       Debug.print("Error creating freelancer profile: " # Error.message(e));
@@ -67,48 +79,52 @@ actor {
     };
   };
 
+
   // Get freelancer profile
   public shared query func getFreelancerProfile(userId : Principal) : async ?Types.FreelancerProfile {
     return freelancerProfiles.get(userId);
   };
 
   // Update freelancer profile
-  public shared func updateFreelancerProfile(freelancerId: Principal, updatedFreelancerData : Types.FreelancerProfile) : async Bool {
-    try {
-      switch (freelancerProfiles.get(freelancerId)) {
-        case (?_currProfile) {
-          // Create a new profile with updated fields, handling optional values
-          let newProfile : Types.FreelancerProfile = {
-            id = freelancerId;
-            fullName = updatedFreelancerData.fullName; // Always update fullName
-            email = updatedFreelancerData.email;
-            dateOfBirth = updatedFreelancerData.dateOfBirth;
-            balance = updatedFreelancerData.balance;
-            profilePictureUrl = updatedFreelancerData.profilePictureUrl;
-            orderedServicesId = updatedFreelancerData.orderedServicesId; // Maintain the original value
-            skills = updatedFreelancerData.skills; // Always update skills
-            portfolioIds = updatedFreelancerData.portfolioIds; // Always update portfolioIds
-            reputationScore = updatedFreelancerData.reputationScore; // Always update reputationScore
-            completedProjects = updatedFreelancerData.completedProjects; // Always update completedProjects
-            tokenRewards = updatedFreelancerData.tokenRewards; // Always update tokenRewards
-            role = updatedFreelancerData.role; // Always update role
-            availabilityStatus = updatedFreelancerData.availabilityStatus; // Always update availabilityStatus
-          };
+  public shared func updateFreelancerProfile(
+    updatedProfileData: Types.FreelancerProfile,
+) : async Bool {
+  try {
+    switch (freelancerProfiles.get(updatedProfileData.id)) {
+      case (?currProfile) {
+        let updatedProfile : Types.FreelancerProfile = {
+          id = updatedProfileData.id;
+          fullName = updatedProfileData.fullName;
+          email = updatedProfileData.email;
+          dateOfBirth = updatedProfileData.dateOfBirth;
+          balance = updatedProfileData.balance;
+          password = updatedProfileData.password;
+          profilePictureUrl = updatedProfileData.profilePictureUrl;
+          orderedServicesId = updatedProfileData.orderedServicesId;
+          skills = updatedProfileData.skills;
+          portfolioIds = updatedProfileData.portfolioIds;
+          reputationScore = updatedProfileData.reputationScore;
+          completedProjects = updatedProfileData.completedProjects;
+          tokenRewards = updatedProfileData.tokenRewards;
+          role = currProfile.role;
+          availabilityStatus = currProfile.availabilityStatus;
+        };
 
-          freelancerProfiles.put(freelancerId, newProfile);
-          return true;
-          
-        };
-        case (null) {
-          Debug.print("Freelancer not found with id: " # Principal.toText(freelancerId));
-          return false;
-        };
+        freelancerProfiles.put(updatedProfile.id, updatedProfile);
+        return true;
       };
-    } catch (e) {
-      Debug.print("Error updating freelancer profile: " # Error.message(e));
-      return false;
+      case (null) {
+        Debug.print("Freelancer not found with id: " # Principal.toText(updatedProfileData.id));
+        return false;
+      };
     };
+  } catch (e) {
+    Debug.print("Error updating freelancer profile: " # Error.message(e));
+    return false;
   };
+};
+
+
 
   // Delete freelancer account
   public shared func deleteAccount(userId : Principal) : async Result.Result<Text, Text> {
@@ -140,7 +156,7 @@ actor {
       case (?currProfile) {
         let updatedProfile : Types.FreelancerProfile = {
           currProfile with
-          availabilityStatus = #Busy;
+          availabilityStatus = "Busy";
         };
         // Update the freelancerProfiles map with the new profile
         freelancerProfiles.put(freelancerId, updatedProfile);
@@ -157,7 +173,7 @@ actor {
       case (?currProfile) {
         let updatedProfile : Types.FreelancerProfile = {
           currProfile with
-          availabilityStatus = #Available;
+          availabilityStatus = "Available";
         };
         // Update the freelancerProfiles map with the new profile
         freelancerProfiles.put(freelancerId, updatedProfile);
@@ -173,35 +189,3 @@ actor {
 
 
 };
-
-// // Process a revision request from client
-
-// // ----- Profile Management Functions -----
-
-// // Add a portfolio item
-// public func addPortfolioItem(
-// freelancerId: Principal,
-// title: Text,
-// description: Text,
-// category: Text,
-// images: [Text],
-// video: ?Text,
-// link: ?Text
-// ) : async Result.Result<PortfolioId, Error>;
-// // ----- Order and Payment Functions -----
-
-// // Request payment for completed work
-// public func requestPayment(
-// userId: Principal,
-// orderId: OrderId
-// ) : async Result.Result<PaymentId, Error>;
-
-// // Withdraw earnings to external account
-// public func withdrawEarnings(
-// userId: Principal,
-// amount: Float,
-// paymentMethod: PaymentMethod,
-// accountDetails: PaymentAccountDetails
-// ) : async Result.Result<TransactionId, Error>{
-
-// }

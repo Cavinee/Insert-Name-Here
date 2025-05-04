@@ -18,6 +18,7 @@ export interface Identity {
   }
   
   export interface ClientProfile {
+    id: string
     fullname: string
     email: string
     dateOfBirth: string
@@ -70,6 +71,7 @@ export interface Identity {
   
       // Mock successful login
       return {
+        id: "2vxsx-fae",
         fullname: "Demo User",
         email,
         dateOfBirth: "1990-01-01",

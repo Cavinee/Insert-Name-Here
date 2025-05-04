@@ -1,4 +1,4 @@
-"use client"
+// "use client"
 
 import type React from "react"
 
@@ -15,10 +15,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { format } from "date-fns"
 import { CalendarIcon, Loader2, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { actor } from "@/lib/motoko"
+// import { actor } from "@/lib/motoko"
+import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
-
+import { Client_backend } from "@/declarations/Client_backend"
+import { ClientProfile } from "@/declarations/Client_backend/Client_backend.did"
+import { Freelancer_backend } from "@/declarations/Freelancer_backend"
+import { FreelancerProfile } from "@/declarations/Freelancer_backend/Freelancer_backend.did"
+import { useAuth } from "@/utility/use-auth-client";
 // Form validation schema
+
 const signUpSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -39,10 +45,14 @@ const signUpSchema = z.object({
 
 type SignUpFormValues = z.infer<typeof signUpSchema>
 
+
 export function SignUpForm() {
+  
   const [isLoading, setIsLoading] = useState(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const { toast } = useToast()
+  const { principal } = useAuth();
+  const navigate = useNavigate()
 
   const {
     register,
@@ -72,50 +82,61 @@ export function SignUpForm() {
       reader.readAsDataURL(file)
     }
   }
-
+  
   const onSubmit = async (data: SignUpFormValues) => {
+    
     setIsLoading(true)
-
+  
     try {
-      // Create user profile based on account type
-      if (data.accountType === "client") {
-        const clientProfile = {
-          fullname: data.fullName,
+      if (data.accountType === "client" && principal != null) {
+        
+        const clientProfile: ClientProfile = {
+          id: principal,
+          fullName: data.fullName,
+          role: "Client",
           email: data.email,
+          password: data.password,
           dateOfBirth: format(data.dateOfBirth, "yyyy-MM-dd"),
-          profilePictureUrl: profileImage || "",
-          role: "CLIENT",
           balance: 0,
-          orderedServicesId: [],
+          profilePictureUrl: profileImage || "",
+          orderedServicesId: [], // Empty ordered services
         }
-
-        await actor.createUser(clientProfile)
-      } else {
-        // Freelancer profile
-        const freelancerProfile = {
-          fullname: data.fullName,
+        const res  = await Client_backend.registerUser(clientProfile)
+        console.log(res)
+       
+        // console.log("New client Principal ID:", id.toString())
+      } else if(data.accountType === "freelancer" && principal != null) {
+        const freelancerProfile: FreelancerProfile = {
+          id: principal,
+          fullName: data.fullName,
+          role: "Freelancer",
           email: data.email,
+          password: data.password,
           dateOfBirth: format(data.dateOfBirth, "yyyy-MM-dd"),
-          profilePictureUrl: profileImage || "",
-          role: "FREELANCER",
           balance: 0,
-          orderedServicesId: [],
-          skills: data.skills ? data.skills.split(",").map((s) => s.trim()) : [],
-          portfolioIds: [],
-          reputationScore: 0,
-          completedProjects: 0,
-          tokenRewards: 0,
           availabilityStatus: "Available",
+          portfolioIds: [],
+          reputationScore: 0.0,
+          tokenRewards: 0.0,
+          profilePictureUrl: profileImage || "",
+          orderedServicesId: [], // Empty ordered services
+          completedProjects: 0n,
+          skills: data.skills ? data.skills.split(",") : [],
         }
-
-        await actor.createFreelancer(freelancerProfile)
+        //Freelancer logic remains the same for now, assuming you haven't changed it
+        await Freelancer_backend.registerFreelancerFromSignup(freelancerProfile)
+        
       }
-
+  
       toast({
         title: "Account created!",
         description: `Your ${data.accountType} account has been successfully created`,
       })
-    } catch (error) {
+
+      navigate("/")
+
+    } 
+    catch (error) {
       toast({
         title: "Registration failed",
         description: "There was an error creating your account",
@@ -125,6 +146,7 @@ export function SignUpForm() {
       setIsLoading(false)
     }
   }
+  
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
