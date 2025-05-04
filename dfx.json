@@ -10,7 +10,10 @@
     "frontend": {
       "dependencies": ["backend"],
       "type": "assets",
-      "source": ["dist/"]
+      "source": ["dist/"],
+      "headers": {
+        "Content-Security-Policy": "script-src 'self' 'unsafe-inline'"
+      }
     },
     "Payment_backend":{
       "type": "motoko",
@@ -31,41 +34,48 @@
         }
       }
     },
+
     "Service_backend": {
       "type": "motoko",
-      "main": "backend/Service_backend/Service.mo",
-      "declarations": {
-        "node_compatibility": true
-      }
+      "main": "backend/Service_backend/Service.mo"
+      
     },
     "Order_backend": {
       "type": "motoko",
       "main": "backend/Order_backend/Order.mo",
-      "declarations": {
-        "node_compatibility": true
-      }
+      "dependencies": ["Service_backend", "Freelancer_backend"]
     },
     "Client_backend": {
       "type": "motoko",
-      "main": "backend/Client_backend/Client.mo",
-      "declarations": {
-        "node_compatibility": true
-      }
+      "main": "backend/Client_backend/Client.mo"
+      
     },
     "Freelancer_backend": {
       "type": "motoko",
-      "main": "backend/Freelancer_backend/Freelancer.mo",
-      "declarations": {
-        "node_compatibility": true
-      }
+      "main": "backend/Freelancer_backend/Freelancer.mo"
     },
     "Review_backend": {
       "type": "motoko",
-      "main": "backend/Review_backend/Review.mo",
-      "declarations": {
-        "node_compatibility": true
-      }
+      "main": "backend/Review_backend/Review.mo"
+     
+    },
+
+    "Client_seeder": {
+      "type": "motoko",
+      "dependencies": ["Client_backend"],
+      "main": "backend/Seeders/ClientSeeder.mo"
+    },
+    "Freelancer_seeder": {
+      "type": "motoko",
+      "dependencies": ["Freelancer_backend"],
+      "main": "backend/Seeders/FreelancerSeeder.mo"
+    },
+    "Service_seeder": {
+      "type": "motoko",
+      "dependencies": ["Service_backend"],
+      "main": "backend/Seeders/ServiceSeeder.mo"
     }
+
   },
   "networks": {
     "local": {

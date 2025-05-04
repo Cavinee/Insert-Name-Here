@@ -36,7 +36,7 @@ actor {
       case (#err(error)) {
         return #err("Failed to get service: " # error);
       };
-      case (#ok(serviceDetails)) {
+      case (#ok(_serviceDetails)) {
         // Get package details
         let packageResult = await Service.getPackage(serviceId, packageId);
 
@@ -232,7 +232,10 @@ actor {
                     };
                     // Update the freelancer profile in the database
           
-                    let profileUpdateSuccessful = await Freelancer.updateFreelancerProfile(freelancerId, updatedFreelancerProfile);
+                    let profileUpdateSuccessful = await Freelancer.updateFreelancerProfile(
+                      updatedFreelancerProfile
+                      );
+                      
                     if (profileUpdateSuccessful) {
                       return #ok("Order accepted successfully!");
                     } else {
@@ -304,7 +307,9 @@ actor {
                       );
                     };
                     // Update the freelancer profile in the database and handle the returned boolean
-                    let profileUpdateSuccessful = await Freelancer.updateFreelancerProfile(freelancerId, updatedFreelancerProfile);
+                    let profileUpdateSuccessful = await Freelancer.updateFreelancerProfile(
+                      updatedFreelancerProfile
+                      );
                     if (profileUpdateSuccessful) {
                       return #ok("Order accepted successfully!");
                     } else {

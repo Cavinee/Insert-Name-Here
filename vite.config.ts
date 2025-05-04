@@ -39,8 +39,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  test: {
-    environment: 'jsdom',
-    setupFiles: 'setupTests.ts',
-  },
+  // test: {
+  //   environment: 'jsdom',
+  //   setupFiles: 'setupTests.ts',
+  // },
 });

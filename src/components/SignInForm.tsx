@@ -1,4 +1,4 @@
-"use client"
+// "use client"
 
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { actor } from "@/lib/motoko"
 import { Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useNavigate } from "react-router-dom";
 
 // Form validation schema
 const signInSchema = z.object({
@@ -34,6 +35,7 @@ export function SignInForm() {
       password: "",
     },
   })
+  const navigate = useNavigate()
 
   const onSubmit = async (data: SignInFormValues) => {
     setIsLoading(true)
@@ -42,6 +44,7 @@ export function SignInForm() {
       const user = await actor.loginUser(data.email, data.password)
 
       if (user) {
+
         toast({
           title: "Success!",
           description: `Welcome back, ${user.fullname}`,
@@ -58,6 +61,7 @@ export function SignInForm() {
     } finally {
       setIsLoading(false)
     }
+    navigate("/")
   }
 
   return (

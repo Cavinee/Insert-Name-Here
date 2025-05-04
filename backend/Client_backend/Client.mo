@@ -5,10 +5,13 @@ import Debug "mo:base/Debug";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
 import Types "../Types";
-
+import Util "../Util";
 
 actor {
-
+    public type RegistrationResult = {
+        #ok : Nat;
+        #err : Text;
+        };
     var userProfiles = TrieMap.TrieMap<Principal, Types.ClientProfile>(Principal.equal, Principal.hash);
 
     stable var stableUserProfile: [(Principal, Types.ClientProfile)] = [];
@@ -22,40 +25,47 @@ actor {
         Iter.fromArray(stableUserProfile), Principal.equal, Principal.hash);
     };
 
-   public func registerUser(profile: Types.ClientProfile) : async Nat {
+    public shared func registerUser(
+        unregisteredProfile: Types.ClientProfile
+    ) : async RegistrationResult {
         try {
-            userProfiles.put(profile.id, profile);
-            return 1;
-
+            userProfiles.put(unregisteredProfile.id, unregisteredProfile);
+            return #ok(1);
         } catch (e: Error) {
-            Debug.print("Error creating client profile: " # Error.message(e));  
-            return 0; 
+            Debug.print("Error registering user: " # Error.message(e));
+            return #err(Error.message(e));
         };
     };
 
-    public shared func updateUser(prof : Types.ClientProfile) : async Nat {
-        
-        try {
-            userProfiles.put(prof.id, prof);
-            return 1;
-        } catch (e: Error) {
-            Debug.print("Error updating user: " # Error.message(e));
-            return 0;
-        };
-        return 0;
-    };
+    public shared func updateUser(
+        updatedProfileData: Types.ClientProfile,
+    ) : async Bool {
 
-    // public func deleteClientProfile(id: Principal) : async Bool {
-    //     switch (userProfiles.get(id)) {
-    //         case (?profile) {
-    //             userProfiles.delete(id); // Use delete instead of remove
-    //             return true; // Deletion successful
-    //         };
-    //         case (null) {
-    //             return false; // Profile not found
-    //         };
-    //     };
-    // };
+            switch (userProfiles.get(updatedProfileData.id)) {
+            case (?currProfile) {
+                let updatedProfile : Types.ClientProfile = {
+                id = updatedProfileData.id;
+                fullName = updatedProfileData.fullName;
+                email = updatedProfileData.email;
+                dateOfBirth = updatedProfileData.dateOfBirth;
+                balance = updatedProfileData.balance;
+                password = updatedProfileData.password;
+                profilePictureUrl = updatedProfileData.profilePictureUrl;
+                orderedServicesId = updatedProfileData.orderedServicesId;
+                role = currProfile.role; // Keep the existing role
+                };
+
+                userProfiles.put(updatedProfile.id, updatedProfile);
+                return true;
+            };
+            case (null) {
+                Debug.print("Freelancer not found with id: " # Principal.toText(updatedProfileData.id));
+                return false;
+            };
+            
+        };
+    
+    };
 
     public query func getUser(id: Principal) : async ?Types.ClientProfile {
         return userProfiles.get(id);
@@ -73,7 +83,7 @@ actor {
         return userArray;
     };
 
-    public shared func getUserById(id: Principal) : async ?Types.ClientProfile {
+    public query func getUserById(id: Principal) : async ?Types.ClientProfile {
         switch (userProfiles.get(id)) {
             case (?profile) {
                 return ?profile;
@@ -85,24 +95,24 @@ actor {
     };
 
 
-    public func getRole(id: Principal): async Types.UserRole {
+    public query func getRole(id: Principal): async Text {
         switch(userProfiles.get(id)){
             case (?profile) {
                 return profile.role; // Return the role of the user
             };
             case (null) {
-                return #Client; // Profile not found
+                return "Client"; // Profile not found
             };
         }
     };
 
-    public func getUserBalance(id: Principal): async ?Float {
+    public query func getUserBalance(id: Principal): async Float {
         switch(userProfiles.get(id)){
             case (?profile) {
-                return ?profile.balance; // Return the balance of the client
+                return profile.balance; // Return the balance of the client
             };
             case (null) {
-                return null; // Profile not found
+                return 0; // Profile not found
             };
         }
     };

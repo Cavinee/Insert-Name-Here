@@ -6,42 +6,63 @@ module Types {
 
   // Base user profile shared by all users
   public type ClientProfile = {
-    id: Principal;
-    role: UserRole;
-    fullName: Text;
-    email: Text;
-    dateOfBirth: Text;
-    balance: Float;
-    profilePictureUrl: Text;
-    orderedServicesId: [Principal];
+    id : Principal;
+    role : Text;
+    fullName : Text;
+    email : Text;
+    password: Text; // Optional: For login purposes
+    dateOfBirth : Text;
+    balance : Float;
+    profilePictureUrl : Text;
+    orderedServicesId : [Principal];
   };
 
-  public type ClientProfileUpdateFormData = {
-    role: UserRole;
-    fullName: Text;
-    email: Text;
-    dateOfBirth: Text;
-    balance: Float;
-    profilePictureUrl: Text;
-    orderedServicesId: [Principal];
+  public type UnregisteredClientProfile = {
+    role : Text;
+    fullName : Text;
+    email : Text;
+    dateOfBirth : Text;
+    balance : Float;
+    password: Text; // Optional: For login purposes
+
+    profilePictureUrl : Text;
+    orderedServicesId : [Principal];
   };
 
   // Freelancer-specific profile extension
   public type FreelancerProfile = {
-    id: Principal;
-    role: UserRole;
-    fullName: Text;
-    email: Text;
-    dateOfBirth: Text;
-    balance: Float;
-    profilePictureUrl: Text;
-    orderedServicesId: [Principal];
+    id : Principal;
+    role : Text;
+    fullName : Text;
+    email : Text;
+    dateOfBirth : Text;
+    balance : Float;
+    password: Text; // Optional: For login purposes
+    profilePictureUrl : Text;
+    orderedServicesId : [Principal];
     skills : [Text];
     portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
     reputationScore : Float; // Based on reviews, orders, etc.
-    completedProjects : Nat;
+    completedProjects : Int;
     tokenRewards : Float; // For gamification or loyalty points
-    availabilityStatus : AvailabilityStatus; // "Available", "Busy", "On Vacation", etc.
+    availabilityStatus : Text; // "Available", "Busy", "On Vacation", etc.
+  };
+
+  public type UnregisteredFreelancerProfile = {
+    role : Text;
+    fullName : Text;
+    email : Text;
+    dateOfBirth : Text;
+    balance : Float;
+    password: Text; // Optional: For login purposes
+    profilePictureUrl : Text;
+    orderedServicesId : [Principal];
+    skills : [Text];
+    portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
+    reputationScore : Float; // Based on reviews, orders, etc.
+    completedProjects : Int;
+    tokenRewards : Float; // For gamification or loyalty points
+    availabilityStatus : Text; // "Available", "Busy", "On Vacation", etc.
   };
 
   public type PortfolioId = Text;
@@ -76,7 +97,7 @@ module Types {
   //   reputationScore : Float; // Based on reviews, orders, etc.
   //   completedProjects : Nat;
   //   tokenRewards : Float; // For gamification or loyalty points
-  //   availabilityStatus : AvailabilityStatus; // "Available", "Busy", "On Vacation", etc.
+  //   Text : Text; // "Available", "Busy", "On Vacation", etc.
   // };
 
   // Admin-specific profile extension
@@ -211,10 +232,11 @@ module Types {
     revisions: [Revision];
     revisionMaxLimit : Nat;
   };
-  
-  public type Image  = {
-    imageUrl: Text;
-    imageTag: Text;
+
+
+  public type Image = {
+    imageUrl : Text;
+    imageTag : Text;
   };
 
   // Service (like a Fiverr gig)
@@ -224,18 +246,15 @@ module Types {
     description : Text;
     category : Text;
     subcategory : Text;
-    startingPrice : Nat; // From the cheapest ServiceTier
     currency : Text;
-    deliveryTimeMin : Int; // Fastest delivery option in days
-    status : JobStatus;
+    status : Text;
     freelancerId : Principal;
     createdAt : Nat;
     updatedAt : Nat;
     tags : [Text];
     attachments : ?[Image]; // Optional portfolio or example files
     tiers : [ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
-    contractType : ContractType;
-    paymentMethod : PaymentMethod;
+    paymentMethod : Text;
     averageRating : ?Float; // Auto-calculated
     totalReviews : Nat;
   };
@@ -246,31 +265,12 @@ module Types {
     description : Text;
     category : Text;
     subcategory : Text;
-    startingPrice : Nat; // From the cheapest ServiceTier
     currency : Text;
-    deliveryTimeMin : Int; // Fastest delivery option in days
-    status : JobStatus;
+    status : Text;
     tags : [Text];
     attachments : ?[Image]; // Optional portfolio or example files
     tiers : [ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
-    contractType : ContractType;
-    paymentMethod : PaymentMethod;
-  };
-
-  public type ServiceUpdateFormData = {
-    title : ?Text;
-    description : ?Text;
-    category : ?Text;
-    subcategory : ?Text;
-    startingPrice : ?Nat; // From the cheapest ServiceTier
-    currency : ?Text;
-    deliveryTimeMin : ?Int; // Fastest delivery option in days
-    status : ?JobStatus;
-    tags : ?[Text];
-    attachments : ?[Image]; // Optional portfolio or example files
-    tiers : ?[ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
-    contractType : ?ContractType;
-    paymentMethod : ?PaymentMethod;
+    paymentMethod : Text;
   };
 
   // Each ServiceTier inside a Service

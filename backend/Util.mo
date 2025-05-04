@@ -17,6 +17,25 @@ module Util {
     Principal.fromText(await generateUUID());
   };
 
+  public func userRoleVal(role : Text) : Bool {
+    switch (role) {
+      case ("admin") { return true };
+      case ("owner") { return true };
+      case ("renter") { return true };
+      case ("guest") { return true };
+      case (_) { return false };
+    };
+  };
+
+  public func availabilityStatusVal(av: Text): Bool {
+    switch(av){
+      case("Available") {return true};
+      case("Busy") {return true};
+      case("On Vacation") {return true};
+      case(_) {return false};
+    }
+  };
+
   public func toSubaccount(p : Principal) : async Blob {
     // Get the bytes of the Principal
     let principalBytes = Blob.toArray(Principal.toBlob(p));

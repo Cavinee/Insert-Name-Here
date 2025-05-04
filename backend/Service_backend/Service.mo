@@ -15,11 +15,6 @@ actor {
   var services = HashMap.HashMap<Principal, Types.Service>(10, Principal.equal, Principal.hash);
 
   public shared func createService(freelancerId : Principal, serviceData : Types.UnregisteredServiceFormData) : async Result.Result<Types.Service, Text> {
-    if (serviceData.tiers.size() == 0) {
-      return #err("At least one tier is required");
-
-    };
-
     let now = Int.abs(Time.now()); // Convert Time to Nat
     
     let newService : Types.Service = {
@@ -29,14 +24,11 @@ actor {
       description = serviceData.description;
       category = serviceData.category;
       subcategory = serviceData.subcategory;
-      startingPrice = serviceData.tiers[0].price;
       currency = serviceData.currency;
-      deliveryTimeMin = serviceData.tiers[0].deliveryDays;
       status = serviceData.status;
       tags = serviceData.tags;
       attachments = serviceData.attachments;
       tiers = serviceData.tiers;
-      contractType = serviceData.contractType;
       paymentMethod = serviceData.paymentMethod;
       createdAt = now;
       updatedAt = now;
@@ -48,41 +40,15 @@ actor {
     return #ok(newService);
   };
 
-  public shared func updateService(serviceId : Principal, updatedServiceData : Types.ServiceUpdateFormData) : async Result.Result<Types.Service, Text> {
-    let service = services.get(serviceId);
-    switch (service) {
-      case (?serviceExists) {
-        let updatedService : Types.Service = {
-          id = serviceExists.id;
-          freelancerId = serviceExists.freelancerId;
-          createdAt = serviceExists.createdAt;
-          updatedAt = Int.abs(Time.now()); // Convert Time to Nat
-          title = Option.get(updatedServiceData.title, serviceExists.title);
-          description = Option.get(updatedServiceData.description, serviceExists.description);
-          category = Option.get(updatedServiceData.category, serviceExists.category);
-          subcategory = Option.get(updatedServiceData.subcategory, serviceExists.subcategory);
-          startingPrice = Option.get(updatedServiceData.startingPrice, serviceExists.startingPrice);
-          currency = Option.get(updatedServiceData.currency, serviceExists.currency);
-          deliveryTimeMin = Option.get(updatedServiceData.deliveryTimeMin, serviceExists.deliveryTimeMin);
-          status = Option.get(updatedServiceData.status, serviceExists.status);
-          tags = Option.get(updatedServiceData.tags, serviceExists.tags);
-          attachments = switch (updatedServiceData.attachments) {
-            case (?newAttachments) { ?newAttachments };
-            case (null) { serviceExists.attachments };
-          };
-          tiers = Option.get(updatedServiceData.tiers, serviceExists.tiers);
-          contractType = Option.get(updatedServiceData.contractType, serviceExists.contractType);
-          paymentMethod = Option.get(updatedServiceData.paymentMethod, serviceExists.paymentMethod);
-          averageRating = serviceExists.averageRating;
-          totalReviews = serviceExists.totalReviews;
-        };
-
-        services.put(serviceId, updatedService);
-        return #ok(updatedService);
-      };
-      case (null) {
+  public shared func updateService(updatedServiceData : Types.Service) : async Result.Result<Types.Service, Text> {
+    try{
+        services.put(updatedServiceData.id, updatedServiceData);
+        return #ok(updatedServiceData);
+      }
+    catch(e){
+      
         return #err("Service not found");
-      };
+      
     };
   };
 
