@@ -10,8 +10,10 @@ import { Badge } from "../components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Upload, DollarSign, Plus, X } from 'lucide-react'
 import { Label } from "../components/ui/label"
+import { Principal } from "@dfinity/principal";
 
 export default function CreateServicePage() {
+
   const [images, setImages] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
@@ -44,20 +46,72 @@ export default function CreateServicePage() {
     setTags(tags.filter((t) => t !== tag))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setIsSuccess(true)
+  const formData = new FormData(e.currentTarget);
 
-      // Reset form after success message
-      setTimeout(() => {
-        setIsSuccess(false)
-      }, 3000)
-    }, 1500)
+  const serviceData: ServiceData = {
+    title: formData.get("title") as string,
+    description: formData.get("description") as string,
+    category: formData.get("category") as string,
+    startingPrice: Number(formData.get("price")),
+    deliveryTimeMin: Number(formData.get("deliveryTime")),
+    revisions: Number(formData.get("revisions")),
+    subcategory: "",
+    currency: "",
+    status: "ACTIVE",
+    tags: [],
+    tiers: [],
+    contractType: "FIXED_PRICE",
+    paymentMethod: "CRYPTO",
+    totalReviews: 0
+  };
+    try{
+      const response = await fetch("/api/services", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(serviceData),
+      });
+      if (response.ok) {
+        setIsSuccess(true);
+      } else {
+        throw new Error("Failed to submit service.");
+      }
+    } catch (error) {
+      console.error("Error submitting service:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Interface that defines the data structure to be sent to the backend
+  interface ServiceData {
+    title: string;
+    description: string;
+    category: string;
+    subcategory: string;
+    startingPrice: number;
+    currency: string;
+    deliveryTimeMin: number;
+    status: "ACTIVE" | "INACTIVE" | "PENDING"; // Assuming status is an enum or string
+    tags: string[];
+    attachments?: string[]; // Optional list of image URLs or file references
+    tiers: {
+      name: string; // "Basic", "Standard", "Premium"
+      price: number;
+      description: string;
+      deliveryTime: number;
+      revisions: number;
+    }[];
+    contractType: "FIXED_PRICE" | "HOURLY"; // Example contract types, adjust as needed
+    paymentMethod: "CRYPTO" | "BANK_TRANSFER" | "PAYPAL"; // Example payment methods, adjust as needed
+    averageRating?: number; // Optional, might not be included at the time of creation
+    totalReviews: number;
+    revisions:number;
+  
   }
 
   return (
@@ -291,15 +345,11 @@ export default function CreateServicePage() {
                     </div>
 
                     <div className="flex justify-end">
-                      {isSuccess ? (
-                        <div className="bg-green-500/20 text-green-600 dark:text-green-400 px-4 py-2 rounded-md">
-                          Service created successfully!
-                        </div>
-                      ) : (
-                        <Button type="submit" disabled={isSubmitting}>
-                          {isSubmitting ? "Creating..." : "Create Service"}
+                      
+                        <Button type="submit">
+                          
                         </Button>
-                      )}
+                      
                     </div>
                   </CardContent>
                 </Card>

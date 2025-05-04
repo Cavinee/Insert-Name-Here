@@ -43,15 +43,15 @@ export default function ServicesPage() {
     })
   
     // Sort
-    if (selectedSort === "price-low") {
-      filtered.sort((a, b) => a.startingPrice - b.startingPrice)
-    } else if (selectedSort === "price-high") {
-      filtered.sort((a, b) => b.startingPrice - a.startingPrice)
-    } else if (selectedSort === "popular") {
-      filtered.sort((a, b) => b.totalReviews - a.totalReviews)
-    } else if (selectedSort === "recent") {
-      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    }
+    // if (selectedSort === "price-low") {
+    //   filtered.sort((a, b) => a.startingPrice - b.startingPrice)
+    // } else if (selectedSort === "price-high") {
+    //   filtered.sort((a, b) => b.startingPrice - a.startingPrice)
+    // } else if (selectedSort === "popular") {
+    //   filtered.sort((a, b) => b.totalReviews - a.totalReviews)
+    // } else if (selectedSort === "recent") {
+    //   filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    // }
   
     setFilteredServices(filtered)
   }

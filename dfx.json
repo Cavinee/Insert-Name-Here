@@ -65,13 +65,6 @@
       "declarations": {
         "node_compatibility": true
       }
-    },
-    "Conversion_backend":{
-      "type": "motoko",
-      "main": "backend/Conversion_backend/conversion.mo",
-      "declarations": {
-        "node_compatibility": true
-      }
     }
   },
   "networks": {
