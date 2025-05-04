@@ -1,91 +1,119 @@
-import { useState } from "react"
-import { Navigation } from "../components/navigation"
-import { Footer } from "../components/footer"
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Textarea } from "../components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
-import { Badge } from "../components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { Upload, DollarSign, Plus, X } from 'lucide-react'
-import { Label } from "../components/ui/label"
-import { Principal } from "@dfinity/principal";
+import { useState } from 'react';
+import { Navigation } from '../components/navigation';
+import { Footer } from '../components/footer';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
+import { Badge } from '../components/ui/badge';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../components/ui/tabs';
+import { Upload, DollarSign, Plus, X } from 'lucide-react';
+import { Label } from '../components/ui/label';
+import { Service_backend } from '@/declarations/Service_backend';
 
 export default function CreateServicePage() {
-
-  const [images, setImages] = useState<string[]>([])
-  const [tags, setTags] = useState<string[]>([])
-  const [newTag, setNewTag] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [images, setImages] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleAddImage = () => {
     // Simulate adding an image
-    const newImage = `/placeholder.svg?height=200&width=300&text=Image${images.length + 1}`
-    setImages([...images, newImage])
-  }
+    const newImage = `/placeholder.svg?height=200&width=300&text=Image${images.length + 1}`;
+    setImages([...images, newImage]);
+  };
 
   const handleRemoveImage = (index: number) => {
-    const newImages = [...images]
-    newImages.splice(index, 1)
-    setImages(newImages)
-  }
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
+  };
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && newTag.trim() !== "") {
-      e.preventDefault()
+    if (e.key === 'Enter' && newTag.trim() !== '') {
+      e.preventDefault();
       if (!tags.includes(newTag.trim())) {
-        setTags([...tags, newTag.trim()])
+        setTags([...tags, newTag.trim()]);
       }
-      setNewTag("")
+      setNewTag('');
     }
-  }
+  };
 
   const handleRemoveTag = (tag: string) => {
-    setTags(tags.filter((t) => t !== tag))
+    setTags(tags.filter((t) => t !== tag));
+  };
+
+  function getBigInt(value: FormDataEntryValue | null): bigint {
+    const val = value?.toString().toLowerCase();
+    if (!val || val === 'unlimited') return BigInt(Number.MAX_SAFE_INTEGER); // or a custom limit
+    return BigInt(val);
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-  const formData = new FormData(e.currentTarget);
+    const formData = new FormData(e.currentTarget);
 
-  const serviceData: ServiceData = {
-    title: formData.get("title") as string,
-    description: formData.get("description") as string,
-    category: formData.get("category") as string,
-    startingPrice: Number(formData.get("price")),
-    deliveryTimeMin: Number(formData.get("deliveryTime")),
-    revisions: Number(formData.get("revisions")),
-    subcategory: "",
-    currency: "",
-    status: "ACTIVE",
-    tags: [],
-    tiers: [],
-    contractType: "FIXED_PRICE",
-    paymentMethod: "CRYPTO",
-    totalReviews: 0
-  };
-    try{
-      const response = await fetch("/api/services", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    const serviceData: ServiceData = {
+      title: formData.get('title') as string,
+      description: formData.get('description') as string,
+      category: formData.get('category') as string,
+      revisions: getBigInt(formData.get('revisions')),
+      subcategory: '',
+      currency: '',
+      status: 'ACTIVE',
+      tags: [],
+      attachments: [[]],
+      tiers: [
+        {
+          id: 'basic',
+          name: 'Basic',
+          description: 'Basic tier service',
+          price: getBigInt(formData.get('price')),
+          deliveryDays: getBigInt(formData.get('deliveryDays')),
+          revisions: getBigInt(formData.get('revisions')),
+          features: ['Feature A', 'Feature B'],
         },
-        body: JSON.stringify(serviceData),
-      });
-      if (response.ok) {
+      ],
+    };
+
+    try {
+      const response = await Service_backend.createService(serviceData);
+      if ('ok' in response) {
         setIsSuccess(true);
       } else {
-        throw new Error("Failed to submit service.");
+        throw new Error('Failed to submit service.');
       }
     } catch (error) {
-      console.error("Error submitting service:", error);
+      console.error('Error submitting service:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  type Image = {
+    imageTag: string;  // Or any other properties that describe an image
+    imageUrl: string;
+  };
+  
 
   // Interface that defines the data structure to be sent to the backend
   interface ServiceData {
@@ -93,25 +121,21 @@ export default function CreateServicePage() {
     description: string;
     category: string;
     subcategory: string;
-    startingPrice: number;
     currency: string;
-    deliveryTimeMin: number;
-    status: "ACTIVE" | "INACTIVE" | "PENDING"; // Assuming status is an enum or string
+    status: 'ACTIVE' | 'INACTIVE' | 'PENDING'; // Assuming status is an enum or string
     tags: string[];
-    attachments?: string[]; // Optional list of image URLs or file references
+    attachments: [] | [Image[]]; // not optional, and either an empty tuple or a tuple with one item: an array of `Image` objects
+    // Optional list of image URLs or file references
     tiers: {
+      id: string;
       name: string; // "Basic", "Standard", "Premium"
-      price: number;
       description: string;
-      deliveryTime: number;
-      revisions: number;
+      price: bigint;
+      deliveryDays: bigint;
+      revisions: bigint;
+      features: string[];
     }[];
-    contractType: "FIXED_PRICE" | "HOURLY"; // Example contract types, adjust as needed
-    paymentMethod: "CRYPTO" | "BANK_TRANSFER" | "PAYPAL"; // Example payment methods, adjust as needed
-    averageRating?: number; // Optional, might not be included at the time of creation
-    totalReviews: number;
-    revisions:number;
-  
+    revisions: bigint;
   }
 
   return (
@@ -120,7 +144,9 @@ export default function CreateServicePage() {
       <main className="flex-1 container py-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-2">Create a New Service</h1>
-          <p className="text-muted-foreground mb-8">Share your skills and start earning</p>
+          <p className="text-muted-foreground mb-8">
+            Share your skills and start earning
+          </p>
 
           <Tabs defaultValue="basic">
             <TabsList className="grid w-full grid-cols-3 mb-8">
@@ -140,7 +166,8 @@ export default function CreateServicePage() {
                       <Label htmlFor="title">Service Title</Label>
                       <Input id="title" placeholder="I will..." required />
                       <p className="text-xs text-muted-foreground">
-                        Your title should be attention-grabbing and accurately describe your service (max 80 characters)
+                        Your title should be attention-grabbing and accurately
+                        describe your service (max 80 characters)
                       </p>
                     </div>
 
@@ -152,7 +179,9 @@ export default function CreateServicePage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="design">Design</SelectItem>
-                          <SelectItem value="development">Development</SelectItem>
+                          <SelectItem value="development">
+                            Development
+                          </SelectItem>
                           <SelectItem value="marketing">Marketing</SelectItem>
                           <SelectItem value="writing">Writing</SelectItem>
                           <SelectItem value="video">Video</SelectItem>
@@ -172,7 +201,8 @@ export default function CreateServicePage() {
                         required
                       />
                       <p className="text-xs text-muted-foreground">
-                        Be specific about what you offer, your process, and what clients can expect
+                        Be specific about what you offer, your process, and what
+                        clients can expect
                       </p>
                     </div>
 
@@ -180,9 +210,16 @@ export default function CreateServicePage() {
                       <Label htmlFor="tags">Tags</Label>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
                             {tag}
-                            <button type="button" onClick={() => handleRemoveTag(tag)}>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTag(tag)}
+                            >
                               <X className="h-3 w-3" />
                             </button>
                           </Badge>
@@ -230,7 +267,9 @@ export default function CreateServicePage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="delivery-time">Delivery Time (days)</Label>
+                      <Label htmlFor="delivery-time">
+                        Delivery Time (days)
+                      </Label>
                       <Select required>
                         <SelectTrigger id="delivery-time">
                           <SelectValue placeholder="Select delivery time" />
@@ -249,7 +288,7 @@ export default function CreateServicePage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="revisions">Number of Revisions</Label>
-                      <Select required>
+                      <Select required name="revisions">
                         <SelectTrigger id="revisions">
                           <SelectValue placeholder="Select number of revisions" />
                         </SelectTrigger>
@@ -258,7 +297,9 @@ export default function CreateServicePage() {
                           <SelectItem value="2">2 revisions</SelectItem>
                           <SelectItem value="3">3 revisions</SelectItem>
                           <SelectItem value="5">5 revisions</SelectItem>
-                          <SelectItem value="unlimited">Unlimited revisions</SelectItem>
+                          <SelectItem value="unlimited">
+                            Unlimited revisions
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -275,7 +316,12 @@ export default function CreateServicePage() {
                         <div className="flex items-center gap-2">
                           <Input placeholder="e.g., 24/7 support" />
                         </div>
-                        <Button type="button" variant="outline" size="sm" className="mt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                        >
                           <Plus className="h-4 w-4 mr-1" /> Add More
                         </Button>
                       </div>
@@ -298,9 +344,12 @@ export default function CreateServicePage() {
                       <Label>Service Images</Label>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                         {images.map((image, index) => (
-                          <div key={index} className="relative aspect-video rounded-lg overflow-hidden border">
+                          <div
+                            key={index}
+                            className="relative aspect-video rounded-lg overflow-hidden border"
+                          >
                             <img
-                              src={image || "/placeholder.svg"}
+                              src={image || '/placeholder.svg'}
                               alt={`Gallery ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
@@ -319,11 +368,14 @@ export default function CreateServicePage() {
                           className="aspect-video flex flex-col items-center justify-center border border-dashed rounded-lg p-4 hover:bg-muted/50 transition-colors"
                         >
                           <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">Add Image</span>
+                          <span className="text-sm text-muted-foreground">
+                            Add Image
+                          </span>
                         </button>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Add up to 5 images showcasing your service. First image will be the cover.
+                        Add up to 5 images showcasing your service. First image
+                        will be the cover.
                       </p>
                     </div>
 
@@ -345,11 +397,7 @@ export default function CreateServicePage() {
                     </div>
 
                     <div className="flex justify-end">
-                      
-                        <Button type="submit">
-                          
-                        </Button>
-                      
+                      <Button type="submit"></Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -360,5 +408,5 @@ export default function CreateServicePage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

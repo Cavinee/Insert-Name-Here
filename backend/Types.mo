@@ -10,7 +10,7 @@ module Types {
     role : Text;
     fullName : Text;
     email : Text;
-    password: Text; // Optional: For login purposes
+    password : Text; // Optional: For login purposes
     dateOfBirth : Text;
     balance : Float;
     profilePictureUrl : Text;
@@ -23,7 +23,7 @@ module Types {
     email : Text;
     dateOfBirth : Text;
     balance : Float;
-    password: Text; // Optional: For login purposes
+    password : Text; // Optional: For login purposes
 
     profilePictureUrl : Text;
     orderedServicesId : [Principal];
@@ -37,7 +37,7 @@ module Types {
     email : Text;
     dateOfBirth : Text;
     balance : Float;
-    password: Text; // Optional: For login purposes
+    password : Text; // Optional: For login purposes
     profilePictureUrl : Text;
     orderedServicesId : [Principal];
     skills : [Text];
@@ -54,7 +54,7 @@ module Types {
     email : Text;
     dateOfBirth : Text;
     balance : Float;
-    password: Text; // Optional: For login purposes
+    password : Text; // Optional: For login purposes
     profilePictureUrl : Text;
     orderedServicesId : [Principal];
     skills : [Text];
@@ -68,14 +68,14 @@ module Types {
   public type PortfolioId = Text;
   // Main Portfolio Item type
   public type PortfolioItem = {
-    id: PortfolioId;
-    freelancerId: Principal;
-    title: Text;
-    description: Text;
-    category: Text;
-    images: [Text];  // URLs to images
-    video: ?Text;    // URL to video if applicable
-    link: ?Text;     // External link if applicable
+    id : PortfolioId;
+    freelancerId : Principal;
+    title : Text;
+    description : Text;
+    category : Text;
+    images : [Text]; // URLs to images
+    video : ?Text; // URL to video if applicable
+    link : ?Text; // External link if applicable
   };
 
   // public type FreelancerProfileUpdateFormData = {
@@ -102,7 +102,7 @@ module Types {
 
   // Admin-specific profile extension
   public type AdminProfile = {
-    id: Text;
+    id : Text;
     permissions : [Text]; // Example: ["banUser", "resolveDispute"]
     managedDisputes : ?[Text]; // IDs of disputes they handled
   };
@@ -125,12 +125,12 @@ module Types {
     id : Principal;
     orderId : Principal; //might change to serviceId / orderId
     clientId : Principal;
-    freelancerId: Principal;
+    freelancerId : Principal;
     amount : Nat;
-    currency : Text; 
+    currency : Text;
     created_at : Int;
     deadline : Int; //Time based; if past a certain date, immediately transfer the money
-    jobStatus: JobStatus; //whether its disputed, cancelled, or whatever, so it can decide to refund, etc
+    jobStatus : JobStatus; //whether its disputed, cancelled, or whatever, so it can decide to refund, etc
     released : Bool;
     subaccount : ?Blob;
     funded : Bool;
@@ -229,10 +229,9 @@ module Types {
     currency : Text; // btc,eth
     deliveryDeadline : Int; // Timestamp deadline
     cancellationReason : ?Text; // Optional if order is cancelled
-    revisions: [Revision];
+    revisions : [Revision];
     revisionMaxLimit : Nat;
   };
-
 
   public type Image = {
     imageUrl : Text;
@@ -254,11 +253,9 @@ module Types {
     tags : [Text];
     attachments : ?[Image]; // Optional portfolio or example files
     tiers : [ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
-    paymentMethod : Text;
     averageRating : ?Float; // Auto-calculated
     totalReviews : Nat;
   };
-
 
   public type UnregisteredServiceFormData = {
     title : Text;
@@ -270,7 +267,6 @@ module Types {
     tags : [Text];
     attachments : ?[Image]; // Optional portfolio or example files
     tiers : [ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
-    paymentMethod : Text;
   };
 
   // Each ServiceTier inside a Service
@@ -289,7 +285,7 @@ module Types {
     description : Text;
     numberOfRevision : Nat;
   };
-  
+
   public type UnregisteredServiceTierFormData = {
     name : Text; // Basic, Standard, Premium
     description : Text;
@@ -325,7 +321,7 @@ module Types {
     reviewType : Text; // "client-to-freelancer" or "freelancer-to-client"
   };
 
-    public type ReviewDisplay = {
+  public type ReviewDisplay = {
     review : Review;
     reviewerPrincipalShort : Text; // First 5 chars of principal
     createdAtDate : Text; // Human-readable date

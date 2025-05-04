@@ -1,5 +1,4 @@
 import Util "../Util";
-import Service "canister:Service_backend";
 import Principal "mo:base/Principal";
 import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
@@ -8,7 +7,9 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Array "mo:base/Array";
 import Result "mo:base/Result";
-import Types "../Types"
+import Types "../Types";
+import Service "../Service_backend/Service";
+
 actor {
 
   type Image = Types.Image;
@@ -27,7 +28,7 @@ actor {
   };
 
   public func run() : async () {
-    
+
     // Referencing freelancer IDs from FreelancerSeeder
     let freelancerId1 = Principal.fromText("aaaaa-ab"); // Alex Johnson - Web Developer
     let freelancerId2 = Principal.fromBlob(Blob.fromArray([10])); // Sophia Martinez - Graphic Designer
@@ -38,7 +39,7 @@ actor {
     let freelancerId7 = Principal.fromBlob(Blob.fromArray([15])); // James Wilson - Data Analyst
 
     let currentTime = Time.now();
-    
+
     // Creating services for each freelancer
     await createWebDevelopmentServices(freelancerId1, currentTime);
     await createGraphicDesignServices(freelancerId2, currentTime);
@@ -49,9 +50,9 @@ actor {
     await createDataAnalysisServices(freelancerId7, currentTime);
 
   };
-  
-  private func createWebDevelopmentServices(freelancerId: Principal, timestamp: Int) : async () {
-    let webDevService: UnregisteredServiceFormData = {
+
+  private func createWebDevelopmentServices(freelancerId : Principal, timestamp : Int) : async () {
+    let webDevService : UnregisteredServiceFormData = {
       title = "Professional Responsive Website Development";
       description = "I will create a modern, responsive website tailored to your business needs using React, Node.js, and the latest web technologies. Your website will be fully optimized for all devices and search engines.";
       category = "Development";
@@ -60,10 +61,15 @@ actor {
       status = "Active";
       tags = ["website", "responsive", "web development", "react", "node.js"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/web1.jpg"; imageTag = "E-commerce Website" },
-        { imageUrl = "https://example.com/portfolio/web2.jpg"; imageTag = "Corporate Site" }
+        {
+          imageUrl = "https://example.com/portfolio/web1.jpg";
+          imageTag = "E-commerce Website";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/web2.jpg";
+          imageTag = "Corporate Site";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -91,14 +97,14 @@ actor {
           deliveryDays = 15;
           revisions = 5;
           features = ["10 pages", "Mobile Responsive", "Advanced SEO", "Contact Form", "Social Media Integration", "Full Analytics", "E-commerce Integration", "1 month support"];
-        }
+        },
       ];
     };
-    
-    let result = await Service.createService(freelancerId, webDevService);
-    
+
+    let result = await Service.createService(webDevService);
+
     // Second service
-    let webAppService: UnregisteredServiceFormData = {
+    let webAppService : UnregisteredServiceFormData = {
       title = "Custom Web Application Development";
       description = "I will build a custom web application to solve your specific business needs. From CRMs to inventory management systems, I create scalable solutions with clean code and intuitive interfaces.";
       category = "Development";
@@ -107,10 +113,15 @@ actor {
       status = "Active";
       tags = ["web app", "custom development", "business solutions", "javascript", "react"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/webapp1.jpg"; imageTag = "CRM System" },
-        { imageUrl = "https://example.com/portfolio/webapp2.jpg"; imageTag = "Inventory Management" }
+        {
+          imageUrl = "https://example.com/portfolio/webapp1.jpg";
+          imageTag = "CRM System";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/webapp2.jpg";
+          imageTag = "Inventory Management";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -138,15 +149,15 @@ actor {
           deliveryDays = 30;
           revisions = 5;
           features = ["Enterprise Architecture", "Scalable Solution", "Advanced Security", "Premium UI/UX", "Multiple API Integrations", "3 months support", "Documentation"];
-        }
+        },
       ];
     };
-    
-    let result2 = await Service.createService(freelancerId, webAppService);
+
+    let result2 = await Service.createService(webAppService);
   };
-  
-  private func createGraphicDesignServices(freelancerId: Principal, timestamp: Int) : async () {
-    let logoDesignService: UnregisteredServiceFormData = {
+
+  private func createGraphicDesignServices(freelancerId : Principal, timestamp : Int) : async () {
+    let logoDesignService : UnregisteredServiceFormData = {
       title = "Professional Logo & Brand Identity Design";
       description = "I will create a stunning, professional logo and brand identity that perfectly captures your business. With my expertise in Adobe Creative Suite, I'll deliver eye-catching designs that make your brand stand out.";
       category = "Design";
@@ -155,10 +166,15 @@ actor {
       status = "Active";
       tags = ["logo", "branding", "design", "brand identity", "creative"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/logo1.jpg"; imageTag = "Tech Startup Logo" },
-        { imageUrl = "https://example.com/portfolio/logo2.jpg"; imageTag = "Restaurant Brand" }
+        {
+          imageUrl = "https://example.com/portfolio/logo1.jpg";
+          imageTag = "Tech Startup Logo";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/logo2.jpg";
+          imageTag = "Restaurant Brand";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -186,14 +202,14 @@ actor {
           deliveryDays = 7;
           revisions = 5;
           features = ["5 Logo Concepts", "All Source Files", "Comprehensive Brand Guidelines", "Business Card Design", "Letterhead Design", "Social Media Kit", "Email Signature"];
-        }
+        },
       ];
     };
-    
+
     let result = await Service.createService(freelancerId, logoDesignService);
-    
+
     // Second service
-    let illustrationService: UnregisteredServiceFormData = {
+    let illustrationService : UnregisteredServiceFormData = {
       title = "Custom Digital Illustrations & Art";
       description = "I will create beautiful custom illustrations for your project, whether it's for marketing materials, book covers, characters, or product visualization. My unique art style brings ideas to life.";
       category = "Design";
@@ -202,10 +218,15 @@ actor {
       status = "Active";
       tags = ["illustration", "digital art", "character design", "custom artwork"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/illus1.jpg"; imageTag = "Character Design" },
-        { imageUrl = "https://example.com/portfolio/illus2.jpg"; imageTag = "Book Cover" }
+        {
+          imageUrl = "https://example.com/portfolio/illus1.jpg";
+          imageTag = "Character Design";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/illus2.jpg";
+          imageTag = "Book Cover";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -233,15 +254,15 @@ actor {
           deliveryDays = 10;
           revisions = 5;
           features = ["Multiple Characters/Complex Scene", "Premium Coloring & Shading", "Highly Detailed Background", "Animation Ready Layers", "All Source Files", "Commercial Use License", "Social Media Ready Formats"];
-        }
+        },
       ];
     };
-    
+
     let result2 = await Service.createService(freelancerId, illustrationService);
   };
-  
-  private func createContentWritingServices(freelancerId: Principal, timestamp: Int) : async () {
-    let blogService: UnregisteredServiceFormData = {
+
+  private func createContentWritingServices(freelancerId : Principal, timestamp : Int) : async () {
+    let blogService : UnregisteredServiceFormData = {
       title = "SEO-Optimized Blog & Article Writing";
       description = "I will write engaging, well-researched, and SEO-optimized blog posts and articles tailored to your target audience. My content will help improve your search engine rankings while providing value to your readers.";
       category = "Writing";
@@ -250,10 +271,15 @@ actor {
       status = "Active";
       tags = ["blog writing", "SEO content", "article writing", "copywriting", "content marketing"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/blog1.jpg"; imageTag = "Tech Blog Sample" },
-        { imageUrl = "https://example.com/portfolio/blog2.jpg"; imageTag = "Health Article Sample" }
+        {
+          imageUrl = "https://example.com/portfolio/blog1.jpg";
+          imageTag = "Tech Blog Sample";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/blog2.jpg";
+          imageTag = "Health Article Sample";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -281,14 +307,14 @@ actor {
           deliveryDays = 5;
           revisions = 3;
           features = ["2000 Words", "Advanced SEO Strategy", "Internal Linking Structure", "Meta Description", "Custom Images", "Full Topic Research", "Professional Editing", "Content Formatting"];
-        }
+        },
       ];
     };
-    
+
     let result = await Service.createService(freelancerId, blogService);
-    
+
     // Second service
-    let copywritingService: UnregisteredServiceFormData = {
+    let copywritingService : UnregisteredServiceFormData = {
       title = "Professional Copywriting for Websites & Marketing";
       description = "I will create persuasive, conversion-focused copy for your website, landing pages, emails, or ads. My compelling writing will boost engagement, conversions, and help you connect with your audience.";
       category = "Writing";
@@ -297,10 +323,15 @@ actor {
       status = "Active";
       tags = ["copywriting", "website copy", "marketing copy", "sales copy", "conversion"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/copy1.jpg"; imageTag = "Landing Page Sample" },
-        { imageUrl = "https://example.com/portfolio/copy2.jpg"; imageTag = "Email Campaign Sample" }
+        {
+          imageUrl = "https://example.com/portfolio/copy1.jpg";
+          imageTag = "Landing Page Sample";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/copy2.jpg";
+          imageTag = "Email Campaign Sample";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -328,15 +359,15 @@ actor {
           deliveryDays = 7;
           revisions = 5;
           features = ["Full Website (up to 10 pages)", "Comprehensive Market Research", "Conversion Strategy", "Full SEO Integration", "Customer Journey Mapping", "Sales Psychology", "Brand Voice Guidelines"];
-        }
+        },
       ];
     };
-    
+
     let result2 = await Service.createService(freelancerId, copywritingService);
   };
-  
-  private func createMobileDevelopmentServices(freelancerId: Principal, timestamp: Int) : async () {
-    let mobileAppService: UnregisteredServiceFormData = {
+
+  private func createMobileDevelopmentServices(freelancerId : Principal, timestamp : Int) : async () {
+    let mobileAppService : UnregisteredServiceFormData = {
       title = "Custom Mobile App Development";
       description = "I will develop a high-quality, user-friendly mobile application for iOS and Android using React Intive, Flutter, or native technologies. Get a professional app that meets your business requirements and delights users.";
       category = "Development";
@@ -345,10 +376,15 @@ actor {
       status = "Active";
       tags = ["mobile app", "app development", "react native", "flutter", "iOS", "Android"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/app1.jpg"; imageTag = "E-commerce App" },
-        { imageUrl = "https://example.com/portfolio/app2.jpg"; imageTag = "Fitness Tracking App" }
+        {
+          imageUrl = "https://example.com/portfolio/app1.jpg";
+          imageTag = "E-commerce App";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/app2.jpg";
+          imageTag = "Fitness Tracking App";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -376,15 +412,15 @@ actor {
           deliveryDays = 45;
           revisions = 5;
           features = ["Both iOS & Android", "Unlimited Screens", "Premium UI/UX", "Complex API Integration", "Offline Functionality", "Push Notifications", "Analytics Integration", "Advanced Backend", "App Store Submission", "3 Months Support"];
-        }
+        },
       ];
     };
-    
+
     let result = await Service.createService(freelancerId, mobileAppService);
   };
-  
-  private func createVideoEditingServices(freelancerId: Principal, timestamp: Int) : async () {
-    let videoEditingService: UnregisteredServiceFormData = {
+
+  private func createVideoEditingServices(freelancerId : Principal, timestamp : Int) : async () {
+    let videoEditingService : UnregisteredServiceFormData = {
       title = "Professional Video Editing & Motion Graphics";
       description = "I will create stunning, professionally edited videos with eye-catching motion graphics and animations. Perfect for marketing, social media, YouTube, or corporate presentations.";
       category = "Video & Animation";
@@ -393,10 +429,15 @@ actor {
       status = "Active";
       tags = ["video editing", "motion graphics", "animation", "after effects", "premiere pro"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/video1.jpg"; imageTag = "Marketing Video" },
-        { imageUrl = "https://example.com/portfolio/video2.jpg"; imageTag = "Animated Explainer" }
+        {
+          imageUrl = "https://example.com/portfolio/video1.jpg";
+          imageTag = "Marketing Video";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/video2.jpg";
+          imageTag = "Animated Explainer";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -424,14 +465,14 @@ actor {
           deliveryDays = 10;
           revisions = 5;
           features = ["Up to 5 minutes", "Professional Color Grading", "Complex Motion Graphics", "Character Animation", "Custom Visual Effects", "Subtitles", "Voice Over Direction", "Premium Music & SFX", "4K Export"];
-        }
+        },
       ];
     };
-    
+
     let result = await Service.createService(freelancerId, videoEditingService);
-    
+
     // Second service
-    let animationService: UnregisteredServiceFormData = {
+    let animationService : UnregisteredServiceFormData = {
       title = "2D Animated Explainer Videos";
       description = "I will create engaging 2D animated explainer videos that simplify complex ideas and captivate your audience. Perfect for products, services, or educational content.";
       category = "Video & Animation";
@@ -440,10 +481,15 @@ actor {
       status = "Active";
       tags = ["2D animation", "explainer video", "animated video", "motion graphics", "storytelling"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/anim1.jpg"; imageTag = "Product Explainer" },
-        { imageUrl = "https://example.com/portfolio/anim2.jpg"; imageTag = "Educational Animation" }
+        {
+          imageUrl = "https://example.com/portfolio/anim1.jpg";
+          imageTag = "Product Explainer";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/anim2.jpg";
+          imageTag = "Educational Animation";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -471,15 +517,15 @@ actor {
           deliveryDays = 21;
           revisions = 5;
           features = ["120 Seconds", "Advanced Storyboard", "Premium Animation", "Custom Character Design", "Professional Voice Over", "Custom Music & SFX", "Script Assistance", "4K Export"];
-        }
+        },
       ];
     };
-    
+
     let result2 = await Service.createService(freelancerId, animationService);
   };
-  
-  private func createSocialMediaServices(freelancerId: Principal, timestamp: Int) : async () {
-    let socialMediaService: UnregisteredServiceFormData = {
+
+  private func createSocialMediaServices(freelancerId : Principal, timestamp : Int) : async () {
+    let socialMediaService : UnregisteredServiceFormData = {
       title = "Social Media Management & Content Creation";
       description = "I will manage your social media accounts and create engaging content that grows your audience and builds your brand. Complete with strategy, content creation, scheduling, and analytics.";
       category = "Digital Marketing";
@@ -488,10 +534,15 @@ actor {
       status = "Active";
       tags = ["social media", "content creation", "digital marketing", "instagram", "facebook", "tiktok"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/social1.jpg"; imageTag = "Instagram Campaign" },
-        { imageUrl = "https://example.com/portfolio/social2.jpg"; imageTag = "Content Calendar" }
+        {
+          imageUrl = "https://example.com/portfolio/social1.jpg";
+          imageTag = "Instagram Campaign";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/social2.jpg";
+          imageTag = "Content Calendar";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -519,15 +570,15 @@ actor {
           deliveryDays = 3; // Priority setup
           revisions = 5;
           features = ["3 Social Platforms", "Advanced Growth Strategy", "Daily Posts", "Premium Graphics & Videos", "Community Management", "Influencer Outreach", "Weekly Analytics", "Performance Optimization"];
-        }
+        },
       ];
     };
-    
+
     let result = await Service.createService(freelancerId, socialMediaService);
   };
-  
-  private func createDataAnalysisServices(freelancerId: Principal, timestamp: Int) : async () {
-    let dataAnalysisService: UnregisteredServiceFormData = {
+
+  private func createDataAnalysisServices(freelancerId : Principal, timestamp : Int) : async () {
+    let dataAnalysisService : UnregisteredServiceFormData = {
       title = "Data Analysis & Visualization Services";
       description = "I will analyze your data and create insightful visualizations and reports to help you make data-driven decisions. Using Python, R, and advanced visualization tools to uncover hidden patterns in your data.";
       category = "Data";
@@ -536,10 +587,15 @@ actor {
       status = "Active";
       tags = ["data analysis", "data visualization", "python", "R", "statistics", "business intelligence"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/data1.jpg"; imageTag = "Sales Analysis Dashboard" },
-        { imageUrl = "https://example.com/portfolio/data2.jpg"; imageTag = "Marketing Performance Report" }
+        {
+          imageUrl = "https://example.com/portfolio/data1.jpg";
+          imageTag = "Sales Analysis Dashboard";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/data2.jpg";
+          imageTag = "Marketing Performance Report";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -567,14 +623,14 @@ actor {
           deliveryDays = 10;
           revisions = 5;
           features = ["Unlimited Data Points", "Complete Data Processing", "Advanced Statistical Analysis", "Predictive Modeling", "10 Custom Visualizations", "Interactive Dashboard", "Executive Summary", "Full Technical Report", "Presentation of Findings"];
-        }
+        },
       ];
     };
-    
+
     let result = await Service.createService(freelancerId, dataAnalysisService);
-    
+
     // Second service
-    let machineLearningSvc: UnregisteredServiceFormData = {
+    let machineLearningSvc : UnregisteredServiceFormData = {
       title = "Machine Learning & AI Model Development";
       description = "I will develop custom machine learning and AI models to solve your specific business problems. From predictive analytics to recommendation systems, get data-driven solutions tailored to your needs.";
       category = "Data";
@@ -583,10 +639,15 @@ actor {
       status = "Active";
       tags = ["machine learning", "AI", "predictive models", "python", "data science"];
       attachments = ?[
-        { imageUrl = "https://example.com/portfolio/ml1.jpg"; imageTag = "Predictive Model" },
-        { imageUrl = "https://example.com/portfolio/ml2.jpg"; imageTag = "Classification Results" }
+        {
+          imageUrl = "https://example.com/portfolio/ml1.jpg";
+          imageTag = "Predictive Model";
+        },
+        {
+          imageUrl = "https://example.com/portfolio/ml2.jpg";
+          imageTag = "Classification Results";
+        },
       ];
-      paymentMethod = "Crypto";
       tiers = [
         {
           id = "basic";
@@ -614,11 +675,11 @@ actor {
           deliveryDays = 21;
           revisions = 5;
           features = ["Complete AI System", "Advanced Architecture", "Multiple Models", "Hyperparameter Optimization", "Deployment Strategy", "API Creation", "Monitoring Setup", "Comprehensive Documentation", "Knowledge Transfer Session"];
-        }
+        },
       ];
     };
-    
+
     let result2 = await Service.createService(freelancerId, machineLearningSvc);
   };
-  
+
 };

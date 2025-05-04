@@ -1,6 +1,5 @@
 import Principal "mo:base/Principal";
 import Option "mo:base/Option";
-import Text "mo:base/Text";
 import Client "canister:Client_backend";
 
 actor class Backend() {
