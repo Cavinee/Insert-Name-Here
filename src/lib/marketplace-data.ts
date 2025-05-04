@@ -242,14 +242,14 @@ freelancers.forEach((freelancer) => {
       id: portfolioId,
       freelancerId: freelancer.id,
       title: [
-        "E-commerce Website Redesign",
-        "Brand Identity Package",
-        "Mobile App UI/UX Design",
-        "Corporate Video Production",
-        "Content Marketing Strategy",
-        "Custom Web Application",
-        "Product Packaging Design",
-        "Social Media Campaign",
+        "AI-Powered Web Application Development",
+        "Cloud Infrastructure Setup & Optimization",
+        "Custom Dashboard for Data Analytics",
+        "End-to-End Mobile App Development",
+        "Cybersecurity Audit & Hardening",
+        "Machine Learning Model Integration",
+        "Automation Script for Business Workflow",
+        "API Development & Integration Services"
       ][idx % 8],
       description:
         "Professional work showcasing expertise in this area with attention to detail and client satisfaction.",
@@ -268,16 +268,16 @@ const services: Service[] = Array(30)
   .fill(null)
   .map((_, i) => {
     const freelancer = freelancers[i % freelancers.length]
-    const categories = ["Design", "Development", "Marketing", "Writing", "Video", "Music", "Business", "Lifestyle"]
+    const categories = ["WebDevelopment", "MobileDevelopment", "MachineLearning", "CloudServices", "SoftwareTesting", "TechnicalWriting", "Database", "AutomationAndScripting"]
     const subcategories: Record<string, string[]> = {
-      Design: ["Logo Design", "UI/UX Design", "Illustration", "Brand Identity"],
-      Development: ["Web Development", "Mobile Apps", "WordPress", "E-commerce"],
-      Marketing: ["Social Media", "SEO", "Email Marketing", "Content Strategy"],
-      Writing: ["Blog Posts", "Technical Writing", "Copywriting", "Creative Writing"],
-      Video: ["Video Editing", "Animation", "Motion Graphics", "Explainer Videos"],
-      Music: ["Music Production", "Voice Over", "Jingles", "Sound Effects"],
-      Business: ["Business Plans", "Market Research", "Financial Analysis", "Consulting"],
-      Lifestyle: ["Fitness Training", "Nutrition", "Interior Design", "Personal Styling"],
+      WebDevelopment: [ "Frontend Developer", "Backend Developer", "Fullstack Developer", "Website Maintenance & Bug Fixes"],
+      MobileDevelopment: [ "iOS Developer", "Android Developer", "Flutter/React Native Developer","App Testing & Debugging"],
+      MachineLearning: [ "Data Analyst", "Machine Learning Engineer", "Data Cleaning & Visualization", "AI Model Deployment"],
+      CloudServices: [ "DevOps Engineer (AWS, GCP, Azure)", "Docker/Kubernetes Setup", "CI/CD Pipeline Setup", "Server Monitoring & Scaling"],
+      SoftwareTesting: [ "QA Tester (Manual & Automation)", "Bug Tracking & Reporting", "Unit & Integration Tester", "Performance Tester"],
+      TechnicalWriting: [ "API Documentation Writer", "Tutorial & Guide Writer", "Technical Article Writer", "Research Summary Writer"],
+      Database: [ "SQL Developer", "Database Administrator", "NoSQL/BigQuery Engineer", "Data Migration Specialist"],
+      AutomationAndScripting: [ "Python Automation Scripts", "Task Automation (Bash, PowerShell)", "Web Scraping Projects", "API Integration Services"],
     }
 
     const category = categories[i % categories.length]

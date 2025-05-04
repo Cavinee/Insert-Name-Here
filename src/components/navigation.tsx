@@ -1,70 +1,174 @@
-import { Link } from "react-router-dom"
+"use client"
+
+import { Link, useLocation } from "react-router-dom"
+import { Menu, User } from "lucide-react"
 import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
-import { Menu, Search } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
-import { ConnectWalletButton } from "./connect-wallet-button"
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { useEffect, useState } from "react"
 
 export function Navigation() {
+  // Use location to determine if we're on the home page
+  const location = useLocation()
+  const isHomePage = location.pathname === "/"
+
+  // Show login/register buttons only on home page, otherwise assume logged in
+  const isLoggedIn = !isHomePage
+
+  // Track scroll position to change navbar appearance
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = window.scrollY
+      if (offset > 50) {
+        setScrolled(true)
+      } else {
+        setScrolled(false)
+      }
+    }
+
+    // Add scroll event listener
+    window.addEventListener("scroll", handleScroll)
+
+    // Check initial scroll position
+    handleScroll()
+
+    // Clean up event listener
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+    }
+  }, [])
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 hidden md:flex">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">FreelanceHub</span>
-          </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link to="/services" className="transition-colors hover:text-primary text-foreground">
-              Services
-            </Link>
-            <Link to="/create" className="transition-colors hover:text-primary text-foreground">
-              Create Service
-            </Link>
-            <Link to="/orders" className="transition-colors hover:text-primary text-foreground">
-              Orders
-            </Link>
-            <Link to="/profile" className="transition-colors hover:text-primary text-foreground">
-              Profile
-            </Link>
-          </nav>
-        </div>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
-            >
-              <Menu className="h-6 w-6" />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <nav className="grid gap-6 px-2 py-6">
-              <Link to="/services" className="hover:text-primary">
-                Services
-              </Link>
-              <Link to="/create" className="hover:text-primary">
-                Create Service
-              </Link>
-              <Link to="/orders" className="hover:text-primary">
-                Orders
-              </Link>
-              <Link to="/profile" className="hover:text-primary">
-                Profile
-              </Link>
-            </nav>
-          </SheetContent>
-        </Sheet>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search services..." className="pl-8 md:w-[300px] lg:w-[400px]" />
-            </div>
+    <header
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? "py-3 backdrop-blur-md bg-background/80 border-b border-border/40 shadow-sm" : "py-6 bg-transparent"
+      }`}
+    >
+      <div className="container mx-auto px-6 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center space-x-2">
+          <div className="flex space-x-1">
+            <div className="w-2 h-2 rounded-full bg-black dark:bg-white"></div>
+            <div className="w-2 h-2 rounded-full bg-black dark:bg-white"></div>
           </div>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-8">
+          <Link to="/services" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
+            Services
+          </Link>
+          <Link to="/browse" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
+            Browse
+          </Link>
+          <Link to="/sell" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
+            Sell
+          </Link>
           <ThemeToggle />
-          <ConnectWalletButton />
+
+          {isLoggedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-8 w-8 cursor-pointer">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="backdrop-blur-md bg-background/90">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/orders">Orders</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings">Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/logout">Logout</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/register">Register</Link>
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="flex md:hidden items-center space-x-4">
+          <ThemeToggle />
+
+          {isLoggedIn ? (
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/placeholder.svg" />
+              <AvatarFallback>U</AvatarFallback>
+            </Avatar>
+          ) : (
+            <Button size="sm" variant="ghost" asChild>
+              <Link to="/login">
+                <User className="h-5 w-5 mr-1" />
+                Login
+              </Link>
+            </Button>
+          )}
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] backdrop-blur-md bg-background/90">
+              <nav className="flex flex-col gap-6 mt-12">
+                <Link to="/services" className="text-lg hover:text-primary transition-colors w-fit">
+                  Services
+                </Link>
+                <Link to="/browse" className="text-lg hover:text-primary transition-colors w-fit">
+                  Browse
+                </Link>
+                <Link to="/sell" className="text-lg hover:text-primary transition-colors w-fit">
+                  Sell
+                </Link>
+                {isLoggedIn ? (
+                  <>
+                    <Link to="/profile" className="text-lg hover:text-primary transition-colors w-fit">
+                      Profile
+                    </Link>
+                    <Link to="/orders" className="text-lg hover:text-primary transition-colors w-fit">
+                      Orders
+                    </Link>
+                    <Link to="/settings" className="text-lg hover:text-primary transition-colors w-fit">
+                      Settings
+                    </Link>
+                    <Link to="/logout" className="text-lg hover:text-primary transition-colors w-fit">
+                      Logout
+                    </Link>
+                  </>
+                ) : (
+                  <div className="flex flex-col gap-4 mt-4">
+                    <Button asChild>
+                      <Link to="/login">Login</Link>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <Link to="/register">Register</Link>
+                    </Button>
+                  </div>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
