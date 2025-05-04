@@ -31,16 +31,6 @@ actor PaymentSystem {
   type TransferArgs = Ledger.TransferArg;
   type TransferResult = Ledger.TransferResult;
 
-  // Define the self principal at the top level
-  let selfPrincipal = Principal.fromActor(PaymentSystem);
-
-  // Connect to the ledger canister
-  // For local development, use the local ledger canister ID
-  let ledger : actor {
-    icrc1_balance_of : (Account) -> async Nat;
-    icrc1_transfer : (TransferArgs) -> async TransferResult;
-  } = actor ("ryjl3-tyaaa-aaaaa-aaaba-cai");
-
   // Preupgrade: save all entries to stable var
   system func preupgrade() {
     escrowList := Iter.toArray(escrowByClient.entries());
@@ -146,7 +136,7 @@ actor PaymentSystem {
           case null return #err(0);
           case (?escrow) {
             let account : Ledger.Account = {
-              owner = Principal.fromActor(actor {});
+              owner = Principal.fromActor(PaymentSystem);
               subaccount = escrow.subaccount;
             };
 

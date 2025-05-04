@@ -17,7 +17,8 @@
       "main": "backend/Payment/Payment.mo",
       "declarations": {
         "node_compatibility": true
-      }
+      },
+      "with_http_requests": true
     },
     "icp_ledger_canister": {
       "type": "custom", 
@@ -65,9 +66,9 @@
         "node_compatibility": true
       }
     },
-    "Payment_backend": {
+    "Conversion_backend":{
       "type": "motoko",
-      "main": "backend/Payment/Payment.mo",
+      "main": "backend/Conversion_backend/conversion.mo",
       "declarations": {
         "node_compatibility": true
       }
