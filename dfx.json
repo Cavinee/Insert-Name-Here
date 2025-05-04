@@ -15,6 +15,14 @@
         "Content-Security-Policy": "script-src 'self' 'unsafe-inline'"
       }
     },
+    "Payment_backend":{
+      "type": "motoko",
+      "main": "backend/Payment/Payment.mo",
+      "declarations": {
+        "node_compatibility": true
+      },
+      "with_http_requests": true
+    },
     "icp_ledger_canister": {
       "type": "custom", 
       "wasm": "ic-icrc1-ledger.wasm",

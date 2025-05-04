@@ -6,55 +6,55 @@ import { Box, Lock, Search, Settings, Sparkles } from "lucide-react";
 
 export function FeaturedServicesList() {
     return (
-        <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
-            <GridItem
-                area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
-                icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
-                title="Web Development"
-                description="Get your website built by expert developers using the latest technologies."
-                link="/services?category=development"
-            />
+      <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
+      <GridItem
+          area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
+          icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
+          title="Web Development"
+          description="Get your website built by expert developers using the latest technologies."
+          link="/services?category=WebDevelopment"
+      />
 
-            <GridItem
-                area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
-                icon={<Settings className="h-4 w-4 text-black dark:text-neutral-400" />}
-                title="UI/UX Design"
-                description="Create beautiful, intuitive interfaces that users will love."
-                link="/services?category=design"
-            />
+      <GridItem
+          area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
+          icon={<Settings className="h-4 w-4 text-black dark:text-neutral-400" />}
+          title="Mobile Development"
+          description="Build responsive and high-performance mobile applications."
+          link="/services?category=MobileDevelopment"
+      />
 
-            <GridItem
-                area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/2/8]"
-                icon={<Lock className="h-4 w-4 text-black dark:text-neutral-400" />}
-                title="Content Writing"
-                description="Engaging content that converts visitors into customers."
-                link="/services?category=writing"
-            />
+      <GridItem
+          area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/2/8]"
+          icon={<Lock className="h-4 w-4 text-black dark:text-neutral-400" />}
+          title="Machine Learning"
+          description="Leverage AI and machine learning to solve complex problems."
+          link="/services?category=MachineLearning"
+      />
 
-            <GridItem
-                area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
-                icon={<Sparkles className="h-4 w-4 text-black dark:text-neutral-400" />}
-                title="Digital Marketing"
-                description="Reach your target audience and grow your business online."
-                link="/services?category=marketing"
-            />
+      <GridItem
+          area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
+          icon={<Sparkles className="h-4 w-4 text-black dark:text-neutral-400" />}
+          title="Cloud Services"
+          description="Scale your business with cloud computing solutions."
+          link="/services?category=CloudServices"
+      />
 
-            <GridItem
-                area="md:[grid-area:3/1/4/7] xl:[grid-area:2/5/3/8]"
-                icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-                title="Video Production"
-                description="Professional videos that tell your brand's story."
-                link="/services?category=video"
-            />
+      <GridItem
+          area="md:[grid-area:3/1/4/7] xl:[grid-area:2/5/3/8]"
+          icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+          title="Software Testing"
+          description="Ensure the quality of your software with professional testing services."
+          link="/services?category=SoftwareTesting"
+      />
 
-            <GridItem
-                area="md:[grid-area:3/7/4/13] xl:[grid-area:2/8/3/13]"
-                icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
-                title="AI Services"
-                description="Leverage artificial intelligence to automate and optimize your business."
-                link="/services?category=ai"
-            />
-        </ul>
+      <GridItem
+          area="md:[grid-area:3/7/4/13] xl:[grid-area:2/8/3/13]"
+          icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
+          title="Technical Writing"
+          description="Produce clear and concise technical documentation."
+          link="/services?category=TechnicalWriting"
+      />
+  </ul>
     );
 }
 

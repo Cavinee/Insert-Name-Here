@@ -20,7 +20,11 @@ module {
 
   public type Operation = {
     #Mint : { to : AccountIdentifier; amount : Tokens };
-    #Burn : { from : AccountIdentifier; spender : ?AccountIdentifier; amount : Tokens };
+    #Burn : {
+      from : AccountIdentifier;
+      spender : ?AccountIdentifier;
+      amount : Tokens;
+    };
     #Transfer : {
       from : AccountIdentifier;
       to : AccountIdentifier;
@@ -113,7 +117,10 @@ module {
   };
 
   public type ArchivedEncodedBlocksRange = {
-    callback : shared query (GetBlocksArgs) -> async { #Ok : [Blob]; #Err : QueryArchiveError };
+    callback : shared query (GetBlocksArgs) -> async {
+      #Ok : [Blob];
+      #Err : QueryArchiveError;
+    };
     start : Nat64;
     length : Nat64;
   };
@@ -266,4 +273,4 @@ module {
     icrc2_approve : shared (ApproveArgs) -> async ApproveResult;
     icrc2_allowance : shared query (AllowanceArgs) -> async Allowance;
   };
-}
+};

@@ -1,311 +1,111 @@
-// Generated dummy data based on Motoko types
-import { validateMarketplaceData } from "./validate-marketplace-data"
+// Sample marketplace data for development and testing
 
-// Helper function to generate a random Principal ID
-function generatePrincipal() {
-  return `aaaaa-${Math.random().toString(36).substring(2, 10)}-${Math.random().toString(36).substring(2, 10)}-${Math.random().toString(36).substring(2, 10)}`
+// Utility function to format price with currency
+export const formatPrice = (price: number, currency = "ETH") => {
+  return `${price.toFixed(2)} ${currency}`
 }
 
-// Types based on Motoko definitions
-export type UserRole = "Client" | "Freelancer" | "Admin"
-export type JobStatus = "InProgress" | "Delivered" | "Completed" | "Cancelled" | "Disputed"
-export type OrderStatus = "Accepted" | "Rejected" | "Undecided"
-export type PaymentStatus = "Pending" | "Paid" | "Refunded" | "Disputed"
-export type AvailabilityStatus = "Available" | "Busy" | "OnVacation"
-export type PaymentMethod = "Escrow" | "Direct"
-export type ContractType = "FixedPrice" | "Hourly"
+// Categories with proper spacing
+export const categories = [
+  "WebDevelopment",
+  "MobileDevelopment",
+  "MachineLearning",
+  "CloudServices",
+  "SoftwareTesting",
+  "TechnicalWriting",
+  "Database",
+  "AutomationAndScripting",
+]
 
-export interface ClientProfile {
-  id: string
-  role: UserRole
-  fullName: string
-  email: string
-  dateOfBirth: string
-  balance: number
-  profilePictureUrl: string
-  orderedServicesId: string[]
+// Subcategories for each category
+export const subcategories: Record<string, string[]> = {
+  WebDevelopment: ["Frontend Developer", "Backend Developer", "Fullstack Developer", "Website Maintenance & Bug Fixes"],
+  MobileDevelopment: [
+    "iOS Developer",
+    "Android Developer",
+    "Flutter/React Native Developer",
+    "App Testing & Debugging",
+  ],
+  MachineLearning: [
+    "Data Analyst",
+    "Machine Learning Engineer",
+    "Data Cleaning & Visualization",
+    "AI Model Deployment",
+  ],
+  CloudServices: [
+    "DevOps Engineer (AWS, GCP, Azure)",
+    "Docker/Kubernetes Setup",
+    "CI/CD Pipeline Setup",
+    "Server Monitoring & Scaling",
+  ],
+  SoftwareTesting: [
+    "QA Tester (Manual & Automation)",
+    "Bug Tracking & Reporting",
+    "Unit & Integration Tester",
+    "Performance Tester",
+  ],
+  TechnicalWriting: [
+    "API Documentation Writer",
+    "Tutorial & Guide Writer",
+    "Technical Article Writer",
+    "Research Summary Writer",
+  ],
+  Database: ["SQL Developer", "Database Administrator", "NoSQL/BigQuery Engineer", "Data Migration Specialist"],
+  AutomationAndScripting: [
+    "Python Automation Scripts",
+    "Task Automation (Bash, PowerShell)",
+    "Web Scraping Projects",
+    "API Integration Services",
+  ],
 }
 
-export interface FreelancerProfile extends ClientProfile {
-  skills: string[]
-  portfolioIds: string[] | null
-  reputationScore: number
-  completedProjects: number
-  tokenRewards: number
-  availabilityStatus: AvailabilityStatus
-}
-
-export interface PortfolioItem {
-  id: string
-  freelancerId: string
-  title: string
-  description: string
-  category: string
-  images: string[]
-  video: string | null
-  link: string | null
-}
-
-export interface Image {
-  imageUrl: string
-  imageTag: string
-}
-
-export interface ServiceTier {
-  id: string
-  name: string
-  description: string
-  price: number
-  deliveryDays: number
-  revisions: number
-  features: string[]
-}
-
-export interface Service {
-  id: string
-  title: string
-  description: string
-  category: string
-  subcategory: string
-  startingPrice: number
-  currency: string
-  deliveryTimeMin: number
-  status: JobStatus
-  freelancerId: string
-  createdAt: number
-  updatedAt: number
-  tags: string[]
-  attachments: Image[] | null
-  tiers: ServiceTier[]
-  contractType: ContractType
-  paymentMethod: PaymentMethod
-  averageRating: number | null
-  totalReviews: number
-}
-
-export interface Revision {
-  id: string
-  description: string
-  numberOfRevision: number
-}
-
-export interface Order {
-  id: string
-  clientId: string
-  freelancerId: string
-  serviceId: string
-  packageId: string
-  orderStatus: OrderStatus
-  jobStatus: JobStatus
-  createdAt: number
-  updatedAt: number
-  paymentStatus: PaymentStatus
-  currency: string
-  deliveryDeadline: number
-  cancellationReason: string | null
-  revisions: Revision[]
-  revisionMaxLimit: number
-  isReviewed?: boolean
-}
-
-export interface Review {
-  id: string
-  orderId: string
-  serviceId: string
-  reviewerId: string
-  recipientId: string
-  rating: number
-  comment: string
-  createdAt: number
-  freelancerResponse: string | null
-  reviewType: string
-}
-
-export interface Message {
-  id: string
-  senderId: string
-  content: string
-  time: number
-  messageHash: string | null
-}
-
-export interface Chat {
-  id: string
-  participants: string[]
-  isChatbot: boolean
-  messages: Message[] | null
-  createdAt: string
-  lastUpdated: string
-  freelancerPrioritySupport: boolean
-}
-
-// Generate client profiles
-const clients: ClientProfile[] = Array(10)
-  .fill(null)
-  .map((_, i) => ({
-    id: generatePrincipal(),
-    role: "Client" as UserRole,
-    fullName: [
-      "Alex Johnson",
-      "Taylor Smith",
-      "Jordan Lee",
-      "Morgan Williams",
-      "Casey Brown",
-      "Riley Davis",
-      "Quinn Wilson",
-      "Avery Miller",
-      "Jamie Garcia",
-      "Drew Martinez",
-    ][i % 10],
-    email: `client${i + 1}@example.com`,
-    dateOfBirth: `1985-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
-    balance: Number.parseFloat((Math.random() * 5).toFixed(2)),
-    profilePictureUrl: `/placeholder.svg?text=Client${i + 1}`,
-    orderedServicesId: Array(Math.floor(Math.random() * 5))
-      .fill("")
-      .map(() => generatePrincipal()),
-  }))
-
-// Generate freelancer profiles
-const freelancers: FreelancerProfile[] = Array(20)
-  .fill(null)
-  .map((_, i) => {
-    const skills = [
-      ["React", "TypeScript", "Next.js", "UI/UX"],
-      ["Graphic Design", "Illustration", "Branding", "Logo Design"],
-      ["Content Writing", "SEO", "Copywriting", "Editing"],
-      ["Video Editing", "Animation", "Motion Graphics", "VFX"],
-      ["Digital Marketing", "Social Media", "Email Marketing", "PPC"],
-      ["WordPress", "Shopify", "Webflow", "E-commerce"],
-      ["Mobile Development", "iOS", "Android", "React Native"],
-      ["3D Modeling", "Blender", "Maya", "Product Visualization"],
-      ["Data Analysis", "Python", "R", "Visualization"],
-      ["Blockchain", "Smart Contracts", "Web3", "DeFi"],
-    ][i % 10]
-
-    const completedProjects = Math.floor(Math.random() * 50) + 1
-
-    return {
-      id: generatePrincipal(),
-      role: "Freelancer" as UserRole,
-      fullName: [
-        "Sam Wilson",
-        "Jordan Taylor",
-        "Alex Morgan",
-        "Casey Parker",
-        "Riley Quinn",
-        "Jamie Drew",
-        "Avery Blake",
-        "Morgan Reed",
-        "Taylor Jordan",
-        "Drew Casey",
-        "Quinn Riley",
-        "Blake Avery",
-        "Reed Morgan",
-        "Lee Taylor",
-        "Parker Casey",
-        "Smith Jordan",
-        "Brown Alex",
-        "Miller Sam",
-        "Garcia Jamie",
-        "Martinez Drew",
-      ][i % 20],
-      email: `freelancer${i + 1}@example.com`,
-      dateOfBirth: `1990-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
-      balance: Number.parseFloat((Math.random() * 10).toFixed(2)),
-      profilePictureUrl: `/placeholder.svg?text=Freelancer${i + 1}`,
-      orderedServicesId: Array(Math.floor(Math.random() * 3))
-        .fill("")
-        .map(() => generatePrincipal()),
-      skills,
-      portfolioIds:
-        i % 3 === 0
-          ? null
-          : Array(Math.floor(Math.random() * 5) + 1)
-              .fill("")
-              .map((_, idx) => `portfolio-${i}-${idx}`),
-      reputationScore: Number.parseFloat((3.5 + Math.random() * 1.5).toFixed(1)),
-      completedProjects,
-      tokenRewards: Number.parseFloat((completedProjects * 0.5).toFixed(1)),
-      availabilityStatus: ["Available", "Busy", "OnVacation"][Math.floor(Math.random() * 3)] as AvailabilityStatus,
-    }
-  })
-
-// Generate portfolio items
-const portfolioItems: PortfolioItem[] = []
-
-freelancers.forEach((freelancer) => {
-  if (!freelancer.portfolioIds) return
-
-  freelancer.portfolioIds.forEach((portfolioId, idx) => {
-    portfolioItems.push({
-      id: portfolioId,
-      freelancerId: freelancer.id,
-      title: [
-        "E-commerce Website Redesign",
-        "Brand Identity Package",
-        "Mobile App UI/UX Design",
-        "Corporate Video Production",
-        "Content Marketing Strategy",
-        "Custom Web Application",
-        "Product Packaging Design",
-        "Social Media Campaign",
-      ][idx % 8],
-      description:
-        "Professional work showcasing expertise in this area with attention to detail and client satisfaction.",
-      category: freelancer.skills[0],
-      images: Array(Math.floor(Math.random() * 3) + 1)
-        .fill("")
-        .map((_, i) => `/placeholder.svg?height=400&width=600&text=Portfolio${idx + 1}_${i + 1}`),
-      video: idx % 3 === 0 ? `/placeholder-video.mp4` : null,
-      link: idx % 2 === 0 ? `https://example.com/portfolio/${portfolioId}` : null,
-    })
-  })
-})
-
-// Generate services
-const services: Service[] = Array(30)
-  .fill(null)
-  .map((_, i) => {
-    const freelancer = freelancers[i % freelancers.length]
-    const categories = ["Design", "Development", "Marketing", "Writing", "Video", "Music", "Business", "Lifestyle"]
-    const subcategories: Record<string, string[]> = {
-      Design: ["Logo Design", "UI/UX Design", "Illustration", "Brand Identity"],
-      Development: ["Web Development", "Mobile Apps", "WordPress", "E-commerce"],
-      Marketing: ["Social Media", "SEO", "Email Marketing", "Content Strategy"],
-      Writing: ["Blog Posts", "Technical Writing", "Copywriting", "Creative Writing"],
-      Video: ["Video Editing", "Animation", "Motion Graphics", "Explainer Videos"],
-      Music: ["Music Production", "Voice Over", "Jingles", "Sound Effects"],
-      Business: ["Business Plans", "Market Research", "Financial Analysis", "Consulting"],
-      Lifestyle: ["Fitness Training", "Nutrition", "Interior Design", "Personal Styling"],
-    }
-
-    const category = categories[i % categories.length]
-    const subcategory = subcategories[category][Math.floor(Math.random() * subcategories[category].length)]
-
-    // Generate tiers (Basic, Standard, Premium)
-    const basePrice = 50 + Math.floor(Math.random() * 100)
-    const tiers: ServiceTier[] = [
+// Sample services data
+export const services = [
+  {
+    id: "service-1",
+    title: "Professional Frontend Developer",
+    description:
+      "I'll create professional web development that elevates your brand with unlimited revisions until you're satisfied.",
+    category: "WebDevelopment",
+    subcategory: "Frontend Developer",
+    freelancerId: "freelancer-1",
+    startingPrice: 75,
+    currency: "ETH",
+    deliveryTimeMin: 3,
+    deliveryTimeMax: 7,
+    revisions: 3,
+    averageRating: 4.8,
+    totalReviews: 42,
+    createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000, // 30 days ago
+    updatedAt: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
+    tags: ["React", "TypeScript", "Next.js"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=Frontend+Development",
+        imageTag: "Frontend Sample 1",
+      },
+    ],
+    tiers: [
       {
         id: "basic",
         name: "Basic",
-        description: `Entry-level ${category.toLowerCase()} service for those with simple needs and limited budget.`,
-        price: basePrice,
-        deliveryDays: 3 + Math.floor(Math.random() * 4),
-        revisions: 1 + Math.floor(Math.random() * 2),
-        features: ["Basic consultation", `Standard ${subcategory.toLowerCase()}`, "1 concept/draft", "Source files"],
+        description: "Entry-level web development service for those with simple needs and limited budget.",
+        price: 75,
+        deliveryDays: 5,
+        revisions: 1,
+        features: ["Basic consultation", "Standard frontend development", "1 concept/draft", "Source files"],
       },
       {
         id: "standard",
         name: "Standard",
-        description: `Complete ${category.toLowerCase()} solution with additional features and priority support.`,
-        price: basePrice * 2,
-        deliveryDays: 2 + Math.floor(Math.random() * 3),
-        revisions: 2 + Math.floor(Math.random() * 3),
+        description: "Complete web development solution with additional features and priority support.",
+        price: 150,
+        deliveryDays: 3,
+        revisions: 3,
         features: [
           "Everything in Basic",
           "In-depth consultation",
-          `Advanced ${subcategory.toLowerCase()}`,
+          "Advanced frontend development",
           "3 concepts/drafts",
           "Source files",
           "Commercial use rights",
@@ -314,15 +114,15 @@ const services: Service[] = Array(30)
       {
         id: "premium",
         name: "Premium",
-        description: `Premium ${category.toLowerCase()} service with all features, fastest delivery, and VIP support.`,
-        price: basePrice * 3,
-        deliveryDays: 1 + Math.floor(Math.random() * 2),
+        description: "Premium web development service with all features, fastest delivery, and VIP support.",
+        price: 225,
+        deliveryDays: 2,
         revisions: 5,
         features: [
           "Everything in Standard",
           "Priority support",
           "VIP consultation",
-          `Premium ${subcategory.toLowerCase()}`,
+          "Premium frontend development",
           "5 concepts/drafts",
           "Source files",
           "Commercial use rights",
@@ -330,253 +130,860 @@ const services: Service[] = Array(30)
           "30 days support",
         ],
       },
-    ]
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+  {
+    id: "service-2",
+    title: "Custom iOS Developer Service",
+    description:
+      "I'll create professional mobile development that elevates your brand with unlimited revisions until you're satisfied.",
+    category: "MobileDevelopment",
+    subcategory: "iOS Developer",
+    freelancerId: "freelancer-2",
+    startingPrice: 100,
+    currency: "ETH",
+    deliveryTimeMin: 7,
+    deliveryTimeMax: 14,
+    revisions: 2,
+    averageRating: 4.9,
+    totalReviews: 28,
+    createdAt: Date.now() - 45 * 24 * 60 * 60 * 1000, // 45 days ago
+    updatedAt: Date.now() - 20 * 24 * 60 * 60 * 1000, // 20 days ago
+    tags: ["iOS", "Swift", "Mobile"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=iOS+Development",
+        imageTag: "iOS Sample 1",
+      },
+    ],
+    tiers: [
+      {
+        id: "basic",
+        name: "Basic",
+        description: "Entry-level iOS development service for those with simple needs and limited budget.",
+        price: 100,
+        deliveryDays: 7,
+        revisions: 1,
+        features: ["Basic consultation", "Standard iOS development", "1 concept/draft", "Source files"],
+      },
+      {
+        id: "standard",
+        name: "Standard",
+        description: "Complete iOS development solution with additional features and priority support.",
+        price: 200,
+        deliveryDays: 5,
+        revisions: 3,
+        features: [
+          "Everything in Basic",
+          "In-depth consultation",
+          "Advanced iOS development",
+          "3 concepts/drafts",
+          "Source files",
+          "Commercial use rights",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        description: "Premium iOS development service with all features, fastest delivery, and VIP support.",
+        price: 300,
+        deliveryDays: 3,
+        revisions: 5,
+        features: [
+          "Everything in Standard",
+          "Priority support",
+          "VIP consultation",
+          "Premium iOS development",
+          "5 concepts/drafts",
+          "Source files",
+          "Commercial use rights",
+          "Express delivery",
+          "30 days support",
+        ],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+  {
+    id: "service-3",
+    title: "Expert Machine Learning Engineer Solutions",
+    description:
+      "I'll create professional machine learning solutions that elevate your brand with unlimited revisions until you're satisfied.",
+    category: "MachineLearning",
+    subcategory: "Machine Learning Engineer",
+    freelancerId: "freelancer-3",
+    startingPrice: 150,
+    currency: "ETH",
+    deliveryTimeMin: 5,
+    deliveryTimeMax: 10,
+    revisions: 3,
+    averageRating: 4.7,
+    totalReviews: 35,
+    createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000, // 60 days ago
+    updatedAt: Date.now() - 25 * 24 * 60 * 60 * 1000, // 25 days ago
+    tags: ["Python", "TensorFlow", "AI"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=Machine+Learning",
+        imageTag: "ML Sample 1",
+      },
+    ],
+    tiers: [
+      {
+        id: "basic",
+        name: "Basic",
+        description: "Entry-level machine learning service for those with simple needs and limited budget.",
+        price: 150,
+        deliveryDays: 10,
+        revisions: 1,
+        features: ["Basic consultation", "Standard machine learning", "1 concept/draft", "Source files"],
+      },
+      {
+        id: "standard",
+        name: "Standard",
+        description: "Complete machine learning solution with additional features and priority support.",
+        price: 300,
+        deliveryDays: 7,
+        revisions: 3,
+        features: [
+          "Everything in Basic",
+          "In-depth consultation",
+          "Advanced machine learning",
+          "3 concepts/drafts",
+          "Source files",
+          "Commercial use rights",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        description: "Premium machine learning service with all features, fastest delivery, and VIP support.",
+        price: 450,
+        deliveryDays: 5,
+        revisions: 5,
+        features: [
+          "Everything in Standard",
+          "Priority support",
+          "VIP consultation",
+          "Premium machine learning",
+          "5 concepts/drafts",
+          "Source files",
+          "Commercial use rights",
+          "Express delivery",
+          "30 days support",
+        ],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+  {
+    id: "service-4",
+    title: "Premium DevOps Engineer (AWS, GCP, Azure)",
+    description:
+      "I'll create professional cloud services that elevate your infrastructure with unlimited revisions until you're satisfied.",
+    category: "CloudServices",
+    subcategory: "DevOps Engineer (AWS, GCP, Azure)",
+    freelancerId: "freelancer-1",
+    startingPrice: 125,
+    currency: "ETH",
+    deliveryTimeMin: 4,
+    deliveryTimeMax: 8,
+    revisions: 3,
+    averageRating: 4.6,
+    totalReviews: 22,
+    createdAt: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
+    updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
+    tags: ["AWS", "DevOps", "Cloud"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=DevOps+Engineering",
+        imageTag: "DevOps Sample 1",
+      },
+    ],
+    tiers: [
+      {
+        id: "basic",
+        name: "Basic",
+        description: "Entry-level cloud services for those with simple needs and limited budget.",
+        price: 125,
+        deliveryDays: 8,
+        revisions: 1,
+        features: ["Basic consultation", "Standard DevOps setup", "1 concept/draft", "Documentation"],
+      },
+      {
+        id: "standard",
+        name: "Standard",
+        description: "Complete cloud services solution with additional features and priority support.",
+        price: 250,
+        deliveryDays: 6,
+        revisions: 3,
+        features: [
+          "Everything in Basic",
+          "In-depth consultation",
+          "Advanced DevOps setup",
+          "3 concepts/drafts",
+          "Documentation",
+          "1 week support",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        description: "Premium cloud services with all features, fastest delivery, and VIP support.",
+        price: 375,
+        deliveryDays: 4,
+        revisions: 5,
+        features: [
+          "Everything in Standard",
+          "Priority support",
+          "VIP consultation",
+          "Premium DevOps setup",
+          "5 concepts/drafts",
+          "Comprehensive documentation",
+          "Express delivery",
+          "30 days support",
+        ],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+  {
+    id: "service-5",
+    title: "Professional QA Tester (Manual & Automation)",
+    description:
+      "I'll provide professional software testing that ensures your application quality with detailed reports and recommendations.",
+    category: "SoftwareTesting",
+    subcategory: "QA Tester (Manual & Automation)",
+    freelancerId: "freelancer-2",
+    startingPrice: 80,
+    currency: "ETH",
+    deliveryTimeMin: 3,
+    deliveryTimeMax: 7,
+    revisions: 2,
+    averageRating: 4.5,
+    totalReviews: 18,
+    createdAt: Date.now() - 20 * 24 * 60 * 60 * 1000, // 20 days ago
+    updatedAt: Date.now() - 10 * 24 * 60 * 60 * 1000, // 10 days ago
+    tags: ["QA", "Testing", "Automation"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=QA+Testing",
+        imageTag: "QA Sample 1",
+      },
+    ],
+    tiers: [
+      {
+        id: "basic",
+        name: "Basic",
+        description: "Entry-level software testing for those with simple needs and limited budget.",
+        price: 80,
+        deliveryDays: 7,
+        revisions: 1,
+        features: ["Basic manual testing", "Bug reporting", "1 test cycle", "Basic test documentation"],
+      },
+      {
+        id: "standard",
+        name: "Standard",
+        description: "Complete software testing solution with additional features and priority support.",
+        price: 160,
+        deliveryDays: 5,
+        revisions: 2,
+        features: [
+          "Everything in Basic",
+          "Manual and basic automation",
+          "Detailed bug reporting",
+          "2 test cycles",
+          "Comprehensive test documentation",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        description: "Premium software testing with all features, fastest delivery, and VIP support.",
+        price: 240,
+        deliveryDays: 3,
+        revisions: 3,
+        features: [
+          "Everything in Standard",
+          "Priority support",
+          "Advanced automation testing",
+          "3 test cycles",
+          "Performance testing",
+          "Security testing",
+          "Comprehensive test documentation",
+          "Test strategy consultation",
+        ],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+  {
+    id: "service-6",
+    title: "Custom API Documentation Writer Service",
+    description:
+      "I'll create professional technical documentation that makes your API accessible and easy to understand for developers.",
+    category: "TechnicalWriting",
+    subcategory: "API Documentation Writer",
+    freelancerId: "freelancer-3",
+    startingPrice: 60,
+    currency: "ETH",
+    deliveryTimeMin: 2,
+    deliveryTimeMax: 5,
+    revisions: 3,
+    averageRating: 4.9,
+    totalReviews: 25,
+    createdAt: Date.now() - 25 * 24 * 60 * 60 * 1000, // 25 days ago
+    updatedAt: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
+    tags: ["Documentation", "API", "Technical Writing"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=API+Documentation",
+        imageTag: "Documentation Sample 1",
+      },
+    ],
+    tiers: [
+      {
+        id: "basic",
+        name: "Basic",
+        description: "Entry-level technical writing for those with simple needs and limited budget.",
+        price: 60,
+        deliveryDays: 5,
+        revisions: 1,
+        features: ["Basic API documentation", "Up to 10 endpoints", "Standard formatting", "One revision"],
+      },
+      {
+        id: "standard",
+        name: "Standard",
+        description: "Complete technical writing solution with additional features and priority support.",
+        price: 120,
+        deliveryDays: 3,
+        revisions: 2,
+        features: [
+          "Everything in Basic",
+          "Up to 25 endpoints",
+          "Interactive examples",
+          "Error handling documentation",
+          "Two revisions",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        description: "Premium technical writing with all features, fastest delivery, and VIP support.",
+        price: 180,
+        deliveryDays: 2,
+        revisions: 3,
+        features: [
+          "Everything in Standard",
+          "Unlimited endpoints",
+          "Interactive examples",
+          "Error handling documentation",
+          "Authentication documentation",
+          "Best practices section",
+          "Three revisions",
+          "Express delivery",
+        ],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+  {
+    id: "service-7",
+    title: "Expert SQL Developer Solutions",
+    description:
+      "I'll create professional database solutions that optimize your data storage and retrieval with best practices implementation.",
+    category: "Database",
+    subcategory: "SQL Developer",
+    freelancerId: "freelancer-1",
+    startingPrice: 90,
+    currency: "ETH",
+    deliveryTimeMin: 3,
+    deliveryTimeMax: 7,
+    revisions: 2,
+    averageRating: 4.7,
+    totalReviews: 30,
+    createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000, // 30 days ago
+    updatedAt: Date.now() - 20 * 24 * 60 * 60 * 1000, // 20 days ago
+    tags: ["SQL", "Database", "PostgreSQL"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=SQL+Development",
+        imageTag: "SQL Sample 1",
+      },
+    ],
+    tiers: [
+      {
+        id: "basic",
+        name: "Basic",
+        description: "Entry-level database development for those with simple needs and limited budget.",
+        price: 90,
+        deliveryDays: 7,
+        revisions: 1,
+        features: ["Basic database design", "Up to 10 tables", "Basic queries", "One revision"],
+      },
+      {
+        id: "standard",
+        name: "Standard",
+        description: "Complete database solution with additional features and priority support.",
+        price: 180,
+        deliveryDays: 5,
+        revisions: 2,
+        features: [
+          "Everything in Basic",
+          "Up to 25 tables",
+          "Optimized queries",
+          "Stored procedures",
+          "Indexing strategy",
+          "Two revisions",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        description: "Premium database development with all features, fastest delivery, and VIP support.",
+        price: 270,
+        deliveryDays: 3,
+        revisions: 3,
+        features: [
+          "Everything in Standard",
+          "Unlimited tables",
+          "Advanced optimization",
+          "Stored procedures",
+          "Triggers",
+          "Indexing strategy",
+          "Performance tuning",
+          "Three revisions",
+          "Express delivery",
+        ],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+  {
+    id: "service-8",
+    title: "Professional Python Automation Scripts",
+    description:
+      "I'll create professional automation scripts that save you time and streamline your workflows with reliable execution.",
+    category: "AutomationAndScripting",
+    subcategory: "Python Automation Scripts",
+    freelancerId: "freelancer-2",
+    startingPrice: 70,
+    currency: "ETH",
+    deliveryTimeMin: 2,
+    deliveryTimeMax: 6,
+    revisions: 3,
+    averageRating: 4.8,
+    totalReviews: 22,
+    createdAt: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
+    updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
+    tags: ["Python", "Automation", "Scripting"],
+    attachments: [
+      {
+        imageUrl: "/placeholder.svg?height=300&width=500&text=Python+Automation",
+        imageTag: "Automation Sample 1",
+      },
+    ],
+    tiers: [
+      {
+        id: "basic",
+        name: "Basic",
+        description: "Entry-level automation scripting for those with simple needs and limited budget.",
+        price: 70,
+        deliveryDays: 6,
+        revisions: 1,
+        features: ["Basic automation script", "Single task automation", "Basic documentation", "One revision"],
+      },
+      {
+        id: "standard",
+        name: "Standard",
+        description: "Complete automation solution with additional features and priority support.",
+        price: 140,
+        deliveryDays: 4,
+        revisions: 2,
+        features: [
+          "Everything in Basic",
+          "Multi-task automation",
+          "Error handling",
+          "Logging",
+          "Comprehensive documentation",
+          "Two revisions",
+        ],
+      },
+      {
+        id: "premium",
+        name: "Premium",
+        description: "Premium automation scripting with all features, fastest delivery, and VIP support.",
+        price: 210,
+        deliveryDays: 2,
+        revisions: 3,
+        features: [
+          "Everything in Standard",
+          "Complex workflow automation",
+          "Advanced error handling",
+          "Logging and monitoring",
+          "Email notifications",
+          "Scheduling capabilities",
+          "Comprehensive documentation",
+          "Three revisions",
+          "Express delivery",
+        ],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  },
+]
 
-    // Ensure createdAt is before updatedAt
-    const createdAt = Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 7776000) // Up to 90 days ago
-    const updatedAt = createdAt + Math.floor(Math.random() * 2592000) // Up to 30 days after creation
+// Sample freelancers data
+export const freelancers = [
+  {
+    id: "freelancer-1",
+    fullName: "Alex Johnson",
+    email: "alex.johnson@example.com",
+    dateOfBirth: "1990-05-15",
+    balance: 2.5,
+    profilePictureUrl: "/placeholder.svg?text=AJ",
+    orderedServicesId: [],
+    role: "FREELANCER",
+    skills: ["React", "Next.js", "TypeScript", "Node.js", "Tailwind CSS"],
+    portfolioIds: ["portfolio-1", "portfolio-2"],
+    reputationScore: 4.8,
+    completedProjects: 42,
+    tokenRewards: 150,
+    availabilityStatus: "Available",
+  },
+  {
+    id: "freelancer-2",
+    fullName: "Samantha Lee",
+    email: "samantha.lee@example.com",
+    dateOfBirth: "1988-09-23",
+    balance: 3.8,
+    profilePictureUrl: "/placeholder.svg?text=SL",
+    orderedServicesId: [],
+    role: "FREELANCER",
+    skills: ["React Native", "iOS", "Android", "Firebase", "UI/UX"],
+    portfolioIds: ["portfolio-3", "portfolio-4"],
+    reputationScore: 4.9,
+    completedProjects: 28,
+    tokenRewards: 220,
+    availabilityStatus: "Available",
+  },
+  {
+    id: "freelancer-3",
+    fullName: "Miguel Rodriguez",
+    email: "miguel.rodriguez@example.com",
+    dateOfBirth: "1992-03-10",
+    balance: 1.7,
+    profilePictureUrl: "/placeholder.svg?text=MR",
+    orderedServicesId: [],
+    role: "FREELANCER",
+    skills: ["UI/UX Design", "Figma", "Adobe XD", "Sketch", "Prototyping"],
+    portfolioIds: ["portfolio-5", "portfolio-6"],
+    reputationScore: 4.7,
+    completedProjects: 35,
+    tokenRewards: 180,
+    availabilityStatus: "Busy",
+  },
+]
 
-    return {
-      id: generatePrincipal(),
-      title: [
-        `Professional ${subcategory}`,
-        `Custom ${subcategory} Service`,
-        `Expert ${subcategory} Solutions`,
-        `Premium ${subcategory}`,
-      ][Math.floor(Math.random() * 4)],
-      description: `I'll create professional ${category.toLowerCase()} that elevates your brand with unlimited revisions until you're satisfied.`,
-      category,
-      subcategory,
-      startingPrice: Math.min(...tiers.map((tier) => tier.price)),
-      currency: "ETH",
-      deliveryTimeMin: Math.min(...tiers.map((tier) => tier.deliveryDays)),
-      status: "InProgress" as JobStatus,
-      freelancerId: freelancer.id,
-      createdAt,
-      updatedAt,
-      tags: freelancer.skills.slice(0, 3),
-      attachments: Array(Math.floor(Math.random() * 3) + 1)
-        .fill(null)
-        .map((_, idx) => ({
-          imageUrl: `/placeholder.svg?height=400&width=600&text=${category}_${idx + 1}`,
-          imageTag: `${subcategory} Sample ${idx + 1}`,
-        })),
-      tiers,
-      contractType: Math.random() > 0.3 ? "FixedPrice" : ("Hourly" as ContractType),
-      paymentMethod: Math.random() > 0.2 ? "Escrow" : ("Direct" as PaymentMethod),
-      averageRating: i % 5 === 0 ? null : Number.parseFloat((3.5 + Math.random() * 1.5).toFixed(1)),
-      totalReviews: Math.floor(Math.random() * 50),
-    }
-  })
+// Sample clients data
+export const clients = [
+  {
+    id: "client-1",
+    fullName: "Emily Chen",
+    email: "emily.chen@example.com",
+    dateOfBirth: "1985-11-08",
+    balance: 5.0,
+    profilePictureUrl: "/placeholder.svg?text=EC",
+    orderedServicesId: ["order-1", "order-3"],
+    role: "CLIENT",
+  },
+  {
+    id: "client-2",
+    fullName: "David Wilson",
+    email: "david.wilson@example.com",
+    dateOfBirth: "1990-07-22",
+    balance: 3.2,
+    profilePictureUrl: "/placeholder.svg?text=DW",
+    orderedServicesId: ["order-2"],
+    role: "CLIENT",
+  },
+]
 
-// Generate orders
-const orders: Order[] = Array(40)
-  .fill(null)
-  .map((_, i) => {
-    const client = clients[i % clients.length]
-    const service = services[i % services.length]
-    const freelancer = freelancers.find((f) => f.id === service.freelancerId)!
-    const tier = service.tiers[Math.floor(Math.random() * service.tiers.length)]
+// Sample portfolio items
+export const portfolioItems = [
+  {
+    id: "portfolio-1",
+    freelancerId: "freelancer-1",
+    title: "AI-Powered Web Application Development",
+    description: "A full-featured e-commerce platform built with Next.js and Stripe integration.",
+    category: "WebDevelopment",
+    images: ["/placeholder.svg?height=300&width=500&text=E-commerce+Website"],
+    link: "https://example.com/ecommerce",
+  },
+  {
+    id: "portfolio-2",
+    freelancerId: "freelancer-1",
+    title: "Cloud Infrastructure Setup & Optimization",
+    description: "A comprehensive dashboard for a SaaS application with real-time data visualization.",
+    category: "CloudServices",
+    images: ["/placeholder.svg?height=300&width=500&text=SaaS+Dashboard"],
+    link: "https://example.com/dashboard",
+  },
+  {
+    id: "portfolio-3",
+    freelancerId: "freelancer-2",
+    title: "End-to-End Mobile App Development",
+    description: "A cross-platform mobile app for tracking workouts and nutrition.",
+    category: "MobileDevelopment",
+    images: ["/placeholder.svg?height=300&width=500&text=Fitness+App"],
+    link: "https://example.com/fitness-app",
+  },
+  {
+    id: "portfolio-4",
+    freelancerId: "freelancer-2",
+    title: "Custom Dashboard for Data Analytics",
+    description: "A food delivery application with real-time order tracking and payment processing.",
+    category: "MachineLearning",
+    images: ["/placeholder.svg?height=300&width=500&text=Food+Delivery+App"],
+    link: "https://example.com/food-app",
+  },
+  {
+    id: "portfolio-5",
+    freelancerId: "freelancer-3",
+    title: "Automation Script for Business Workflow",
+    description: "A complete redesign of a banking application focusing on usability and accessibility.",
+    category: "AutomationAndScripting",
+    images: ["/placeholder.svg?height=300&width=500&text=Banking+App+Design"],
+    link: "https://example.com/banking-design",
+  },
+  {
+    id: "portfolio-6",
+    freelancerId: "freelancer-3",
+    title: "API Development & Integration Services",
+    description: "A comprehensive UI kit for travel and booking platforms with over 200 components.",
+    category: "WebDevelopment",
+    images: ["/placeholder.svg?height=300&width=500&text=Travel+UI+Kit"],
+    link: "https://example.com/travel-ui",
+  },
+]
 
-    const createdAt = Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 5184000) // Up to 60 days ago
-    const updatedAt = createdAt + Math.floor(Math.random() * 604800) // Up to 7 days later
+// Sample orders data
+export const orders = [
+  {
+    id: "order-1",
+    clientId: "client-1",
+    freelancerId: "freelancer-1",
+    serviceId: "service-1",
+    packageId: "standard",
+    jobStatus: "Completed",
+    price: 150,
+    currency: "ETH",
+    createdAt: new Date("2023-05-10"),
+    deliveryDeadline: new Date("2023-05-15"),
+    completedAt: new Date("2023-05-14"),
+  },
+  {
+    id: "order-2",
+    clientId: "client-2",
+    freelancerId: "freelancer-2",
+    serviceId: "service-2",
+    packageId: "basic",
+    jobStatus: "InProgress",
+    price: 100,
+    currency: "ETH",
+    createdAt: new Date("2023-06-05"),
+    deliveryDeadline: new Date("2023-06-12"),
+  },
+  {
+    id: "order-3",
+    clientId: "client-1",
+    freelancerId: "freelancer-3",
+    serviceId: "service-3",
+    packageId: "premium",
+    jobStatus: "Delivered",
+    price: 450,
+    currency: "ETH",
+    createdAt: new Date("2023-06-20"),
+    deliveryDeadline: new Date("2023-06-25"),
+    deliveredAt: new Date("2023-06-24"),
+  },
+]
 
-    // Generate random status based on probabilities
-    let orderStatus: OrderStatus, jobStatus: JobStatus, paymentStatus: PaymentStatus
-    const statusRandom = Math.random()
-
-    if (statusRandom < 0.7) {
-      orderStatus = "Accepted"
-
-      const jobRandom = Math.random()
-      if (jobRandom < 0.4) {
-        jobStatus = "InProgress"
-        paymentStatus = "Pending"
-      } else if (jobRandom < 0.7) {
-        jobStatus = "Delivered"
-        paymentStatus = "Paid"
-      } else if (jobRandom < 0.9) {
-        jobStatus = "Completed"
-        paymentStatus = "Paid"
-      } else {
-        jobStatus = "Disputed"
-        paymentStatus = "Disputed"
-      }
-    } else if (statusRandom < 0.9) {
-      orderStatus = "Rejected"
-      jobStatus = "Cancelled"
-      paymentStatus = "Refunded"
-    } else {
-      orderStatus = "Undecided"
-      jobStatus = "InProgress"
-      paymentStatus = "Pending"
-    }
-
-    // Generate revisions
-    const revisions: Revision[] = []
-    if (jobStatus === "Delivered" || jobStatus === "Completed") {
-      const revisionCount = Math.floor(Math.random() * tier.revisions)
-      for (let j = 0; j < revisionCount; j++) {
-        revisions.push({
-          id: `revision-${i}-${j}`,
-          description: `Revision request ${j + 1}: Please adjust the ${["colors", "layout", "text", "design elements"][j % 4]}.`,
-          numberOfRevision: j + 1,
-        })
-      }
-    }
-
-    // Ensure delivery deadline is after creation date
-    const deliveryDeadline = createdAt + tier.deliveryDays * 86400
-
-    // Ensure cancellation reason is provided for cancelled orders
-    const cancellationReason =
-      jobStatus === "Cancelled" ? "Client requested cancellation due to changed requirements." : null
-
-    return {
-      id: generatePrincipal(),
-      clientId: client.id,
-      freelancerId: freelancer.id,
-      serviceId: service.id,
-      packageId: tier.id,
-      orderStatus,
-      jobStatus,
-      createdAt,
-      updatedAt,
-      paymentStatus,
-      currency: "ETH",
-      deliveryDeadline,
-      cancellationReason,
-      revisions,
-      revisionMaxLimit: tier.revisions,
-    }
-  })
-
-// Generate reviews
-const reviews: Review[] = []
-
-orders.forEach((order, i) => {
-  // Only completed orders have reviews
-  if (order.jobStatus !== "Completed") return
-
-  const rating = Math.floor(Math.random() * 3) + 3 // 3-5 stars
-
-  // Client to freelancer review
-  reviews.push({
-    id: generatePrincipal(),
-    orderId: order.id,
-    serviceId: order.serviceId,
-    reviewerId: order.clientId,
-    recipientId: order.freelancerId,
-    rating,
-    comment: [
-      "Excellent service! The work was delivered on time and exceeded my expectations.",
-      "Great communication throughout the project. Would definitely hire again.",
-      "Very professional and responsive. The quality of work was outstanding.",
-      "Talented freelancer who understood my requirements perfectly.",
-      "Amazing work! Exactly what I was looking for.",
-    ][i % 5],
-    createdAt: order.updatedAt + 86400, // 1 day after order completion
-    freelancerResponse:
-      Math.random() > 0.5 ? "Thank you for your kind review! It was a pleasure working with you." : null,
-    reviewType: "client-to-freelancer",
-  })
-
-  // Sometimes freelancer reviews client too
-  if (Math.random() > 0.3) {
-    reviews.push({
-      id: generatePrincipal(),
-      orderId: order.id,
-      serviceId: order.serviceId,
-      reviewerId: order.freelancerId,
-      recipientId: order.clientId,
-      rating: Math.floor(Math.random() * 2) + 4, // 4-5 stars
-      comment: [
-        "Great client to work with! Clear requirements and prompt communication.",
-        "Excellent collaboration. Would love to work together again.",
-        "Very responsive and understanding client.",
-        "Clear instructions and respectful communication throughout the project.",
-        "A pleasure to work with this client.",
-      ][i % 5],
-      createdAt: order.updatedAt + 86400 + 3600, // 1 day + 1 hour after order completion
-      freelancerResponse: null,
-      reviewType: "freelancer-to-client",
-    })
-  }
-})
-
-// Validate the generated data
-const validationResult = validateMarketplaceData(clients, freelancers, portfolioItems, services, orders, reviews)
-
-// Log validation results
-if (!validationResult.valid) {
-  console.warn("Validation warnings found in the generated marketplace data:")
-  Object.entries(validationResult.errors).forEach(([entityType, errors]) => {
-    if (errors.length > 0) {
-      console.warn(`\n${entityType.toUpperCase()} WARNINGS:`)
-      errors.forEach((error) => console.warn(`- ${error}`))
-    }
-  })
-
-  // Don't throw an error, just log warnings
-  console.warn("Proceeding with data that has validation warnings")
-} else {
-  console.log("✅ Marketplace data validation successful!")
-}
+// Sample reviews data
+export const reviews = [
+  {
+    id: "review-1",
+    orderId: "order-1",
+    clientId: "client-1",
+    freelancerId: "freelancer-1",
+    serviceId: "service-1",
+    rating: 5,
+    comment: "Excellent work! The website exceeded my expectations and was delivered ahead of schedule.",
+    createdAt: new Date("2023-05-16"),
+  },
+  {
+    id: "review-2",
+    orderId: "order-3",
+    clientId: "client-1",
+    freelancerId: "freelancer-3",
+    serviceId: "service-3",
+    rating: 4,
+    comment: "Great designs, very professional. Would have liked a bit more explanation of the design choices.",
+    createdAt: new Date("2023-06-26"),
+  },
+]
 
 // Helper functions to get data
-export function getFreelancerById(id: string): FreelancerProfile | undefined {
-  return freelancers.find((f) => f.id === id)
+export const getServiceById = (id: string) => {
+  return services.find((service) => service.id === id)
 }
 
-export function getClientById(id: string): ClientProfile | undefined {
-  return clients.find((c) => c.id === id)
+export const getFreelancerById = (id: string) => {
+  return freelancers.find((freelancer) => freelancer.id === id)
 }
 
-export function getServiceById(id: string): Service | undefined {
-  return services.find((s) => s.id === id)
+export const getClientById = (id: string) => {
+  return clients.find((client) => client.id === id)
 }
 
-export function getOrderById(id: string): Order | undefined {
-  return orders.find((o) => o.id === id)
+export const getServicesByFreelancer = (freelancerId: string) => {
+  return services.filter((service) => service.freelancerId === freelancerId)
 }
 
-export function getReviewsForService(serviceId: string): Review[] {
-  return reviews.filter((r) => r.serviceId === serviceId && r.reviewType === "client-to-freelancer")
+export const getReviewsForService = (serviceId: string) => {
+  return reviews.filter((review) => review.serviceId === serviceId)
 }
 
-export function getReviewsForFreelancer(freelancerId: string): Review[] {
-  return reviews.filter((r) => r.recipientId === freelancerId && r.reviewType === "client-to-freelancer")
+export const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date)
 }
 
-export function getReviewsForClient(clientId: string): Review[] {
-  return reviews.filter((r) => r.recipientId === clientId && r.reviewType === "freelancer-to-client")
+// Define the listing type for user-created listings
+export interface Listing {
+  id: string
+  title: string
+  description: string
+  category: string
+  subcategory?: string
+  price: number
+  currency: string
+  active: boolean
+  createdAt: Date
+  freelancerId: string
+  attachments?: {
+    id: string
+    imageUrl: string
+    type: string
+  }[]
+  averageRating?: number
+  totalReviews: number
 }
 
-export function getServicesByCategory(category: string): Service[] {
-  return services.filter((s) => s.category === category)
+// Function to convert user listings to service format
+export const convertListingToService = (listing: Listing): (typeof services)[0] => {
+  return {
+    id: listing.id,
+    title: listing.title,
+    description: listing.description,
+    category: listing.category,
+    subcategory: listing.subcategory || "Other",
+    freelancerId: listing.freelancerId || "freelancer-1", // Default to first freelancer if not specified
+    startingPrice: listing.price,
+    currency: listing.currency || "ETH",
+    deliveryTimeMin: 3,
+    deliveryTimeMax: 7,
+    revisions: 2,
+    averageRating: listing.averageRating || 0,
+    totalReviews: listing.totalReviews || 0,
+    createdAt: listing.createdAt.getTime(),
+    updatedAt: listing.createdAt.getTime(),
+    tags: [listing.category],
+    attachments: listing.attachments
+      ? listing.attachments.map((att) => ({
+          imageUrl: att.imageUrl,
+          imageTag: att.type,
+        }))
+      : [
+          {
+            imageUrl: "/placeholder.svg?height=300&width=500&text=New+Listing",
+            imageTag: "New Listing",
+          },
+        ],
+    tiers: [
+      {
+        id: `basic-${listing.id}`,
+        name: "Basic",
+        description: "Basic package",
+        price: listing.price,
+        deliveryDays: 3,
+        revisions: 1,
+        features: ["Basic service"],
+      },
+      {
+        id: `standard-${listing.id}`,
+        name: "Standard",
+        description: "Standard package with more features",
+        price: listing.price * 2,
+        deliveryDays: 2,
+        revisions: 2,
+        features: ["Basic service", "Additional features", "Faster delivery"],
+      },
+      {
+        id: `premium-${listing.id}`,
+        name: "Premium",
+        description: "Premium package with all features",
+        price: listing.price * 3,
+        deliveryDays: 1,
+        revisions: 3,
+        features: ["All features", "Priority support", "Express delivery", "Additional revisions"],
+      },
+    ],
+    status: "InProgress",
+    contractType: "FixedPrice",
+    paymentMethod: "Escrow",
+  }
 }
 
-export function getServicesByFreelancer(freelancerId: string): Service[] {
-  return services.filter((s) => s.freelancerId === freelancerId)
+// Function to get all services including user listings
+export const getAllServices = () => {
+  // Get user listings from localStorage
+  const userListingsJson = localStorage.getItem("userListings")
+  if (!userListingsJson) return services
+
+  try {
+    const userListings: Listing[] = JSON.parse(userListingsJson).map((listing: any) => ({
+      ...listing,
+      createdAt: new Date(listing.createdAt),
+    }))
+
+    // Convert user listings to service format
+    const userServices = userListings.map(convertListingToService)
+
+    // Combine with predefined services
+    return [...services, ...userServices]
+  } catch (error) {
+    console.error("Error parsing user listings:", error)
+    return services
+  }
 }
-
-export function getOrdersByClient(clientId: string): Order[] {
-  return orders.filter((o) => o.clientId === clientId)
-}
-
-export function getOrdersByFreelancer(freelancerId: string): Order[] {
-  return orders.filter((o) => o.freelancerId === freelancerId)
-}
-
-export function formatPrice(price: number, currency = "ETH"): string {
-  return `${price.toFixed(2)} ${currency}`
-}
-
-export function formatDate(timestamp: number): string {
-  return new Date(timestamp * 1000).toLocaleDateString()
-}
-
-// Log successful validation
-console.log("✅ Marketplace data validation successful!")
-
-export { clients, freelancers, portfolioItems, services, orders, reviews }
