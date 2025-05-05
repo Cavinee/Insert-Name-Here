@@ -139,12 +139,12 @@ export default function OrdersPage() {
                             Request Revision
                           </Button>
                         )}
-                        {order.jobStatus === "Completed" && !order.isReviewed && (
+                        {/* {order.jobStatus === "Completed" && !order.isReviewed && (
                           <Button size="sm" variant="secondary" onClick={() => handleLeaveReview(order.id)}>
                             <Star className="h-4 w-4 mr-1" />
                             Leave Review
                           </Button>
-                        )}
+                        )} */}
                       </div>
                     </CardContent>
                   </Card>
