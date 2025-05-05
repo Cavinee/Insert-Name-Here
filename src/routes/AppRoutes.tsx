@@ -10,6 +10,8 @@ import ProfilePage from "../pages/ProfilePage"
 import LoginPage from "../pages/LoginPage"
 import RegisterPage from "../pages/RegisterPage"
 import { OrderSummaryPage } from "@/pages/OrderSummaryPage"
+import ReviewPage from "../pages/ReviewPage"
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -25,6 +27,7 @@ export function AppRoutes() {
       <Route path="/profile/:id" element={<ProfilePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/review/:orderId" element={<ReviewPage />} />
     </Routes>
   )
 }

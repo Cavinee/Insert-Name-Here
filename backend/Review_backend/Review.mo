@@ -45,7 +45,7 @@ actor Reviews {
     let reviewId = Principal.fromActor(Reviews);
     let newReview : Review = {
       id = reviewId;
-      orderId = await Util.generatePrincipal();
+      orderId = params.orderId; // ubah ini doang si
       serviceId = params.serviceId;
       reviewerId = caller; // Use actual caller
       recipientId = params.recipientId;
@@ -122,7 +122,7 @@ actor Reviews {
     let secondsPerDay = 86400;
     let daysSinceEpoch = t / secondsPerDay;
     // Simple date formatting (can be improved)
-    "Day " # Int.toText(daysSinceEpoch);
+    "Day " // Int.toText(daysSinceEpoch);
   };
 
   // Reply to review once
