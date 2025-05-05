@@ -9,7 +9,7 @@ import OrdersPage from "../pages/OrdersPage"
 import ProfilePage from "../pages/ProfilePage"
 import LoginPage from "../pages/LoginPage"
 import RegisterPage from "../pages/RegisterPage"
-
+import { OrderSummaryPage } from "@/pages/OrderSummaryPage"
 export function AppRoutes() {
   return (
     <Routes>
@@ -20,6 +20,7 @@ export function AppRoutes() {
       <Route path="/create" element={<CreateServicePage />} />
       <Route path="/services/:id" element={<ServiceDetailPage />} />
       <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/order-summary/:id" element={<OrderSummaryPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/profile/:id" element={<ProfilePage />} />
       <Route path="/login" element={<LoginPage />} />

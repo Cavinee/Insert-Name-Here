@@ -48,9 +48,9 @@ export function OrderSummaryPage() {
           return;
         }
         const service = result[0]; 
-        const fetchedFreelancer = await Freelancer_backend.getFreelancerProfile(service.freelancerId);
+        //const fetchedFreelancer = await Freelancer_backend.getFreelancerProfile(service.freelancerId);
         setService(service);
-        setFreelancer(fetchedFreelancer);
+        //setFreelancer(fetchedFreelancer);
       } catch (err) {
         console.error("Failed to load service or freelancer", err);
         toast({ title: "Error", description: "Failed to load service data" });
@@ -66,16 +66,7 @@ export function OrderSummaryPage() {
   if (loading || !service || !freelancer) return <div>Loading...</div>;
 
   // Get the selected package details
-  const packageTier: ServiceTier = service.tiers?.find((tier: ServiceTier) => tier.id === selectedPackage) ||
-    service.tiers?.[1] || {
-      id: "standard",
-      name: "Standard",
-      price: service.startingPrice || 0.1,
-      deliveryTime: service.deliveryTimeMin || 3,
-      revisions: 2,
-      features: ["Standard quality", "2 revisions", "Source files"],
-    }
-
+  const packageTier: ServiceTier = service.tiers?.find((tier: ServiceTier) => tier.id === selectedPackage) || service.tiers[0];
   const handleConnectWallet = () => {
     setIsConnectingWallet(true)
 

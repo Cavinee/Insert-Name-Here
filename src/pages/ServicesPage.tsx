@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Image, Service } from "@/declarations/Service_backend/Service_backend.did"
 import { Link } from "react-router-dom"
 import { Navigation } from "../components/navigation"
 import { Footer } from "../components/footer"
@@ -11,7 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Slider } from "../components/ui/slider"
 import { Badge } from "../components/ui/badge"
 import { StarIcon, Filter } from "lucide-react"
-import { formatPrice, getAllServices, categories, subcategories } from "../lib/marketplace-data"
+import { formatPrice, categories, subcategories } from "../lib/marketplace-data"
+import { Service_backend } from "@/declarations/Service_backend"
+
 
 export default function ServicesPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
@@ -19,16 +22,29 @@ export default function ServicesPage() {
   const [selectedRating, setSelectedRating] = useState("any")
   const [selectedSort, setSelectedSort] = useState("recent")
   const [priceRange, setPriceRange] = useState([0, 500])
-  const [services, setServices] = useState<any[]>([])
-  const [filteredServices, setFilteredServices] = useState<any[]>([])
+  const [services, setServices] = useState<Service[]>([])
+  const [filteredServices, setFilteredServices] = useState<Service[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [availableSubcategories, setAvailableSubcategories] = useState<string[]>([])
-
-  // Load all services including user listings
+  const [isLoading, setIsLoading] = useState(true)
+  
+  // Load all services from the canister
   useEffect(() => {
-    const allServices = getAllServices()
-    setServices(allServices)
-    setFilteredServices(allServices)
+    async function fetchServices() {
+      try {
+        setIsLoading(true)
+        const canisterServices = await Service_backend.getAllServices()
+        console.log("Services from canister:", canisterServices)
+        setServices(canisterServices)
+        setFilteredServices(canisterServices)
+      } catch (error) {
+        console.error("Error fetching services from canister:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchServices()
   }, [])
 
   // Update subcategories when category changes
@@ -42,54 +58,78 @@ export default function ServicesPage() {
     }
   }, [selectedCategory])
 
+  // Apply filters when filter criteria change
+  useEffect(() => {
+    applyFilters()
+  }, [selectedCategory, selectedSubcategory, selectedRating, priceRange, searchTerm, selectedSort])
+
   function applyFilters() {
     const filtered = services.filter((service) => {
-      const matchCategory = selectedCategory === "all" || service.category === selectedCategory
-      const matchSubcategory = selectedSubcategory === "all" || service.subcategory === selectedSubcategory
-      const matchRating = selectedRating === "any" || (service.averageRating ?? 0) >= Number.parseFloat(selectedRating)
-      const matchPrice = (service.startingPrice ?? 0) >= priceRange[0] && (service.startingPrice ?? 0) <= priceRange[1]
+      // Get the lowest price from all tiers
+      const lowestPrice = service.tiers.length > 0 
+        ? Math.min(...service.tiers.map(tier => Number(tier.price)))
+        : 0;
+      
+      // Get the actual rating (handle optional array format)
+      var rating = null;
+      if(service.averageRating === null) {
+        rating = 0;
+      }
+      else{
+        var total = 0;
+        for(let i = 0; i < service.averageRating.length; i++) {
+          total += service.averageRating[i];
+        }
+        rating = total / service.averageRating.length;
+      } 
+      
+      const matchCategory = selectedCategory === "all" || service.category === selectedCategory;
+      const matchSubcategory = selectedSubcategory === "all" || service.subcategory === selectedSubcategory;
+      const matchRating = selectedRating === "any" || rating >= Number.parseFloat(selectedRating);
+      const matchPrice = lowestPrice >= priceRange[0] && lowestPrice <= priceRange[1];
       const matchSearch =
         searchTerm.trim() === "" ||
         service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.description.toLowerCase().includes(searchTerm.toLowerCase())
+        service.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchCategory && matchSubcategory && matchRating && matchPrice && matchSearch
-    })
+      return matchCategory && matchSubcategory && matchRating && matchPrice && matchSearch;
+
+    });
 
     // Sort
     if (selectedSort === "price-low") {
-      filtered.sort((a, b) => a.startingPrice - b.startingPrice)
-    } else if (selectedSort === "price-high") {
-      filtered.sort((a, b) => b.startingPrice - a.startingPrice)
-    } else if (selectedSort === "popular") {
-      filtered.sort((a, b) => b.totalReviews - a.totalReviews)
-    } else if (selectedSort === "recent") {
-      // For user listings, createdAt is a Date object or timestamp
       filtered.sort((a, b) => {
-        const dateA =
-          typeof a.createdAt === "number"
-            ? a.createdAt
-            : a.createdAt instanceof Date
-              ? a.createdAt.getTime()
-              : Date.now()
-        const dateB =
-          typeof b.createdAt === "number"
-            ? b.createdAt
-            : b.createdAt instanceof Date
-              ? b.createdAt.getTime()
-              : Date.now()
-        return dateB - dateA
-      })
+        const priceA = a.tiers.length > 0 ? Number(a.tiers[0].price) : 0;
+        const priceB = b.tiers.length > 0 ? Number(b.tiers[0].price) : 0;
+        return priceA - priceB;
+      });
+    } else if (selectedSort === "price-high") {
+      filtered.sort((a, b) => {
+        const priceA = a.tiers.length > 0 ? Number(a.tiers[0].price) : 0;
+        const priceB = b.tiers.length > 0 ? Number(b.tiers[0].price) : 0;
+        return priceB - priceA;
+      });
+    } else if (selectedSort === "popular") {
+      filtered.sort((a, b) => Number(b.totalReviews) - Number(a.totalReviews));
+    } else if (selectedSort === "recent") {
+      filtered.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
     }
 
-    setFilteredServices(filtered)
+    setFilteredServices(filtered);
   }
 
-  // Apply filters when services change
-  useEffect(() => {
-    applyFilters()
-  }, [services])
-
+  function isImageArrayTuple(
+    attachments: [] | [Array<unknown>]
+  ): attachments is [Array<Image>] {
+    return (
+      attachments.length > 0 &&
+      Array.isArray(attachments[0]) &&
+      typeof attachments[0][0] === "object" &&
+      attachments[0][0] !== null &&
+      "imageUrl" in attachments[0][0]
+    );
+  }
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
@@ -145,11 +185,11 @@ export default function ServicesPage() {
                 )}
 
                 <div className="space-y-3">
-                  <label className="text-sm font-medium">Price Range (ETH)</label>
+                  <label className="text-sm font-medium">Price Range (ICP)</label>
                   <Slider value={priceRange} onValueChange={setPriceRange} max={500} step={10} />
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{priceRange[0].toFixed(0)} ETH</span>
-                    <span>{priceRange[1].toFixed(0)} ETH</span>
+                    <span>{priceRange[0].toFixed(0)} ICP</span>
+                    <span>{priceRange[1].toFixed(0)} ICP</span>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -182,7 +222,7 @@ export default function ServicesPage() {
                 </div>
               </div>
               <Button className="w-full" onClick={applyFilters}>
-                Apply Filters
+                Refresh Filters
               </Button>
             </div>
           </aside>
@@ -199,57 +239,70 @@ export default function ServicesPage() {
               <Button onClick={applyFilters}>Search</Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.length > 0 ? (
-                filteredServices.map((service) => (
-                  <Link to={`/services/${service.id}`} key={service.id}>
-                    <Card className="group relative overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
-                      <div className="aspect-video w-full overflow-hidden">
-                        <img
-                          src={service.attachments?.[0]?.imageUrl || "/placeholder.svg"}
-                          alt={service.title}
-                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                        />
-                      </div>
-                      <CardHeader className="p-6">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <CardTitle className="line-clamp-1">{service.title}</CardTitle>
-                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{service.description}</p>
-                          </div>
-                          <Badge variant="secondary">{service.category}</Badge>
+            {isLoading ? (
+              <div className="col-span-full text-center py-12 border border-dashed rounded-lg">
+                <h3 className="text-lg font-medium mb-2">Loading services...</h3>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredServices.length > 0 ? (
+                  filteredServices.map((service) => (
+                    
+                    <Link to={`/services/${service.id.toString()}`} key={service.id.toString()}>
+                      <Card className="group relative overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
+                        <div className="aspect-video w-full overflow-hidden">
+                          <img
+                            src={ isImageArrayTuple(service.attachments)
+                              ? service.attachments[0][0].imageUrl
+                              : "/placeholder.svg"}
+                            alt={service.title}
+                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          />
                         </div>
-                      </CardHeader>
-                      <CardContent className="p-6 pt-0">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1 text-yellow-500">
-                            <StarIcon className="h-4 w-4 fill-current" />
-                            <span className="text-sm font-medium">{service.averageRating || "New"}</span>
+                        <CardHeader className="p-6">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="line-clamp-1">{service.title}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{service.description}</p>
+                            </div>
+                            <Badge variant="secondary">{service.category}</Badge>
                           </div>
-                          <span className="text-sm text-muted-foreground">• {service.totalReviews} reviews</span>
-                        </div>
-                        {service.subcategory && (
-                          <div className="mt-2">
-                            <span className="text-xs text-muted-foreground">{service.subcategory}</span>
+                        </CardHeader>
+                        <CardContent className="p-6 pt-0">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 text-yellow-500">
+                              <StarIcon className="h-4 w-4 fill-current" />
+                              <span className="text-sm font-medium">
+                                {service.averageRating.length > 0 ? service.averageRating[0] : "New"}
+                              </span>
+                            </div>
+                            <span className="text-sm text-muted-foreground">• {Number(service.totalReviews)} reviews</span>
                           </div>
-                        )}
-                      </CardContent>
-                      <CardFooter className="p-6 pt-0 mt-auto flex justify-between items-center">
-                        <span className="text-lg font-bold">
-                          {formatPrice(service.startingPrice, service.currency)}
-                        </span>
-                        <Button>View Details</Button>
-                      </CardFooter>
-                    </Card>
-                  </Link>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12 border border-dashed rounded-lg">
-                  <h3 className="text-lg font-medium mb-2">No services found</h3>
-                  <p className="text-muted-foreground mb-4">Try adjusting your filters or search terms.</p>
-                </div>
-              )}
-            </div>
+                          {service.subcategory && (
+                            <div className="mt-2">
+                              <span className="text-xs text-muted-foreground">{service.subcategory}</span>
+                            </div>
+                          )}
+                        </CardContent>
+                        <CardFooter className="p-6 pt-0 mt-auto flex justify-between items-center">
+                          <span className="text-lg font-bold">
+                            {service.tiers.length > 0 
+                              ? formatPrice(Number(service.tiers[0].price), service.currency)
+                              : "N/A"}
+                          </span>
+                          <Button>View Details</Button>
+                        </CardFooter>
+                      </Card>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12 border border-dashed rounded-lg">
+                    <h3 className="text-lg font-medium mb-2">No services found</h3>
+                    <p className="text-muted-foreground mb-4">Try adjusting your filters or search terms.</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>

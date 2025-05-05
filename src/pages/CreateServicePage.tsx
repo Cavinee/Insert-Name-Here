@@ -88,7 +88,7 @@ export default function CreateServicePage() {
     // For price values that might be decimal
     if (value.includes('.')) {
       // Convert to integer by removing the decimal point (treat as atomic units)
-      // For example: 0.10 ETH → 10 (representing 10 finney or 0.1 ETH)
+      // For example: 0.10 ICP → 10 (representing 10 finney or 0.1 ICP)
       const parts = value.split('.');
       // Ensure we have 2 decimal places for consistency
       const decimalPart = (parts[1] || '').padEnd(2, '0').substring(0, 2);
@@ -168,7 +168,7 @@ export default function CreateServicePage() {
           description: descriptionTextarea.value,
           category: category,
           subcategory: "general", // Default subcategory
-          currency: "ETH", // Default currency
+          currency: "ICP", // Default currency
           status: "ACTIVE",
           tags: tags.length > 0 ? tags : [], // Use collected tags or empty array
           attachments: images.length > 0 ? [images.map(url => ({ imageUrl: url, imageTag: "service image" }))] : [],
@@ -177,7 +177,7 @@ export default function CreateServicePage() {
               id: "basic",
               name: "Basic",
               description: "Basic tier service",
-              // Convert price - handle as atomic units (e.g., 0.1 ETH = 100000000000000000 wei)
+              // Convert price - handle as atomic units (e.g., 0.1 ICP = 100000000000000000 wei)
               price: getBigInt(priceInput.value),
               deliveryDays: getBigInt(deliveryDays),
               revisions: getBigInt(revisions),
@@ -343,7 +343,7 @@ export default function CreateServicePage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price (ETH)</Label>
+                  <Label htmlFor="price">Price (ICP)</Label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -358,7 +358,7 @@ export default function CreateServicePage() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Enter price in ETH (e.g., 0.10 for 0.1 ETH). Decimals will be handled correctly.
+                    Enter price in ICP (e.g., 0.10 for 0.1 ICP). Decimals will be handled correctly.
                   </p>
                 </div>
 
