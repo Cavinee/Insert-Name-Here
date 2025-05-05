@@ -27,6 +27,9 @@ import {
 import { Upload, DollarSign, Plus, X } from 'lucide-react';
 import { Label } from '../components/ui/label';
 import { Service_backend } from '@/declarations/Service_backend';
+import { useAuth } from '@/utility/use-auth-client';
+import { principal } from '@ic-reactor/react/dist/utils';
+import { Principal } from '@dfinity/principal';
 
 export default function CreateServicePage() {
   const [images, setImages] = useState<string[]>([]);
@@ -34,6 +37,7 @@ export default function CreateServicePage() {
   const [newTag, setNewTag] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { principal } = useAuth();
 
   const handleAddImage = () => {
     // Simulate adding an image
@@ -73,6 +77,7 @@ export default function CreateServicePage() {
     const formData = new FormData(e.currentTarget);
 
     const serviceData: ServiceData = {
+      freelancerId: principal!,
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       category: formData.get('category') as string,
@@ -110,13 +115,13 @@ export default function CreateServicePage() {
   };
 
   type Image = {
-    imageTag: string;  // Or any other properties that describe an image
+    imageTag: string; // Or any other properties that describe an image
     imageUrl: string;
   };
-  
 
   // Interface that defines the data structure to be sent to the backend
   interface ServiceData {
+    freelancerId: Principal;
     title: string;
     description: string;
     category: string;

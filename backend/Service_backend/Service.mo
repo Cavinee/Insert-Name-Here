@@ -14,12 +14,12 @@ actor {
 
   var services = HashMap.HashMap<Principal, Types.Service>(10, Principal.equal, Principal.hash);
 
-  public shared func createService(serviceData : Types.UnregisteredServiceFormData) : async Result.Result<Types.Service, Text> {
+  public shared func createService(freelancerId : Text,serviceData : Types.UnregisteredServiceFormData) : async Result.Result<Types.Service, Text> {
     let now = Int.abs(Time.now()); // Convert Time to Nat
 
     let newService : Types.Service = {
       id = await Util.generatePrincipal();
-      freelancerId = await Util.generatePrincipal();
+      freelancerId = ;
       title = serviceData.title;
       description = serviceData.description;
       category = serviceData.category;

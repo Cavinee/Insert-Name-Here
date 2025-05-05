@@ -837,6 +837,7 @@ export const reviews = [
     rating: 5,
     comment: "Excellent work! The website exceeded my expectations and was delivered ahead of schedule.",
     createdAt: new Date("2023-05-16"),
+    freelancerResponse : "ok"
   },
   {
     id: "review-2",
@@ -847,6 +848,7 @@ export const reviews = [
     rating: 4,
     comment: "Great designs, very professional. Would have liked a bit more explanation of the design choices.",
     createdAt: new Date("2023-06-26"),
+    freelancerResponse : "ok"
   },
 ]
 
