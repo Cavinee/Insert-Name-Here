@@ -30,7 +30,8 @@ actor {
       ordersByClient.put(key, value);
     };
   };
-  public func createOrder(clientId : Principal, freelancerId : Principal, serviceId : Principal, packageId : Text, paymentStatus : Types.PaymentStatus, currency : Text, deliveryDeadline : Int) : async Result.Result<Types.Order, Text> {
+  
+  public func createOrder(clientId : Principal, freelancerId : Principal, serviceId : Principal, packageId : Text, paymentStatus : Text, currency : Text, deliveryDeadline : Int) : async Result.Result<Types.Order, Text> {
     let serviceResult = await Service.getServiceDetails(serviceId);
     switch (serviceResult) {
       case (#err(error)) {
@@ -51,8 +52,8 @@ actor {
               freelancerId = freelancerId;
               serviceId = serviceId; // Converting Text to Principal
               packageId = packageId;
-              orderStatus = #Undecided;
-              jobStatus = #InProgress; // Default status
+              orderStatus = "Undecided";
+              jobStatus = "In Progress"; // Default status
               createdAt = Time.now();
               updatedAt = Time.now();
               paymentStatus = paymentStatus;
@@ -90,7 +91,7 @@ actor {
     return null;
   };
 
-  public shared func getOrderStatus(orderId : Principal) : async ?Types.OrderStatus {
+  public shared func getOrderStatus(orderId : Principal) : async ?Text {
     let order = await getOrder(orderId);
     switch (order) {
       case (?o) {
@@ -102,7 +103,7 @@ actor {
     };
   };
 
-  public shared func getOrderJobStatus(orderId : Principal) : async ?Types.JobStatus {
+  public shared func getOrderJobStatus(orderId : Principal) : async ?Text {
     let order = await getOrder(orderId);
     switch (order) {
       case (?o) {
@@ -207,13 +208,13 @@ actor {
           };
           
           // Check if the order is already in progress
-          if (orderExists.orderStatus == #Accepted) {
+          if (orderExists.orderStatus == "Accepted") {
             return #err("Order already accepted!");
           };
           
           let updatedOrder : Types.Order = {
             orderExists with
-            orderStatus = #Accepted;
+            orderStatus = "Accepted";
             updatedAt = Time.now(); // Update the timestamp
           };
           
@@ -277,14 +278,14 @@ actor {
           };
           
           // Check if the order can be rejected
-          if (orderExists.orderStatus == #Accepted) {
+          if (orderExists.orderStatus == "Accepted") {
             return #err("Cannot reject an order that is already in progress or delivered!");
           };
           
           // Update the order status to rejected
           let updatedOrder : Types.Order = {
             orderExists with
-            orderStatus = #Rejected;
+            orderStatus = "Rejected";
             updatedAt = Time.now(); // Update the timestamp
           };
           
@@ -352,14 +353,14 @@ actor {
           };
           
           // Check if the order is in progress
-          if (orderExists.jobStatus != #InProgress) {
+          if (orderExists.jobStatus != "In Progress") {
             return #err("Only orders in progress can be delivered!");
           };
           
           // Update the order status to delivered
           let updatedOrder : Types.Order = {
             orderExists with
-            jobStatus = #Delivered;
+            jobStatus = "Delivered";
             updatedAt = Time.now(); // Update the timestamp
           };
           
@@ -400,14 +401,14 @@ actor {
           };
           
           // Check if the order is delivered and can be completed
-          if (orderExists.jobStatus != #Delivered) {
+          if (orderExists.jobStatus != "Delivered") {
             return #err("Only delivered orders can be completed!");
           };
           
           // Update the order status to completed
           let updatedOrder : Types.Order = {
             orderExists with
-            jobStatus = #Completed;
+            jobStatus = "Completed";
             updatedAt = Time.now(); // Update the timestamp
           };
           
@@ -452,13 +453,13 @@ actor {
           };
           
           // Check if order status allows revisions
-          if (orderExists.jobStatus == #Completed) {
+          if (orderExists.jobStatus == "Completed") {
             return #err("Order already completed, cannot process revision.");
-          } else if (orderExists.jobStatus == #InProgress) {
+          } else if (orderExists.jobStatus == "In Progress") {
             return #err("Order is in progress, cannot process revision.");
-          } else if (orderExists.jobStatus == #Cancelled) {
+          } else if (orderExists.jobStatus == "Cancelled") {
             return #err("Order is cancelled, cannot process revision.");
-          } else if (orderExists.jobStatus == #Disputed) {
+          } else if (orderExists.jobStatus == "Disputed") {
             return #err("Order is already undergoing revision.");
           };
           
@@ -481,7 +482,7 @@ actor {
           let updatedOrder : Types.Order = {
             orderExists with
             revisions = Array.append(orderExists.revisions, [revisionRequest]);
-            jobStatus = #Disputed; // Change status to disputed when revision is requested
+            jobStatus = "Disputed"; // Change status to disputed when revision is requested
             updatedAt = Time.now();
           };
           

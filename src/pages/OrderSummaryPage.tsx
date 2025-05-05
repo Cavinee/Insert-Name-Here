@@ -15,9 +15,11 @@ import { Badge } from "@/components/ui/badge"
 import { Wallet, Clock, CheckCircle, AlertCircle, Info } from "lucide-react"
 import { getServiceById, getFreelancerById } from "../lib/marketplace-data"
 import { useToast } from "@/components/ui/use-toast"
+import { Principal } from "@dfinity/principal"
 
 export default function OrderSummaryPage() {
   const { id } = useParams<{ id: string }>()
+  const serviceIdPrincipal = Principal.fromText(id || "")
   const location = useLocation()
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -26,7 +28,7 @@ export default function OrderSummaryPage() {
   const selectedPackage = location.state?.selectedPackage || "standard"
 
   // Find the service by ID
-  const service = id ? getServiceById(id) || null : null
+  const service = id ? getServiceDetails(serviceIdPrincipal) || null : null
   const freelancer = service ? getFreelancerById(service.freelancerId) : null
 
   const [paymentMethod, setPaymentMethod] = useState<string>("ethereum")

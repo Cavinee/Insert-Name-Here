@@ -221,11 +221,11 @@ module Types {
     freelancerId : Principal;
     serviceId : Principal;
     packageId : Text;
-    orderStatus : OrderStatus; // "Accepted", "Rejected", "Undecided"
-    jobStatus : JobStatus; // "InProgress", "Delivered", "Completed", "Cancelled", "Disputed"
+    orderStatus : Text; // "Accepted", "Rejected", "Undecided"
+    jobStatus : Text; // "InProgress", "Delivered", "Completed", "Cancelled", "Disputed"
     createdAt : Int;
     updatedAt : Int;
-    paymentStatus : PaymentStatus; // "Pending", "Paid", "Refunded", "Disputed"
+    paymentStatus : Text; // "Pending", "Paid", "Refunded", "Disputed"
     currency : Text; // btc,eth
     deliveryDeadline : Int; // Timestamp deadline
     cancellationReason : ?Text; // Optional if order is cancelled
