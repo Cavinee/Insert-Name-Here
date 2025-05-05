@@ -15,14 +15,7 @@
         "Content-Security-Policy": "script-src 'self' 'unsafe-inline'"
       }
     },
-    "Payment_backend":{
-      "type": "motoko",
-      "main": "backend/Payment/Payment.mo",
-      "declarations": {
-        "node_compatibility": true
-      },
-      "with_http_requests": true
-    },
+
     "icp_ledger_canister": {
       "type": "custom", 
       "wasm": "ic-icrc1-ledger.wasm",
@@ -69,11 +62,6 @@
       "type": "motoko",
       "dependencies": ["Freelancer_backend"],
       "main": "backend/Seeders/FreelancerSeeder.mo"
-    },
-    "Service_seeder": {
-      "type": "motoko",
-      "dependencies": ["Service_backend"],
-      "main": "backend/Seeders/ServiceSeeder.mo"
     }
 
   },

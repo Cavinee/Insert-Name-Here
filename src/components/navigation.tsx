@@ -62,7 +62,7 @@ export function Navigation() {
           <Link to="/services" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
             Services
           </Link>
-          <Link to="/sell" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
+          <Link to="/create" className="text-sm uppercase tracking-wide hover:text-primary transition-colors">
             Sell
           </Link>
           <ThemeToggle />

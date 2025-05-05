@@ -31,53 +31,56 @@ actor {
     };
   };
   
-  public func createOrder(clientId : Principal, freelancerId : Principal, serviceId : Principal, packageId : Text, paymentStatus : Text, currency : Text, deliveryDeadline : Int) : async Result.Result<Types.Order, Text> {
+  public func createOrder(
+    clientId : Principal,
+    freelancerId : Principal,
+    serviceId : Principal,
+    packageId : Text,
+    paymentStatus : Text,
+    currency : Text,
+    deliveryDeadline : Int
+  ) : async ?Types.Order {
+    
     let serviceResult = await Service.getServiceDetails(serviceId);
-    switch (serviceResult) {
-      case (#err(error)) {
-        return #err("Failed to get service: " # error);
-      };
-      case (#ok(_serviceDetails)) {
-        // Get package details
-        let packageResult = await Service.getPackage(serviceId, packageId);
+    let packageChosen = await Service.getPackage(serviceId, packageId);
 
-        switch (packageResult) {
-          case (#err(error)) {
-            return #err("Failed to get package: " # error);
-          };
-          case (#ok(packageDetails)) {
-            let newOrder : Types.Order = {
-              id = await Util.generatePrincipal();
-              clientId = clientId;
-              freelancerId = freelancerId;
-              serviceId = serviceId; // Converting Text to Principal
-              packageId = packageId;
-              orderStatus = "Undecided";
-              jobStatus = "In Progress"; // Default status
-              createdAt = Time.now();
-              updatedAt = Time.now();
-              paymentStatus = paymentStatus;
-              currency = currency;
-              deliveryDeadline = deliveryDeadline;
-              cancellationReason = null;
-              revisions = [];
-              revisionMaxLimit = packageDetails.revisions;
-            };
-
-            // Update the hashmap with the new order
-            let existingOrders = switch (ordersByClient.get(clientId)) {
-              case (?orders) { orders };
-              case (null) { [] };
-            };
-            let updatedOrders = Array.append(existingOrders, [newOrder]);
-            ordersByClient.put(clientId, updatedOrders);
-
-            return #ok(newOrder);
-          };
+    switch (packageChosen) {
+      case (?packageExists) {
+        let newOrder : Types.Order = {
+          id = await Util.generatePrincipal();
+          clientId = clientId;
+          freelancerId = freelancerId;
+          serviceId = serviceId;
+          packageId = packageId;
+          orderStatus = "Undecided";
+          jobStatus = "In Progress";
+          createdAt = Time.now();
+          updatedAt = Time.now();
+          paymentStatus = paymentStatus;
+          currency = currency;
+          deliveryDeadline = deliveryDeadline;
+          cancellationReason = null;
+          revisions = [];
+          revisionMaxLimit = packageExists.revisions;
         };
+
+        let existingOrders = switch (ordersByClient.get(clientId)) {
+          case (?orders) { orders };
+          case (null) { [] };
+        };
+
+        let updatedOrders = Array.append(existingOrders, [newOrder]);
+        ordersByClient.put(clientId, updatedOrders);
+
+        return ?newOrder;
+      };
+      case (null) {
+        return null;
       };
     };
   };
+
+  
 
   public func getOrder(orderId : Principal) : async ?Types.Order {
     // We need to search through all clients' orders to find the one with the matching ID

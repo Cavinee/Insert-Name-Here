@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Navigation } from "../components/navigation"
 import { Footer } from "../components/footer"
@@ -16,44 +16,57 @@ import { Wallet, Clock, CheckCircle, AlertCircle, Info } from "lucide-react"
 import { getServiceById, getFreelancerById } from "../lib/marketplace-data"
 import { useToast } from "@/components/ui/use-toast"
 import { Principal } from "@dfinity/principal"
+import { Service_backend } from "@/declarations/Service_backend"
+import { Freelancer_backend } from "@/declarations/Freelancer_backend"
+import { Order_backend } from "@/declarations/Order_backend"
+import { ServiceTier } from "@/declarations/Service_backend/Service_backend.did"
 
-export default function OrderSummaryPage() {
-  const { id } = useParams<{ id: string }>()
-  const serviceIdPrincipal = Principal.fromText(id || "")
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { toast } = useToast()
+export function OrderSummaryPage() {
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Get the selected package from location state or default to "standard"
-  const selectedPackage = location.state?.selectedPackage || "standard"
-
-  // Find the service by ID
-  const service = id ? getServiceDetails(serviceIdPrincipal) || null : null
-  const freelancer = service ? getFreelancerById(service.freelancerId) : null
-
+  const [service, setService] = useState<any | null>(null);
+  const [freelancer, setFreelancer] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<string>("ethereum")
   const [isConnectingWallet, setIsConnectingWallet] = useState<boolean>(false)
   const [isWalletConnected, setIsWalletConnected] = useState<boolean>(false)
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false)
+  const selectedPackage = location.state?.selectedPackage || "standard";
 
-  if (!service || !freelancer) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navigation />
-        <main className="flex-1 container py-12">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>Service not found. Please try again or contact support.</AlertDescription>
-          </Alert>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!id) return;
+        const serviceIdPrincipal = Principal.fromText(id);
+        const result = await Service_backend.getServiceDetails(serviceIdPrincipal);
+        if (result.length === 0) {
+          console.error("No service found for this ID.");
+          toast({ title: "Error", description: "Service not found." });
+          return;
+        }
+        const service = result[0]; 
+        const fetchedFreelancer = await Freelancer_backend.getFreelancerProfile(service.freelancerId);
+        setService(service);
+        setFreelancer(fetchedFreelancer);
+      } catch (err) {
+        console.error("Failed to load service or freelancer", err);
+        toast({ title: "Error", description: "Failed to load service data" });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  // You can return loading screen until data is ready
+  if (loading || !service || !freelancer) return <div>Loading...</div>;
 
   // Get the selected package details
-  const packageTier = service.tiers?.find((tier) => tier.id === selectedPackage) ||
+  const packageTier: ServiceTier = service.tiers?.find((tier: ServiceTier) => tier.id === selectedPackage) ||
     service.tiers?.[1] || {
       id: "standard",
       name: "Standard",
@@ -130,7 +143,7 @@ export default function OrderSummaryPage() {
                         <Badge>{service.category}</Badge>
                         <span className="text-sm text-muted-foreground">
                           <Clock className="inline-block h-3 w-3 mr-1" />
-                          {packageTier.deliveryDays} day delivery
+                          {packageTier.deliveryDays.toLocaleString()} day delivery
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-3">
@@ -154,11 +167,11 @@ export default function OrderSummaryPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Delivery Time</span>
-                      <span>{packageTier.deliveryDays} days</span>
+                      <span>{packageTier.deliveryDays.toLocaleString()} days</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Revisions</span>
-                      <span>{packageTier.revisions}</span>
+                      <span>{packageTier.revisions.toLocaleString()}</span>
                     </div>
                     <Separator className="my-2" />
                     <div>
@@ -243,16 +256,16 @@ export default function OrderSummaryPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span>{packageTier.price} ETH</span>
+                      <span>{packageTier.price.toLocaleString()} ETH</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Service Fee</span>
-                      <span>{(packageTier.price * 0.05).toFixed(3)} ETH</span>
+                      <span>{(Number(packageTier.price) * 0.05).toFixed(3)} ETH</span>
                     </div>
                     <Separator className="my-2" />
                     <div className="flex justify-between font-bold">
                       <span>Total</span>
-                      <span>{(packageTier.price * 1.05).toFixed(3)} ETH</span>
+                      <span>{(Number(packageTier.price) * 1.05).toFixed(3)} ETH</span>
                     </div>
                   </div>
 

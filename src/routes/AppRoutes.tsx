@@ -7,7 +7,6 @@ import ServicesPage from "../pages/ServicesPage"
 import ServiceDetailPage from "../pages/ServiceDetailPage"
 import OrdersPage from "../pages/OrdersPage"
 import ProfilePage from "../pages/ProfilePage"
-import ValidatePage from "../pages/ValidatePage"
 import LoginPage from "../pages/LoginPage"
 import RegisterPage from "../pages/RegisterPage"
 
@@ -23,7 +22,6 @@ export function AppRoutes() {
       <Route path="/orders" element={<OrdersPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/profile/:id" element={<ProfilePage />} />
-      <Route path="/validate" element={<ValidatePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
     </Routes>

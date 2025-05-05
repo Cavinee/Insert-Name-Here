@@ -42,13 +42,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       if(principal) {
         const response = await Client_backend.getRole(principal)
         console.log('role: ', response)
-        if ('Client' in response) {
-          setRole('Client');
-        } else if ('Freelancer' in response) {
-          setRole('Freelancer');
-        } else {
-          setRole(null);
-        }
+      
         
       }
     } catch (error) {
