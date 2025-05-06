@@ -34,7 +34,7 @@ actor {
       dateOfBirth: Text,
       balance: Float,
       profilePictureUrl: Text,
-      orderedServicesId: [Principal],
+      orderedServicesId: [Text],
       skills: [Text],
       portfolioIds: ?[Text]
   ) : async Bool {

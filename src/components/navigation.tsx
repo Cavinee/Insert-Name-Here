@@ -8,17 +8,35 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { useEffect, useState } from "react"
+import { backend } from "@/utility/backend"
+import { Principal } from "@dfinity/principal"
 
 export function Navigation() {
   // Use location to determine if we're on the home page
   const location = useLocation()
   const isHomePage = location.pathname === "/"
-
   // Show login/register buttons only on home page, otherwise assume logged in
   const isLoggedIn = !isHomePage
+  
+  // State for user ID
+  const [userId, setUserId] = useState<Principal | null>(null)
 
   // Track scroll position to change navbar appearance
   const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    // Fetch user ID when component mounts
+    const fetchUserId = async () => {
+      try {
+        const id = await backend.whoami();
+        setUserId(id);
+      } catch (error) {
+        console.error("Failed to fetch user ID:", error);
+      }
+    };
+    
+    fetchUserId();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,10 +95,10 @@ export function Navigation() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="backdrop-blur-md bg-background/90">
                 <DropdownMenuItem asChild>
-                  <Link to="/profile">Profile</Link>
+                  <Link to={`/profile/${userId}`}>Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/orders">Orders</Link>
+                  <Link to={`/orders/${userId}`}>Orders</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/settings">Settings</Link>
@@ -140,10 +158,10 @@ export function Navigation() {
                 </Link>
                 {isLoggedIn ? (
                   <>
-                    <Link to="/profile" className="text-lg hover:text-primary transition-colors w-fit">
+                    <Link to={`/profile/${userId}`} className="text-lg hover:text-primary transition-colors w-fit">
                       Profile
                     </Link>
-                    <Link to="/orders" className="text-lg hover:text-primary transition-colors w-fit">
+                    <Link to={`/orders/${userId}`} className="text-lg hover:text-primary transition-colors w-fit">
                       Orders
                     </Link>
                     <Link to="/settings" className="text-lg hover:text-primary transition-colors w-fit">

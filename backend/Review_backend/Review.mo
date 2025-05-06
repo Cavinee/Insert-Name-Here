@@ -19,11 +19,11 @@ actor Reviews {
   type AddReviewParams = Types.AddReviewParams;
 
   // Storage
-  private let reviews = TrieMap.TrieMap<Principal, Review>(Principal.equal, Principal.hash);
-  private let orderToReview = TrieMap.TrieMap<Principal, Principal>(Principal.equal, Principal.hash);
+  private let reviews = TrieMap.TrieMap<Text, Review>(Text.equal, Text.hash);
+  private let orderToReview = TrieMap.TrieMap<Text, Text>(Text.equal, Text.hash);
 
   // Add review with auto-generated metadata
-  public shared ({ caller }) func addReview(params : AddReviewParams) : async Principal {
+  public shared ({ caller }) func addReview(params : AddReviewParams) : async Text {
     // Validationa
     if (orderToReview.get(params.orderId) != null) {
       throw Error.reject("This order already has a review");
@@ -42,10 +42,10 @@ actor Reviews {
     };
 
     // Generate review data
-    let reviewId = Principal.fromActor(Reviews);
+    let id = await Util.generateUUID();
     let newReview : Review = {
-      id = reviewId;
-      orderId = await Util.generatePrincipal();
+      id;
+      orderId = params.orderId;
       serviceId = params.serviceId;
       reviewerId = caller; // Use actual caller
       recipientId = params.recipientId;
@@ -57,9 +57,9 @@ actor Reviews {
     };
 
     // Save to storage
-    reviews.put(reviewId, newReview);
-    orderToReview.put(params.orderId, reviewId);
-    reviewId;
+    reviews.put(id, newReview);
+    orderToReview.put(params.orderId, id);
+    id;
   };
 
   // Get reviews with multiple filters
@@ -122,11 +122,11 @@ actor Reviews {
     let secondsPerDay = 86400;
     let daysSinceEpoch = t / secondsPerDay;
     // Simple date formatting (can be improved)
-    "Day " # Int.toText(daysSinceEpoch);
+    "Day ";
   };
 
   // Reply to review once
-  public shared ({ caller }) func respondToReview(reviewId : Principal, response : Text) : async () {
+  public shared ({ caller }) func respondToReview(reviewId : Text, response : Text) : async () {
     switch (reviews.get(reviewId)) {
       case (?review) {
         if (review.recipientId != caller) {

@@ -2,9 +2,9 @@ import Util "../Util";
 import Freelancer "canister:Freelancer_backend";
 import Principal "mo:base/Principal";
 import Blob "mo:base/Blob";
-import Nat "mo:base/Nat";
+// import Nat "mo:base/Nat";
 import Text "mo:base/Text";
-import Float "mo:base/Float";
+// import Float "mo:base/Float";
 import Array "mo:base/Array";
 import Types "../Types";
 actor {
@@ -30,7 +30,7 @@ actor {
         availabilityStatus = "Available";
       },
       {
-        id = Principal.fromBlob(Blob.fromArray([10]));
+        id = Principal.fromBlob(Blob.fromArray([9]));
         role = "freelancer";
         fullName = "Sophia Martinez";
         email = "sophiam@freelancehub.com";
@@ -47,7 +47,7 @@ actor {
         availabilityStatus = "Busy";
       },
       {
-        id = Principal.fromBlob(Blob.fromArray([11]));
+        id = Principal.fromBlob(Blob.fromArray([8]));
         role = "freelancer";
         fullName = "Marcus Williams";
         email = "marcusw@freelancehub.com";
@@ -64,7 +64,7 @@ actor {
         availabilityStatus = "Available";
       },
       {
-        id = Principal.fromBlob(Blob.fromArray([12]));
+        id = Principal.fromBlob(Blob.fromArray([7]));
         role = "freelancer";
         fullName = "Emma Chen";
         email = "emmac@freelancehub.com";
@@ -81,7 +81,7 @@ actor {
         availabilityStatus = "Available";
       },
       {
-        id = Principal.fromBlob(Blob.fromArray([13]));
+        id = Principal.fromBlob(Blob.fromArray([4]));
         role = "freelancer";
         fullName = "David Cooper";
         email = "davidc@freelancehub.com";
@@ -98,7 +98,7 @@ actor {
         availabilityStatus = "On Vacation";
       },
       {
-        id = Principal.fromBlob(Blob.fromArray([14]));
+        id = Principal.fromBlob(Blob.fromArray([6]));
         role = "freelancer";
         fullName = "Olivia Parker";
         email = "oliviap@freelancehub.com";
@@ -115,7 +115,7 @@ actor {
         availabilityStatus = "Available";
       },
       {
-        id = Principal.fromBlob(Blob.fromArray([15]));
+        id = Principal.fromBlob(Blob.fromArray([5]));
         role = "freelancer";
         fullName = "James Wilson";
         email = "jamesw@freelancehub.com";
@@ -131,61 +131,11 @@ actor {
         tokenRewards = 210.75;
         availabilityStatus = "Available";
       },
-      {
-        id = Principal.fromBlob(Blob.fromArray([16]));
-        role = "freelancer";
-        fullName = "Aisha Khan";
-        email = "aishak@freelancehub.com";
-        dateOfBirth = "1994-08-21";
-        balance = 19800.00;
-        password = "aisha123";
-        profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-        orderedServicesId = [];
-        skills = ["UI/UX Design", "Wireframing", "Figma", "Prototyping"];
-        portfolioIds = ?["ui1", "ui2", "ui3", "ui4"];
-        reputationScore = 4.8;
-        completedProjects = 45;
-        tokenRewards = 375.0;
-        availabilityStatus = "Busy";
-      },
-      {
-        id = Principal.fromBlob(Blob.fromArray([17]));
-        role = "freelancer";
-        fullName = "Lucas Hernandez";
-        email = "lucash@freelancehub.com";
-        dateOfBirth = "1989-06-30";
-        balance = 25600.50;
-        password = "lucas123";
-        profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-        orderedServicesId = [];
-        skills = ["3D Modeling", "Blender", "Cinema 4D", "Character Design"];
-        portfolioIds = ?["3d1", "3d2", "3d3"];
-        reputationScore = 4.9;
-        completedProjects = 67;
-        tokenRewards = 580.25;
-        availabilityStatus = "Available";
-      },
-      {
-        id = Principal.fromBlob(Blob.fromArray([18]));
-        role = "freelancer";
-        fullName = "Maya Patel";
-        email = "mayap@freelancehub.com";
-        dateOfBirth = "1996-04-12";
-        balance = 6300.75;
-        password = "maya123";
-        profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-        orderedServicesId = [];
-        skills = ["Translation", "Localization", "Proofreading", "Hindi", "English"];
-        portfolioIds = null; // New freelancer without portfolio yet
-        reputationScore = 4.2;
-        completedProjects = 8;
-        tokenRewards = 65.0;
-        availabilityStatus = "Available";
-      }
+
     ];
 
     for (freelancer in freelancers.vals()) {
-      let freelancerId = await Freelancer.registerFreelancerFromSignup(freelancer);
+      let _ = await Freelancer.registerFreelancerFromSignup(freelancer);
     };
   };
 
@@ -197,7 +147,7 @@ actor {
       };
       case (?fr) {
         if (Util.availabilityStatusVal(status)) {
-          let updatedStatus = await Freelancer.updateFreelancerProfile({
+          let _ = await Freelancer.updateFreelancerProfile({
             fr with
             availabilityStatus = status
           });
@@ -225,7 +175,7 @@ actor {
         
         // Add the new skill
         let updatedSkills = Array.append<Text>(fr.skills, [skill]);
-        let updatedStatus = await Freelancer.updateFreelancerProfile({
+        let _ = await Freelancer.updateFreelancerProfile({
           fr with
           skills = updatedSkills
         });
@@ -255,7 +205,7 @@ actor {
         };
         
         let updatedPortfolioIds = Array.append<Text>(currentPortfolioIds, [portfolioId]);
-        let updatedStatus = await Freelancer.updateFreelancerProfile({
+        let _ = await Freelancer.updateFreelancerProfile({
           fr with
           portfolioIds = ?updatedPortfolioIds
         });

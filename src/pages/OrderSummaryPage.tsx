@@ -20,6 +20,7 @@ import { Service_backend } from "@/declarations/Service_backend"
 import { Freelancer_backend } from "@/declarations/Freelancer_backend"
 import { Order_backend } from "@/declarations/Order_backend"
 import { ServiceTier } from "@/declarations/Service_backend/Service_backend.did"
+import { backend } from "@/utility/backend"
 
 export function OrderSummaryPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,7 @@ export function OrderSummaryPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const [userId, setUserId] = useState<Principal | null>(null);
   const [service, setService] = useState<any | null>(null);
   const [freelancer, setFreelancer] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,37 +38,59 @@ export function OrderSummaryPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false)
   const selectedPackage = location.state?.selectedPackage || "standard";
 
+  // Check user authentication and fetch data
   useEffect(() => {
-    const fetchData = async () => {
+    const initialize = async () => {
       try {
-        if (!id) return;
-        const serviceIdPrincipal = Principal.fromText(id);
-        const result = await Service_backend.getServiceDetails(serviceIdPrincipal);
-        if (result.length === 0) {
-          console.error("No service found for this ID.");
-          toast({ title: "Error", description: "Service not found." });
+        // Get current user ID
+        const currentUserId = await backend.whoami();
+        setUserId(currentUserId);
+        
+        // Check if user has a profile
+        const hasProfile = await backend.hasProfile(currentUserId);
+        if (!hasProfile) {
+          navigate("/register", { replace: true });
           return;
         }
-        const service = result[0]; 
-        //const fetchedFreelancer = await Freelancer_backend.getFreelancerProfile(service.freelancerId);
-        setService(service);
-        //setFreelancer(fetchedFreelancer);
+
+        // Fetch service data
+        if (!id) {
+          setLoading(false);
+          return;
+        }
+        
+        const serviceResult = await Service_backend.getServiceDetails(id);
+        if (!serviceResult || serviceResult.length === 0) {
+          console.error("No service found for this ID.");
+          toast({ title: "Error", description: "Service not found." });
+          setLoading(false);
+          return;
+        }
+        
+        const serviceData = serviceResult[0];
+        setService(serviceData);
+        
+        // Fetch freelancer data
+        if (serviceData.freelancerId) {
+          try {
+            const freelancerData = await Freelancer_backend.getFreelancerProfile(serviceData.freelancerId);
+            setFreelancer(freelancerData);
+          } catch (err) {
+            console.error("Failed to load freelancer data", err);
+            toast({ title: "Warning", description: "Could not load freelancer information" });
+          }
+        }
       } catch (err) {
-        console.error("Failed to load service or freelancer", err);
-        toast({ title: "Error", description: "Failed to load service data" });
+        console.error("Failed to initialize", err);
+        toast({ title: "Error", description: "Failed to load required data" });
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [id]);
+    initialize();
+  }, [id, navigate, toast]);
 
-  // You can return loading screen until data is ready
-  if (loading || !service || !freelancer) return <div>Loading...</div>;
-
-  // Get the selected package details
-  const packageTier: ServiceTier = service.tiers?.find((tier: ServiceTier) => tier.id === selectedPackage) || service.tiers[0];
   const handleConnectWallet = () => {
     setIsConnectingWallet(true)
 
@@ -81,28 +105,78 @@ export function OrderSummaryPage() {
     }, 1500)
   }
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!isWalletConnected) {
       toast({
         variant: "destructive",
         title: "Wallet not connected",
         description: "Please connect your wallet before placing an order.",
       })
-      return
+      return;
     }
 
-    setIsProcessingPayment(true)
-
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessingPayment(false)
+    if (!userId || !service) {
       toast({
-        title: "Order placed successfully!",
-        description: "Your order has been placed and payment processed.",
+        variant: "destructive",
+        title: "Missing information",
+        description: "Cannot place order with missing user or service information.",
       })
-      navigate("/orders")
-    }, 2000)
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    
+    try {
+      // Get the selected package details
+      const packageTier = service.tiers?.find((tier: ServiceTier) => tier.id === selectedPackage) || service.tiers[0];
+      
+      // Create order in backend
+      await Order_backend.createOrder(
+        userId, 
+        service.freelancerId, 
+        service.id, 
+        selectedPackage, 
+        "pending", 
+        paymentMethod.toUpperCase(), 
+        packageTier.deliveryDays
+      );
+
+      setTimeout(() => {
+        setIsProcessingPayment(false);
+        toast({
+          title: "Order placed successfully!",
+          description: "Your order has been placed and payment processed.",
+        });
+        navigate(`/orders-dashboard/${userId}`);
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      setIsProcessingPayment(false);
+      toast({
+        variant: "destructive",
+        title: "Order failed",
+        description: "There was an error creating your order. Please try again.",
+      });
+    }
   }
+
+  // You can return loading screen until data is ready
+  if (loading) return <div className="container py-12 text-center">Loading...</div>;
+  
+  // If service not found after loading
+  if (!service) return (
+    <div className="container py-12 text-center">
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>Service not found. Please check the URL and try again.</AlertDescription>
+      </Alert>
+      <Button className="mt-4" onClick={() => navigate("/")}>Return to Home</Button>
+    </div>
+  );
+
+  // Get the selected package details
+  const packageTier = service.tiers?.find((tier: ServiceTier) => tier.id === selectedPackage) || service.tiers[0];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -137,13 +211,15 @@ export function OrderSummaryPage() {
                           {packageTier.deliveryDays.toLocaleString()} day delivery
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 mt-3">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={freelancer.profilePictureUrl || "/placeholder.svg"} />
-                          <AvatarFallback>{freelancer.fullName.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{freelancer.fullName}</span>
-                      </div>
+                      {freelancer && (
+                        <div className="flex items-center gap-2 mt-3">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={freelancer.profilePictureUrl || "/placeholder.svg"} />
+                            <AvatarFallback>{freelancer?.fullName?.charAt(0) || "U"}</AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm">{freelancer.fullName || "Freelancer"}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -168,7 +244,7 @@ export function OrderSummaryPage() {
                     <div>
                       <h4 className="font-medium mb-2">What's included:</h4>
                       <ul className="space-y-1">
-                        {packageTier.features?.map((feature, index) => (
+                        {packageTier.features?.map((feature: string, index: string) => (
                           <li key={index} className="flex items-start gap-2">
                             <CheckCircle className="h-4 w-4 text-success mt-0.5" />
                             <span>{feature}</span>

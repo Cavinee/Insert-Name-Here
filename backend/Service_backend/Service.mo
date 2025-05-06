@@ -12,12 +12,29 @@ import Types "../Types";
 
 actor {
 
-  var services = HashMap.HashMap<Principal, Types.Service>(10, Principal.equal, Principal.hash);
+  var services = HashMap.HashMap<Text, Types.Service>(10, Text.equal, Text.hash);
 
-  public shared func createService(serviceData: Types.Service) : async Result.Result<Types.Service, Text> {
+  public shared func createService(serviceData: Types.UnregisteredService) : async Result.Result<Types.Service, Text> {
+    let id = await Util.generateUUID();
+  
+    var newService: Types.Service = {
+      id;
+      title = serviceData.title;
+      description = serviceData.description; 
+      category = serviceData.category;
+      subcategory = serviceData.subcategory;
+      currency = serviceData.currency;
+      status = serviceData.status;
+      tags = serviceData.tags;
+      attachments = serviceData.attachments;
+      tiers = serviceData.tiers;
+      totalReviews = 0;
+      averageRating = ?0.0;
+      freelancerId = serviceData.freelancerId;
 
-    services.put(serviceData.id, serviceData);
-    return #ok(serviceData);
+    };
+    services.put(id, newService);
+    return #ok(newService);
   };
 
   public shared func updateService(updatedServiceData : Types.Service) : async Result.Result<Types.Service, Text> {
@@ -31,7 +48,7 @@ actor {
     };
   };
 
-  public shared func addPackage(serviceId : Principal, packageData : Types.ServiceTier) : async Result.Result<Types.Service, Text> {
+  public shared func addPackage(serviceId : Text, packageData : Types.ServiceTier) : async Result.Result<Types.Service, Text> {
     let now = Int.abs(Time.now()); // Convert Time to Nat
     let service = services.get(serviceId);
     switch (service) {
@@ -62,7 +79,7 @@ actor {
     };
   };
 
-  public shared func updatePackage(serviceId : Principal, packageId : Text, updatedPackageData : Types.ServiceTierUpdateFormData) : async Result.Result<Types.Service, Text> {
+  public shared func updatePackage(serviceId : Text, packageId : Text, updatedPackageData : Types.ServiceTierUpdateFormData) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?existingService) {
@@ -109,7 +126,7 @@ actor {
     };
   };
 
-  public shared func removePackage(serviceId : Principal, packageId : Text) : async Result.Result<Types.Service, Text> {
+  public shared func removePackage(serviceId : Text, packageId : Text) : async Result.Result<Types.Service, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?existingService) {
@@ -142,7 +159,7 @@ actor {
     };
   };
 
-    public shared func getPackage(serviceId : Principal, packageId : Text) : async ?Types.ServiceTier {
+    public shared func getPackage(serviceId : Text, packageId : Text) : async ?Types.ServiceTier {
       let existingService = services.get(serviceId);
       switch (existingService) {
         case (?es) {
@@ -160,15 +177,15 @@ actor {
     };
 
 
-  public shared func deleteService(serviceId : Principal) : async Result.Result<Text, Text> {
+  public shared func deleteService(serviceId : Text) : async Result.Result<Text, Text> {
     let service = services.get(serviceId);
     switch (service) {
       case (?_serviceExists) {
         services := HashMap.mapFilter(
           services,
-          Principal.equal,
-          Principal.hash,
-          func(key : Principal, value : Types.Service) : ?Types.Service {
+          Text.equal,
+          Text.hash,
+          func(key : Text, value : Types.Service) : ?Types.Service {
             if (key == serviceId) {
               return null; // Remove the service
             } else {
@@ -184,7 +201,7 @@ actor {
     };
   };
 
-  public shared func getServiceDetails(serviceId : Principal) : async ?Types.Service {
+  public shared func getServiceDetails(serviceId : Text) : async ?Types.Service {
     let service = services.get(serviceId);
     return service;
   };
@@ -209,7 +226,7 @@ actor {
   //   );
   // };
 
-  public func searchServices(searchQuery : Text) : async [Types.Service] {
+  public shared func searchServices(searchQuery : Text) : async [Types.Service] {
     let allServices : [Types.Service] = await getAllServices();
     if (Text.size(searchQuery) == 0) {
       return allServices;
@@ -225,7 +242,7 @@ actor {
     );
   };
 
-  public func filterServicesByCategory(category : Text) : async [Types.Service] {
+  public shared func filterServicesByCategory(category : Text) : async [Types.Service] {
     let allServices : [Types.Service] = await getAllServices();
     if (Text.size(category) == 0 or category == "All") {
       return allServices;
@@ -236,6 +253,18 @@ actor {
         service.category == category;
       },
     );
+  };
+
+  public query func getServiceSoldById(freelancerId: Principal): async [Types.Service] {
+    var matchedServices: [Types.Service] = [];
+
+    for ((key, service) in services.entries()) {
+      if (service.freelancerId == freelancerId) {
+        matchedServices := Array.append(matchedServices, [service]);
+      };
+    };
+
+    return matchedServices;
   };
 
 };

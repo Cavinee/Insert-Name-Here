@@ -6,6 +6,8 @@ import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Error "mo:base/Error";
+import Text "mo:base/Text";
+import Bool "mo:base/Bool";
 import Util "../Util";
 import Types "../Types";
 import Service "canister:Service_backend";
@@ -13,10 +15,10 @@ import Freelancer "canister:Freelancer_backend";
 
 actor {
   // Stable storage
-  stable var ordersData : [(Principal, [Types.Order])] = [];
+  stable var ordersData : [(Text, [Types.Order])] = [];
 
   // Normal HashMap (NOT automatically stable)
-  var ordersByClient = HashMap.HashMap<Principal, [Types.Order]>(10, Principal.equal, Principal.hash);
+  var ordersByClient = HashMap.HashMap<Text, [Types.Order]>(10, Text.equal, Text.hash);
 
   // Preupgrade: save all entries to stable var
   system func preupgrade() {
@@ -25,7 +27,7 @@ actor {
 
   // Postupgrade: rebuild the HashMap
   system func postupgrade() {
-    ordersByClient := HashMap.HashMap<Principal, [Types.Order]>(10, Principal.equal, Principal.hash);
+    ordersByClient := HashMap.HashMap<Text, [Types.Order]>(10, Text.equal, Text.hash);
     for ((key, value) in ordersData.vals()) {
       ordersByClient.put(key, value);
     };
@@ -34,20 +36,19 @@ actor {
   public func createOrder(
     clientId : Principal,
     freelancerId : Principal,
-    serviceId : Principal,
+    serviceId : Text,
     packageId : Text,
     paymentStatus : Text,
     currency : Text,
     deliveryDeadline : Int
   ) : async ?Types.Order {
-    
-    let serviceResult = await Service.getServiceDetails(serviceId);
-    let packageChosen = await Service.getPackage(serviceId, packageId);
+     let packageChosen = await Service.getPackage(serviceId, packageId);
 
     switch (packageChosen) {
       case (?packageExists) {
+        let id = await Util.generateUUID();
         let newOrder : Types.Order = {
-          id = await Util.generatePrincipal();
+          id;
           clientId = clientId;
           freelancerId = freelancerId;
           serviceId = serviceId;
@@ -64,13 +65,13 @@ actor {
           revisionMaxLimit = packageExists.revisions;
         };
 
-        let existingOrders = switch (ordersByClient.get(clientId)) {
+        let existingOrders = switch (ordersByClient.get(id)) {
           case (?orders) { orders };
           case (null) { [] };
         };
 
         let updatedOrders = Array.append(existingOrders, [newOrder]);
-        ordersByClient.put(clientId, updatedOrders);
+        ordersByClient.put(id, updatedOrders);
 
         return ?newOrder;
       };
@@ -80,21 +81,46 @@ actor {
     };
   };
 
-  
+  public query func getOrdersForFreelancer(freelancerId : Principal) : async [Types.Order] {
+    var matchedOrders: [Types.Order] = [];
 
-  public func getOrder(orderId : Principal) : async ?Types.Order {
-    // We need to search through all clients' orders to find the one with the matching ID
-    for ((clientId, orders) in ordersByClient.entries()) {
-      for (order in orders.vals()) {
-        if (Principal.equal(order.id, orderId)) {
-          return ?order;
+    for ((_, clientOrders) in ordersByClient.entries()) {
+      for (order in clientOrders.vals()) {
+        if (Principal.equal(order.freelancerId, freelancerId)) {
+          matchedOrders := Array.append(matchedOrders, [order]);
         };
       };
+    };
+
+    return matchedOrders;
+  };
+
+  public query func getExistingClientOrders(clientId : Principal) : async [Types.Order] {
+    var matchedOrders: [Types.Order] = [];
+
+    for ((_, clientOrders) in ordersByClient.entries()) {
+      for (order in clientOrders.vals()) {
+        if (order.clientId == clientId) {
+          matchedOrders := Array.append(matchedOrders, [order]);
+        };
+      };
+    };
+
+    return matchedOrders;
+  };
+
+  public func getOrder(orderId : Text) : async ?Types.Order {
+    for ((id, order) in ordersByClient.entries()) {
+      
+        if (Text.equal(id, orderId)) {
+          return ?order[0];
+        };
+      
     };
     return null;
   };
 
-  public shared func getOrderStatus(orderId : Principal) : async ?Text {
+  public shared func getOrderStatus(orderId : Text) : async ?Text {
     let order = await getOrder(orderId);
     switch (order) {
       case (?o) {
@@ -106,7 +132,7 @@ actor {
     };
   };
 
-  public shared func getOrderJobStatus(orderId : Principal) : async ?Text {
+  public shared func getOrderJobStatus(orderId : Text) : async ?Text {
     let order = await getOrder(orderId);
     switch (order) {
       case (?o) {
@@ -118,89 +144,63 @@ actor {
     };
   };
 
-  public func updateOrder(orderId : Principal, updatedOrder : Types.Order) : async Result.Result<(), Text> {
-    // Find the client who owns this order
-    for ((clientId, orders) in ordersByClient.entries()) {
-      let orderIndex = Array.indexOf<Types.Order>(
-        {
-          id = orderId;
-          clientId = updatedOrder.clientId;
-          freelancerId = updatedOrder.freelancerId;
-          serviceId = updatedOrder.serviceId;
-          packageId = updatedOrder.packageId;
-          orderStatus = updatedOrder.orderStatus;
-          jobStatus = updatedOrder.jobStatus;
-          createdAt = updatedOrder.createdAt;
-          updatedAt = updatedOrder.updatedAt;
-          paymentStatus = updatedOrder.paymentStatus;
-          currency = updatedOrder.currency;
-          deliveryDeadline = updatedOrder.deliveryDeadline;
-          cancellationReason = updatedOrder.cancellationReason;
-          revisions = updatedOrder.revisions;
-          revisionMaxLimit = updatedOrder.revisionMaxLimit;
-        },
-        orders,
-        func(a, b) { Principal.equal(a.id, b.id) },
-      );
-
-      switch (orderIndex) {
-        case (?index) {
-          // Found the order, update it
-          let updatedOrders = Array.tabulate<Types.Order>(
-            orders.size(),
-            func(i) {
-              if (i == index) {
-                return {
-                  id = orderId; // Keep the original ID
-                  clientId = updatedOrder.clientId;
-                  freelancerId = updatedOrder.freelancerId;
-                  serviceId = updatedOrder.serviceId;
-                  packageId = updatedOrder.packageId;
-                  orderStatus = updatedOrder.orderStatus;
-                  jobStatus = updatedOrder.jobStatus;
-                  createdAt = orders[index].createdAt; // Keep original creation time
-                  updatedAt = Time.now(); // Update the updatedAt time
-                  paymentStatus = updatedOrder.paymentStatus;
-                  currency = updatedOrder.currency;
-                  deliveryDeadline = updatedOrder.deliveryDeadline;
-                  cancellationReason = updatedOrder.cancellationReason;
-                  revisions = updatedOrder.revisions;
-                  revisionMaxLimit = updatedOrder.revisionMaxLimit;
-                };
-              } else {
-                return orders[i];
-              };
-            },
-          );
-
-          ordersByClient.put(clientId, updatedOrders);
-          return #ok();
-        };
-        case (null) {
-          // Order not found in this client's orders, continue searching
+  public func updateOrder(orderId : Text, updatedOrder : Types.Order) : async Bool {
+    switch (ordersByClient.get(orderId)) {
+      case (?orders) {
+        if (orders.size() > 0) {
+          let existingOrder = orders[0];
+          let updatedOrderObject : Types.Order = {
+            id = existingOrder.id;
+            clientId = updatedOrder.clientId;
+            freelancerId = updatedOrder.freelancerId;
+            serviceId = updatedOrder.serviceId;
+            packageId = updatedOrder.packageId;
+            orderStatus = updatedOrder.orderStatus;
+            jobStatus = updatedOrder.jobStatus;
+            createdAt = existingOrder.createdAt;
+            updatedAt = Time.now();
+            paymentStatus = updatedOrder.paymentStatus;
+            currency = updatedOrder.currency;
+            deliveryDeadline = updatedOrder.deliveryDeadline;
+            cancellationReason = updatedOrder.cancellationReason;
+            revisions = updatedOrder.revisions;
+            revisionMaxLimit = updatedOrder.revisionMaxLimit;
+          };
+          
+          ordersByClient.put(orderId, [updatedOrderObject]);
+          return true;
         };
       };
+      case (null) {};
     };
+    
+    return false;
+  };
 
+  public shared func deleteOrder(orderId : Text) : async Result.Result<(), Text> {
+    for ((clientId, orders) in ordersByClient.entries()) {
+      var foundOrder = false;
+      let filteredOrders = Array.filter<Types.Order>(
+        orders,
+        func(order) {
+          if (Text.equal(order.id, orderId)) {
+            foundOrder := true;
+            return false; // Exclude this order
+          };
+          return true; // Keep all other orders
+        }
+      );
+      
+      if (foundOrder) {
+        ordersByClient.put(clientId, filteredOrders);
+        return #ok();
+      };
+    };
+    
     return #err("Order not found");
   };
 
-  public shared func deleteOrder(orderId : Principal) {
-    switch (await getOrder(orderId)) {
-      case (?_) {
-        // Remove the order from the hashmap
-        ordersByClient.delete(orderId);
-        // Remove the order from the stable storage
-
-      };
-      case (_) {
-        // Order not found, do nothing
-
-      };
-    };
-  };
-
-  public shared func acceptOrder(orderId : Principal, freelancerId : Principal) : async Result.Result<Text, Text> {
+  public shared func acceptOrder(orderId : Text, freelancerId : Principal) : async Result.Result<Text, Text> {
     try {
       let orderResult = await getOrder(orderId);
       switch (orderResult) {
@@ -224,36 +224,33 @@ actor {
           try {
             // Update the order in the database
             let updateResult = await updateOrder(orderId, updatedOrder);
-            switch (updateResult) {
-              case (#ok()) {
-                // Update the freelancer's profile to reflect the accepted order
-                let freelancerProfile = await Freelancer.getFreelancerProfile(freelancerId);
-                switch (freelancerProfile) {
-                  case (?profileExists) {
-                    let updatedFreelancerProfile : Types.FreelancerProfile = {
-                      profileExists with
-                      orderedServicesId = Array.append<Principal>(profileExists.orderedServicesId, [orderId]); // Add the orderId to the freelancer's profile
-                    };
-                    // Update the freelancer profile in the database
-          
-                    let profileUpdateSuccessful = await Freelancer.updateFreelancerProfile(
-                      updatedFreelancerProfile
-                      );
-                      
-                    if (profileUpdateSuccessful) {
-                      return #ok("Order accepted successfully!");
-                    } else {
-                      return #err("Failed to update freelancer profile!");
-                    };
+            if (updateResult) {
+              // Update the freelancer's profile to reflect the accepted order
+              let freelancerProfile = await Freelancer.getFreelancerProfile(freelancerId);
+              switch (freelancerProfile) {
+                case (?profileExists) {
+                  let updatedFreelancerProfile : Types.FreelancerProfile = {
+                    profileExists with
+                    orderedServicesId = Array.append<Text>(profileExists.orderedServicesId, [orderId]); // Add the orderId to the freelancer's profile
                   };
-                  case null {
-                    return #err("Freelancer profile not found!");
+                  // Update the freelancer profile in the database
+        
+                  let profileUpdateSuccessful = await Freelancer.updateFreelancerProfile(
+                    updatedFreelancerProfile
+                    );
+                    
+                  if (profileUpdateSuccessful) {
+                    return #ok("Order accepted successfully!");
+                  } else {
+                    return #err("Failed to update freelancer profile!");
                   };
                 };
+                case null {
+                  return #err("Freelancer profile not found!");
+                };
               };
-              case (#err(error)) {
-                return #err("Error updating order: " # error);
-              };
+            } else {
+              return #err("Error updating order");
             };
           } catch (e) {
             Debug.print("Error updating order: " # Error.message(e));
@@ -270,19 +267,20 @@ actor {
     };
   };
 
-  public shared func rejectOrder(orderId : Principal, freelancerId : Principal) : async Result.Result<Text, Text> {
+
+  public shared func rejectOrder(orderId : Text, freelancerId : Principal) : async Text {
     try {
       let orderResult = await getOrder(orderId);
       switch (orderResult) {
         case (?orderExists) {
           // Check if the order belongs to this freelancer
           if (not Principal.equal(orderExists.freelancerId, freelancerId)) {
-            return #err("This order is not assigned to you!");
+            return "This order is not assigned to you!";
           };
           
           // Check if the order can be rejected
           if (orderExists.orderStatus == "Accepted") {
-            return #err("Cannot reject an order that is already in progress or delivered!");
+            return "Cannot reject an order that is already in progress or delivered!";
           };
           
           // Update the order status to rejected
@@ -296,14 +294,14 @@ actor {
             // Update the order in the database
             let updateResult = await updateOrder(orderId, updatedOrder);
             switch (updateResult) {
-              case (#ok()) {
+              case (_) {
                 // Update the freelancer's profile
                 let freelancerProfile = await Freelancer.getFreelancerProfile(freelancerId);
                 switch (freelancerProfile) {
                   case (?profileExists) {
                     let updatedFreelancerProfile : Types.FreelancerProfile = {
                       profileExists with
-                      orderedServicesId = Array.filter<Principal>(
+                      orderedServicesId = Array.filter<Text>(
                         profileExists.orderedServicesId,
                         func(id) {
                             id != orderId // Remove the rejected orderId from the freelancer's profile
@@ -315,37 +313,36 @@ actor {
                       updatedFreelancerProfile
                       );
                     if (profileUpdateSuccessful) {
-                      return #ok("Order accepted successfully!");
+                      return"Order rejected successfully!";
                     } else {
-                      return #err("Failed to update freelancer profile!");
+                      return "Failed to update freelancer profile!";
                     };
-                    return #ok("Order rejected successfully!");
                   };
                   case null {
-                    return #err("Freelancer profile not found!");
+                    return "Freelancer profile not found!";
                   };
                 };
               };
-              case (#err(error)) {
-                return #err("Error updating order: " # error);
+              case (false) {
+                return "Error updating order: ";
               };
             };
           } catch (e) {
             Debug.print("Error updating order: " # Error.message(e));
-            return #err("Error updating order: " # Error.message(e));
+            return "Error updating order: " # Error.message(e);
           };
         };
         case null {
-          return #err("Order not found!");
+          return "Order not found!";
         };
       };
     } catch (e) {
       Debug.print("Error rejecting order: " # Error.message(e));
-      return #err("Error rejecting order: " # Error.message(e));
+      return "Error rejecting order: " # Error.message(e);
     };
   };
 
-  public shared func deliverOrder(orderId : Principal, freelancerId : Principal) : async Result.Result<Text, Text> {
+  public shared func deliverOrder(orderId : Text, freelancerId : Principal) : async Result.Result<Text, Text> {
     try {
       let orderResult = await getOrder(orderId);
       switch (orderResult) {
@@ -371,12 +368,10 @@ actor {
             // Update the order in the database
             let updateResult = await updateOrder(orderId, updatedOrder);
             switch (updateResult) {
-              case (#ok()) {
+              case (_) {
                 return #ok("Order delivered successfully!");
               };
-              case (#err(error)) {
-                return #err("Error updating order: " # error);
-              };
+              
             };
           } catch (e) {
             Debug.print("Error updating order: " # Error.message(e));
@@ -393,7 +388,7 @@ actor {
     };
   };
 
-  public shared func completeOrder(orderId : Principal, clientId : Principal) : async Result.Result<Text, Text> {
+  public shared func completeOrder(orderId : Text, clientId : Principal) : async Result.Result<Text, Text> {
     try {
       let orderResult = await getOrder(orderId);
       switch (orderResult) {
@@ -419,12 +414,10 @@ actor {
             // Update the order in the database
             let updateResult = await updateOrder(orderId, updatedOrder);
             switch (updateResult) {
-              case (#ok()) {
+              case (_) {
                 return #ok("Order completed successfully!");
               };
-              case (#err(error)) {
-                return #err("Error updating order: " # error);
-              };
+              
             };
           } catch (e) {
             Debug.print("Error updating order: " # Error.message(e));
@@ -443,7 +436,7 @@ actor {
 
   public func processRevision(
     userId : Principal,
-    orderId : Principal,
+    orderId : Text,
     description : Text,
   ) : async Result.Result<Text, Text> {
     try {
@@ -492,12 +485,10 @@ actor {
           // Update the order in the database
           let updateResult = await updateOrder(orderId, updatedOrder);
           switch (updateResult) {
-            case (#ok()) {
+            case (_) {
               return #ok(revisionId);
             };
-            case (#err(error)) {
-              return #err("Error updating order with revision: " # error);
-            };
+           
           };
         };
         case null {
@@ -509,4 +500,4 @@ actor {
       return #err("Error processing revision: " # Error.message(e));
     };
   };
-};
+}

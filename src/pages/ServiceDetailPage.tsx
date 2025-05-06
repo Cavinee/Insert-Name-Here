@@ -61,11 +61,9 @@ export default function ServicePage() {
       }
 
       try {
-        // Convert ID to Principal
-        const idPrincipal = Principal.fromText(id)
-        
+
         // Fetch service details
-        const serviceData = await Service_backend.getServiceDetails(idPrincipal)
+        const serviceData = await Service_backend.getServiceDetails(id)
         if (!serviceData) {
           throw new Error("Service not found")
         }

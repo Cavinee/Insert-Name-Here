@@ -14,7 +14,7 @@ module Types {
     dateOfBirth : Text;
     balance : Float;
     profilePictureUrl : Text;
-    orderedServicesId : [Principal];
+    orderedServicesId : [Text];
   };
 
   public type UnregisteredClientProfile = {
@@ -26,7 +26,7 @@ module Types {
     password : Text; // Optional: For login purposes
 
     profilePictureUrl : Text;
-    orderedServicesId : [Principal];
+    orderedServicesId : [Text];
   };
 
   // Freelancer-specific profile extension
@@ -39,7 +39,7 @@ module Types {
     balance : Float;
     password : Text; // Optional: For login purposes
     profilePictureUrl : Text;
-    orderedServicesId : [Principal];
+    orderedServicesId : [Text];
     skills : [Text];
     portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
     reputationScore : Float; // Based on reviews, orders, etc.
@@ -56,7 +56,7 @@ module Types {
     balance : Float;
     password : Text; // Optional: For login purposes
     profilePictureUrl : Text;
-    orderedServicesId : [Principal];
+    orderedServicesId : [Text];
     skills : [Text];
     portfolioIds : ?[Text]; // Optional: Not all freelancers have a portfolio yet
     reputationScore : Float; // Based on reviews, orders, etc.
@@ -65,10 +65,9 @@ module Types {
     availabilityStatus : Text; // "Available", "Busy", "On Vacation", etc.
   };
 
-  public type PortfolioId = Text;
   // Main Portfolio Item type
   public type PortfolioItem = {
-    id : PortfolioId;
+    id : Text;
     freelancerId : Principal;
     title : Text;
     description : Text;
@@ -108,8 +107,8 @@ module Types {
   };
 
   public type Transaction = {
-    id : Principal;
-    jobId : Principal;
+    id : Text;
+    serviceId : Text;
     senderId : Principal;
     receiverId : Principal;
     amount : Float;
@@ -123,7 +122,7 @@ module Types {
 
   public type Escrow = {
     id : Principal;
-    orderId : Principal; //might change to serviceId / orderId
+    orderId : Text; //might change to serviceId / orderId
     clientId : Principal;
     freelancerId : Principal;
     amount : Nat;
@@ -155,7 +154,7 @@ module Types {
   // CHAT SYSTEM START
 
   public type Chat = {
-    id : Principal;
+    id : Text;
     participants : [Principal];
     isChatbot : Bool;
     messages : ?[Message];
@@ -165,7 +164,7 @@ module Types {
   };
 
   public type Message = {
-    id : Principal;
+    id : Text;
     senderId : Principal;
     content : Text;
     time : Int;
@@ -216,10 +215,10 @@ module Types {
 
   // Order represents a transaction between client and freelancer
   public type Order = {
-    id : Principal;
+    id : Text;
     clientId : Principal;
     freelancerId : Principal;
-    serviceId : Principal;
+    serviceId : Text;
     packageId : Text;
     orderStatus : Text; // "Accepted", "Rejected", "Undecided"
     jobStatus : Text; // "InProgress", "Delivered", "Completed", "Cancelled", "Disputed"
@@ -232,7 +231,20 @@ module Types {
     revisions : [Revision];
     revisionMaxLimit : Nat;
   };
-
+  public type UnregisteredOrder = {
+    clientId : Principal;
+    freelancerId : Principal;
+    serviceId : Text;
+    packageId : Text;
+    orderStatus : Text; // "Accepted", "Rejected", "Undecided"
+    jobStatus : Text; // "InProgress", "Delivered", "Completed", "Cancelled", "Disputed"
+    paymentStatus : Text; // "Pending", "Paid", "Refunded", "Disputed"
+    currency : Text; // btc,eth
+    deliveryDeadline : Int; // Timestamp deadline
+    cancellationReason : ?Text; // Optional if order is cancelled
+    revisions : [Revision];
+    revisionMaxLimit : Nat;
+  };
   public type Image = {
     imageUrl : Text;
     imageTag : Text;
@@ -240,7 +252,7 @@ module Types {
 
   // Service (like a Fiverr gig)
   public type Service = {
-    id : Principal;
+    id : Text;
     title : Text;
     description : Text;
     category : Text;
@@ -248,8 +260,6 @@ module Types {
     currency : Text;
     status : Text;
     freelancerId : Principal;
-    createdAt : Nat;
-    updatedAt : Nat;
     tags : [Text];
     attachments : ?[Image]; // Optional portfolio or example files
     tiers : [ServiceTier]; // Multiple tiers (Basic, Standard, Premium)
@@ -257,7 +267,8 @@ module Types {
     totalReviews : Nat;
   };
 
-  public type UnregisteredServiceFormData = {
+  public type UnregisteredService = {
+    freelancerId : Principal;
     title : Text;
     description : Text;
     category : Text;
@@ -275,7 +286,7 @@ module Types {
     name : Text; // Basic, Standard, Premium
     description : Text;
     price : Nat; // In smallest unit (e.g., cents)
-    deliveryDays : Nat;
+    deliveryDays : Int;
     revisions : Nat;
     features : [Text];
   };
@@ -309,9 +320,9 @@ module Types {
   // CLIENT ACTIONS
   // Review type
   public type Review = {
-    id : Principal;
-    orderId : Principal;
-    serviceId : Principal;
+    id : Text;
+    orderId : Text;
+    serviceId : Text;
     reviewerId : Principal;
     recipientId : Principal;
     rating : Nat8; // 1 to 5 stars (validated)
@@ -328,8 +339,8 @@ module Types {
   };
 
   public type AddReviewParams = {
-    orderId : Principal;
-    serviceId : Principal;
+    orderId : Text;
+    serviceId : Text;
     recipientId : Principal;
     rating : Nat8;
     comment : Text;

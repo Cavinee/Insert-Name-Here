@@ -47,11 +47,6 @@
       "type": "motoko",
       "main": "backend/Freelancer_backend/Freelancer.mo"
     },
-    "Review_backend": {
-      "type": "motoko",
-      "main": "backend/Review_backend/Review.mo"
-     
-    },
 
     "Client_seeder": {
       "type": "motoko",
@@ -62,6 +57,16 @@
       "type": "motoko",
       "dependencies": ["Freelancer_backend"],
       "main": "backend/Seeders/FreelancerSeeder.mo"
+    },
+    "Order_seeder": {
+      "type": "motoko",
+      "dependencies": ["Order_backend"],
+      "main": "backend/Seeders/OrderSeeder.mo"
+    },
+    "Service_seeder": {
+      "type": "motoko",
+      "dependencies": ["Service_backend"],
+      "main": "backend/Seeders/ServiceSeeder.mo"
     }
 
   },

@@ -10,6 +10,8 @@ import ProfilePage from "../pages/ProfilePage"
 import LoginPage from "../pages/LoginPage"
 import RegisterPage from "../pages/RegisterPage"
 import { OrderSummaryPage } from "@/pages/OrderSummaryPage"
+// import ReviewPage from "../pages/ReviewPage"
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -19,12 +21,12 @@ export function AppRoutes() {
       <Route path="/governance" element={<GovernancePage />} />
       <Route path="/create" element={<CreateServicePage />} />
       <Route path="/services/:id" element={<ServiceDetailPage />} />
-      <Route path="/orders" element={<OrdersPage />} />
-      <Route path="/order-summary/:id" element={<OrderSummaryPage />} />
-      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/orders-dashboard/:id" element={<OrdersPage />} />
+      <Route path="/orders/:id" element={<OrderSummaryPage />} />
       <Route path="/profile/:id" element={<ProfilePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      {/* <Route path="/review/:id" element={<ReviewPage />} /> */}
     </Routes>
   )
 }

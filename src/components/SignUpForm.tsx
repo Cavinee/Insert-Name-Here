@@ -133,7 +133,7 @@ export function SignUpForm() {
         description: `Your ${data.accountType} account has been successfully created`,
       })
 
-      navigate("/")
+      navigate(`/profile/${principal}`)
 
     } 
     catch (error) {

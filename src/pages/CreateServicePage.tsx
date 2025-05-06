@@ -25,7 +25,7 @@ import { useAuth } from '@/utility/use-auth-client';
 import { Principal } from '@dfinity/principal';
 import { backend } from '@/utility/backend';
 import { Service } from '@/declarations/Service_backend/Service_backend.did';
-
+import { UnregisteredService } from '@/declarations/Service_backend/Service_backend.did';
 export default function CreateServicePage() {
   const [images, setImages] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
@@ -99,7 +99,13 @@ export default function CreateServicePage() {
     // For non-decimal values
     return BigInt(value);
   }
-
+  const getNat = (value: string): bigint => {
+    const num = BigInt(value);
+    if (num < 0n) {
+      throw new Error("Value must be a natural number (0 or greater)");
+    }
+    return num;
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError(null);
@@ -161,8 +167,7 @@ export default function CreateServicePage() {
       }
 
       if (principal != null && freelancerId != null) {
-        const serviceData: Service = {
-          id: principal,
+        const serviceData: UnregisteredService = {
           freelancerId,
           title: titleInput.value,
           description: descriptionTextarea.value,
@@ -178,16 +183,13 @@ export default function CreateServicePage() {
               name: "Basic",
               description: "Basic tier service",
               // Convert price - handle as atomic units (e.g., 0.1 ICP = 100000000000000000 wei)
-              price: getBigInt(priceInput.value),
-              deliveryDays: getBigInt(deliveryDays),
-              revisions: getBigInt(revisions),
+              price: getNat(priceInput.value),
+              deliveryDays: getNat(deliveryDays),
+              revisions: getNat(revisions),
               features: features,
             },
           ],
-          averageRating: [],
-          createdAt: BigInt(Date.now()),
-          totalReviews: BigInt(0),
-          updatedAt: BigInt(Date.now()),
+         
         };
 
         console.log("Submitting service data:", serviceData);

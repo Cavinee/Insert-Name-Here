@@ -3,7 +3,7 @@ import Types "../Types";
 import Client "canister:Client_backend";
 import Principal "mo:base/Principal";
 import Blob "mo:base/Blob";
-import Nat "mo:base/Nat";
+// import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Float "mo:base/Float";
 
@@ -67,54 +67,12 @@ actor {
         profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
         orderedServicesId = []; // Changed from propertiesId to orderedServicesId
       },
-      {
-        id = Principal.fromBlob(Blob.fromArray([5])); 
-        role = "renter";
-        fullName = "Sarah Johnson";
-        email = "sarahj@example.com";
-        password = "sarah123"; // Added password field
-        dateOfBirth = "1988-11-23";
-        balance = 7500000;
-        profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-        orderedServicesId = []; // Changed from propertiesId to orderedServicesId
-      },
-      {
-        id = Principal.fromBlob(Blob.fromArray([6])); 
-        role = "user";
-        fullName = "Michael Brown";
-        email = "mbrown@example.com";
-        password = "michael123"; // Added password field
-        dateOfBirth = "1995-07-30";
-        balance = 3200000;
-        profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-        orderedServicesId = []; // Changed from propertiesId to orderedServicesId
-      },
-      {
-        id = Principal.fromBlob(Blob.fromArray([7])); 
-        role = "renter";
-        fullName = "Emily Davis";
-        email = "edavis@example.com";
-        password = "emily123"; // Added password field
-        dateOfBirth = "1992-09-18";
-        balance = 6700000;
-        profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-        orderedServicesId = []; // Changed from propertiesId to orderedServicesId
-      },
-      {
-        id = Principal.fromBlob(Blob.fromArray([8])); 
-        role = "guest";
-        fullName = "David Wilson";
-        email = "dwilson@example.com";
-        password = "david123"; // Added password field
-        dateOfBirth = "1985-04-12";
-        balance = 2500000;
-        profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-        orderedServicesId = []; // Changed from propertiesId to orderedServicesId
-      }
+      
+
     ];
 
     for (user in users.vals()) {
-      let userId = await Client.registerUser(user);
+      let _ = await Client.registerUser(user);
     };
   };
 
@@ -126,7 +84,7 @@ actor {
           return "You are not registered";
         };
         case (?usr){
-          let updatedUserStatus = await Client.updateUser({
+          let _ = await Client.updateUser({
             usr with
             role = role
           });
@@ -146,7 +104,7 @@ actor {
         return "You are not registered";
       };
       case (?usr){
-        let updatedUserStatus = await Client.updateUser({
+        let _ = await Client.updateUser({
           usr with
           balance = usr.balance + amount
         });

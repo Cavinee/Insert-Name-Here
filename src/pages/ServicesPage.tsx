@@ -111,9 +111,7 @@ export default function ServicesPage() {
       });
     } else if (selectedSort === "popular") {
       filtered.sort((a, b) => Number(b.totalReviews) - Number(a.totalReviews));
-    } else if (selectedSort === "recent") {
-      filtered.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
-    }
+    } 
 
     setFilteredServices(filtered);
   }
