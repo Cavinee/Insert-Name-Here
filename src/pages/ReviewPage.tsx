@@ -1,4 +1,4 @@
-// "use client"
+"use client"
 
 // import { useState, useEffect } from "react"
 // import { useParams, useNavigate } from "react-router-dom"
@@ -54,87 +54,81 @@
 //   const [comment, setComment] = useState<string>("")
 //   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 //   const [error, setError] = useState<string | null>(null)
-//   const [order, setOrder] = useState<any>(null)
-//   const [service, setService] = useState<any>(null)
-//   const [freelancer, setFreelancer] = useState<any>(null)
-//   const [reviewer, setReviewer] = useState<any>(null)
 
+//   // Assume the current user is the first client for demo purposes
 //   const currentUserId = "client1"
 
+//   // Get order details
+//   const order = orderId ? Order_backend.getOrder(orderId) : null
+//   const service = order ? getServiceById(order.serviceId) : null
+//   const freelancer = order ? getFreelancerById(order.freelancerId) : null
+//   const reviewer = getClientById(currentUserId)
+
 //   useEffect(() => {
-//     if (!orderId) return
-
-//     const fetchData = async () => {
-//       const order = await getOrderById(orderId)
-//       const service = getServiceById(order.serviceId)
-//       const freelancer = getFreelancerById(order.freelancerId)
-//       const reviewer = getClientById(currentUserId)
-
-//       setOrder(order)
-//       setService(service)
-//       setFreelancer(freelancer)
-//       setReviewer(reviewer)
-
-//       if (order.clientId !== currentUserId) {
-//         setError("You can only review orders you've placed")
-//         return
-//       }
-
-//       if (order.jobStatus !== "Completed") {
-//         setError("You can only review completed orders")
-//         return
-//       }
-
-//       if (order.isReviewed) {
-//         setError("You have already reviewed this order")
-//         return
-//       }
+//     // Validate that this is a valid order that can be reviewed
+//     if (!order) {
+//       setError("Order not found")
+//       return
 //     }
 
-//     fetchData()
-//   }, [orderId])
+//     if (order.clientId !== currentUserId) {
+//       setError("You can only review orders you've placed")
+//       return
+//     }
 
-//   const handleSubmitReview = async () => {
+//     if (order.jobStatus !== "Completed") {
+//       setError("You can only review completed orders")
+//       return
+//     }
+
+//     // Check if already reviewed
+//     const alreadyReviewed = order.isReviewed
+//     if (alreadyReviewed) {
+//       setError("You have already reviewed this order")
+//       return
+//     }
+//   }, [order, currentUserId])
+
+//   const handleSubmitReview = () => {
 //     if (!order || !service || !freelancer || !reviewer) {
 //       setError("Missing required information")
 //       return
 //     }
 
-//     if (rating === 0) {
-//       toast({
-//         variant: "destructive",
-//         title: "Rating required",
-//         description: "Please provide a rating before submitting your review.",
-//       })
-//       return
+    if (rating === 0) {
+      toast({
+        variant: "destructive",
+        title: "Rating required",
+        description: "Please provide a rating before submitting your review.",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+//     // Create review object based on the interface
+//     const review = {
+//       id: `review-${Date.now()}`, // Generate a unique ID
+//       orderId: order.id,
+//       serviceId: service.id,
+//       reviewerId: reviewer.id,
+//       recipientId: freelancer.id,
+//       rating: rating,
+//       comment: comment,
+//       createdAt: Date.now(),
+//       freelancerResponse: null,
+//       reviewType: "service", // Assuming this is a service review
 //     }
 
-//     setIsSubmitting(true)
-
-//     try {
-//       const reviewParams = {
-//         orderId: order.id,
-//         serviceId: Principal.fromText(service.id),
-//         recipientId: Principal.fromText(freelancer.id),
-//         rating,
-//         comment,
-//         reviewType: "client-to-freelancer",
-//       }
-
-//       await Review_backend.addReview(reviewParams)
-
+//     // Simulate API call to submit review
+//     setTimeout(() => {
+//       setIsSubmitting(false)
 //       toast({
 //         title: "Review submitted",
 //         description: "Thank you for your feedback!",
 //       })
-
 //       navigate("/orders")
-//     } catch (err) {
-//       console.error("Failed to submit review:", err)
-//       setError("Failed to submit review.")
-//     } finally {
-//       setIsSubmitting(false)
-//     }
+//     }, 1500)
 //   }
 
 //   if (error) {
@@ -156,27 +150,27 @@
 //     )
 //   }
 
-//   if (!order || !service || !freelancer) {
-//     return (
-//       <div className="min-h-screen flex flex-col">
-//         <Navigation />
-//         <main className="flex-1 container py-12">
-//           <div className="flex justify-center items-center h-full">
-//             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-//           </div>
-//         </main>
-//         <Footer />
-//       </div>
-//     )
-//   }
+  if (!order || !service || !freelancer) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navigation />
+        <main className="flex-1 container py-12">
+          <div className="flex justify-center items-center h-full">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
-//   return (
-//     <div className="min-h-screen flex flex-col">
-//       <Navigation />
-//       <main className="flex-1 container py-12">
-//         <div className="max-w-2xl mx-auto">
-//           <h1 className="text-3xl font-bold mb-2">Leave a Review</h1>
-//           <p className="text-muted-foreground mb-8">Share your experience with this service</p>
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navigation />
+      <main className="flex-1 container py-12">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-3xl font-bold mb-2">Leave a Review</h1>
+          <p className="text-muted-foreground mb-8">Share your experience with this service</p>
 
 //           <Card>
 //             <CardHeader>
@@ -184,6 +178,7 @@
 //               <CardDescription>Service: {service.title}</CardDescription>
 //             </CardHeader>
 //             <CardContent className="space-y-6">
+//               {/* Service and Freelancer Info */}
 //               <div className="flex gap-4 items-start">
 //                 <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
 //                   <img
@@ -206,11 +201,15 @@
 //               </div>
 
 //               <div className="space-y-4">
+//                 {/* Rating */}
 //                 <div className="space-y-2">
 //                   <label className="text-sm font-medium">Rating</label>
-//                   <StarRating rating={rating} onRatingChange={setRating} size={32} interactive={true} />
+//                   <div>
+//                     <StarRating rating={rating} onRatingChange={setRating} size={32} interactive={true} />
+//                   </div>
 //                 </div>
 
+//                 {/* Comment */}
 //                 <div className="space-y-2">
 //                   <label htmlFor="comment" className="text-sm font-medium">
 //                     Your Review
@@ -223,6 +222,31 @@
 //                     rows={5}
 //                   />
 //                 </div>
+
+//                 {/* Hidden fields that would be handled by the backend */}
+//                 <div className="bg-muted/30 p-4 rounded-md">
+//                   <p className="text-xs text-muted-foreground mb-2">Review Information (automatically included)</p>
+//                   <div className="grid grid-cols-2 gap-2 text-xs">
+//                     <div>
+//                       <span className="font-medium">Order ID:</span> {order.id}
+//                     </div>
+//                     <div>
+//                       <span className="font-medium">Service ID:</span> {service.id}
+//                     </div>
+//                     <div>
+//                       <span className="font-medium">Reviewer ID:</span> {currentUserId}
+//                     </div>
+//                     <div>
+//                       <span className="font-medium">Recipient ID:</span> {freelancer.id}
+//                     </div>
+//                     <div>
+//                       <span className="font-medium">Review Type:</span> service
+//                     </div>
+//                     <div>
+//                       <span className="font-medium">Created At:</span> {new Date().toISOString()}
+//                     </div>
+//                   </div>
+//                 </div>
 //               </div>
 //             </CardContent>
 //             <CardFooter className="flex justify-between">
@@ -232,7 +256,7 @@
 //               <Button onClick={handleSubmitReview} disabled={isSubmitting}>
 //                 {isSubmitting ? (
 //                   <>
-//                     <span className="animate-spin mr-2">⏳</span>
+//                     <span className="animate-spin mr-2">���</span>
 //                     Submitting...
 //                   </>
 //                 ) : (
