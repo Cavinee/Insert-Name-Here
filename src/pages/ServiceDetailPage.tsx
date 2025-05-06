@@ -637,15 +637,15 @@ export default function ServicePage() {
         </main>
       </TooltipProvider>
       {/* {freelancer && service && (
-        // <ChatSidebar
-        //   freelancerId={freelancer.id}
-        //   freelancerName={freelancer.fullName || 'Freelancer'}
-        //   freelancerAvatar={freelancer.profilePictureUrl}
-        //   serviceId={service.id}
-        //   serviceName={service.title}
-        //   isOpen={isChatOpen}
-        //   onClose={() => setIsChatOpen(false)}
-        // />
+        <ChatSidebar
+          freelancerId={freelancer.id}
+          freelancerName={freelancer.fullName || 'Freelancer'}
+          freelancerAvatar={freelancer.profilePictureUrl}
+          serviceId={service.id}
+          serviceName={service.title}
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
       )} */}
 
       <Footer />

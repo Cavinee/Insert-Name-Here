@@ -161,12 +161,10 @@ export function Navigation() {
                     <Link to={`/profile/${userId}`} className="text-lg hover:text-primary transition-colors w-fit">
                       Profile
                     </Link>
-                    <Link to={`/orders/${userId}`} className="text-lg hover:text-primary transition-colors w-fit">
+                    <Link to={`/orders-dashboard/${userId}`} className="text-lg hover:text-primary transition-colors w-fit">
                       Orders
                     </Link>
-                    <Link to="/settings" className="text-lg hover:text-primary transition-colors w-fit">
-                      Settings
-                    </Link>
+                    
                     <Link to="/logout" className="text-lg hover:text-primary transition-colors w-fit">
                       Logout
                     </Link>

@@ -95,16 +95,16 @@
 //       return
 //     }
 
-    if (rating === 0) {
-      toast({
-        variant: "destructive",
-        title: "Rating required",
-        description: "Please provide a rating before submitting your review.",
-      })
-      return
-    }
+    // if (rating === 0) {
+    //   toast({
+    //     variant: "destructive",
+    //     title: "Rating required",
+    //     description: "Please provide a rating before submitting your review.",
+    //   })
+    //   return
+    // }
 
-    setIsSubmitting(true)
+    // setIsSubmitting(true)
 
 //     // Create review object based on the interface
 //     const review = {
@@ -150,27 +150,27 @@
 //     )
 //   }
 
-  if (!order || !service || !freelancer) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navigation />
-        <main className="flex-1 container py-12">
-          <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
+  // if (!order || !service || !freelancer) {
+  //   return (
+  //     <div className="min-h-screen flex flex-col">
+  //       <Navigation />
+  //       <main className="flex-1 container py-12">
+  //         <div className="flex justify-center items-center h-full">
+  //           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+  //         </div>
+  //       </main>
+  //       <Footer />
+  //     </div>
+  //   )
+  // }
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navigation />
-      <main className="flex-1 container py-12">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Leave a Review</h1>
-          <p className="text-muted-foreground mb-8">Share your experience with this service</p>
+  // return (
+  //   <div className="min-h-screen flex flex-col">
+  //     <Navigation />
+  //     <main className="flex-1 container py-12">
+  //       <div className="max-w-2xl mx-auto">
+  //         <h1 className="text-3xl font-bold mb-2">Leave a Review</h1>
+  //         <p className="text-muted-foreground mb-8">Share your experience with this service</p>
 
 //           <Card>
 //             <CardHeader>

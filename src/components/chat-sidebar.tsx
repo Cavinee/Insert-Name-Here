@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sparkles, Send, X, Maximize2, Minimize2 } from "lucide-react"
+import { Principal } from "@dfinity/principal"
 
 type Message = {
   id: string
